@@ -1,0 +1,15 @@
+# Both machines are Unix, so this is mostly belt-and-braces —
+# it guarantees LF endings if anything ever touches the repo
+# from a Windows machine or a web editor.
+* text=auto eol=lf
+
+# Never touch binary files.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.pdf  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary

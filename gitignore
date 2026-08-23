@@ -1,0 +1,27 @@
+# ── macOS ──────────────────────────────────────────────
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# ── Linux ──────────────────────────────────────────────
+*~
+.directory
+.Trash-*
+.nfs*
+
+# ── Editors ────────────────────────────────────────────
+.vscode/*
+!.vscode/settings.json
+.idea/
+*.swp
+
+# ── Junk ───────────────────────────────────────────────
+*.log
+node_modules/
+
+# ── Originals you don't want published ─────────────────
+# Keep full-res originals out of the repo; commit only
+# the web-sized versions in images/.
+images/_originals/
