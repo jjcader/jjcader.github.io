@@ -78,22 +78,48 @@ All design tokens live in the `:root` block at the top of the `<style>` element.
 | `--paper` | `#fffdfa` | Page background — warm white, not pure white |
 | `--paper-2` | `#f6f2ec` | Secondary surface: CV strip, hovers, placeholders |
 | `--ink` | `#1b1a18` | Body text |
-| `--ink-2` | `#5f5b55` | Secondary text |
-| `--ink-3` | `#918c85` | Metadata, labels, placeholder text |
-| `--rule` | `#e6e0d6` | Hairlines and borders |
-| `--accent` | `#10617d` | Deep water blue — links, active states, icons |
+| `--ink-2` | `#4c4842` | Secondary text |
+| `--ink-3` | `#736d65` | Metadata, labels, placeholder text |
+| `--rule` | `#e6e0d6` | Warm hairline — small interior borders (tags, chips, cards) |
+| `--rule-blue` | `mix(--accent 26%, --rule)` | Structural hairlines that belong to the blue system |
+| `--rule-grad` | gradient | The rail separator's exact recipe, horizontal — for section dividers |
+| `--accent` | `#10617d` | Deep water blue — links, active states, icons, metadata |
 | `--accent-2` | `#3a9fb8` | Shallow water — gradient partners, hover borders |
-| `--accent-warm` | `#c47a45` | Copper. Used **sparingly**: rocket flame, trajectory arc |
+| `--accent-warm` | `#c47a45` | Copper — heat, motion, and hover feedback |
 | `--accent-soft` | `#e7f0f4` | Tinted background for active/hover states |
+| `--warm-soft` | `#f7ece2` | Copper's equivalent of `--accent-soft` |
 
 The scheme is **warm neutrals with a cool accent**. An earlier version used
 cold blue-tinted greys for surfaces and read clinical; paper and rule tones were
 warmed toward sand while the accent stayed blue. Do not neutralise the warmth
 back out of `--paper` / `--paper-2` / `--rule`, and do not introduce a third
-accent hue — copper is already the second and it is on a tight leash.
+accent hue — copper is already the second.
 
 The blue is a water reference (Jędrzej swims and surfs) and doubles as a
 technical/blueprint tone. That double meaning is intentional.
+
+**Blue and copper have distinct jobs — keep them apart.** Blue is structure
+and state: rules, metadata, icons at rest, the active nav item, links.
+Copper is heat, motion and feedback: anything that appears, slides, lifts or
+turns over *because the reader did something*. The entry `+` toggle, the
+arrow that slides into a tile, the social pills on hover, the rocket on the
+back-to-top button, the bottom of the timeline hover bar. Applying this rule
+consistently is what stopped copper reading as "a random second colour" and
+started it reading as a system — so when adding a new interactive element,
+ask which of the two jobs it does rather than picking whichever looks nicer.
+This supersedes the earlier "copper on a tight leash, used sparingly"
+framing: the leash is now *semantic* rather than quantitative.
+
+**Structural rules are blue, not warm grey.** `--rule-grad` — a horizontal
+version of the progress rail's separator gradient, fading to transparent at
+both ends — is the divider between every top-level band: each `section::after`,
+the photo strip, the footer. `--rule-blue` is the flat blue-tinted hairline
+for everything structural but smaller: the header's bottom edge, the `#about`
+facts table, social pills, the CV strip, the back-to-top button. The point of
+sharing one recipe with the rail is that the rail stops reading as a blue
+thing bolted onto a grey page. **A section divider must be a pseudo-element,
+not a `border-top`** — a border can't fade out at its ends, and the fade is
+the whole recipe.
 
 ### Typography
 
@@ -107,6 +133,24 @@ technical/blueprint tone. That double meaning is intentional.
 The mono is not decoration. It is the vernacular of engineering documents —
 part numbers, revisions, spec sheets — and it is what makes the page read as
 belonging to this person rather than to a template. Keep metadata in mono.
+
+**Mono metadata is set at 500–600 weight, 11px and up, in `--accent` or
+`--ink-2` — never 400 weight at 10px in `--ink-3`.** That was the original
+setting throughout and it consistently read as faint to the point of
+disappearing. Small mono loses contrast twice over: it is small *and* it is
+letter-spaced, which thins the apparent stroke further. The fix that worked
+was three dials moved together — weight up (IBM Plex Mono now loads 600 for
+exactly this), size up by 1–1.5px, and colour moved off `--ink-3` — plus
+darkening the `--ink-2`/`--ink-3` tokens themselves. **If metadata still
+reads faint after a future change, raise weight and colour before size**;
+making it bigger alone starts to compete with the titles it sits beside.
+
+The two timelines' years (`.path-when`) get the strongest treatment on the
+page — 15px/600 in `--accent`, centred in their 170px column. They are the
+spine of those sections, they sit alone in a wide column, and short values
+("2025") looked like an accident when left-aligned in it. The centring is
+reverted to left in the ≤700px single-column stack, where there is no column
+for it to be centred in.
 
 ### Layout
 
@@ -185,6 +229,29 @@ An earlier version used filter chips over one flat list. It read as a shopping
 list: sixteen rows of identical weight with nothing for the eye to hold onto.
 Chunking into named groups with large serif headings fixed it. **Do not
 reintroduce a single flat list.**
+
+#### ⚠ Ongoing blue-hue experiment — the five cards are NOT meant to ship
+
+Each `.cat` card currently sets a different `--cat-hue`, as a deliberate,
+explicitly temporary side-by-side comparison ("experiment with different hues
+of blue and then have me pick the best one... make e.g. each section in
+'browse by area' a different colour"):
+
+| Card | Hue | Character |
+|---|---|---|
+| 01 Space | `#10617d` | deep water — the current `--accent`, i.e. the control |
+| 02 Robotics | `#0e7490` | cyan teal, brighter and more saturated |
+| 03 Making | `#0b6ca8` | azure, a truer blue with less green |
+| 04 Leadership | `#2a5d8f` | steel blue, softer and more navy |
+| 05 Hobbies | `#1a8a9d` | shallow teal, closest to `--accent-2` |
+
+Everything blue inside a card — icon, `::before` bar, "JUMP" line, hover
+border and shadow — reads from that one variable, so **collapsing the
+experiment is a one-line change**: delete the `.cat:nth-child(n)` block and
+set the winning value on `--accent` in `:root`. Until a winner is picked this
+is a page in an unfinished state, not a design decision; don't build anything
+new on top of the five-hue arrangement, and don't treat it as licence to give
+other components their own hues.
 
 ### Entries
 
@@ -343,20 +410,52 @@ time. `.rail ol`'s `gap` also went `38px→46px`, making the whole rail taller
 so there's more air between markers ("more separation between sections") —
 purely vertical, doesn't touch the horizontal clearance math above.
 
-**`.rail-body` carries an explicit `height:min(58vh,446px)`** — without it,
+**`.rail-body` carries an explicit `height:min(66vh,560px)`** — without it,
 the track's physical length was whatever `ol`'s content-plus-gaps happened to
-add up to, which meant compact mode's smaller `.rail-body`/`.rail ol` gaps
-(shrunk deliberately so planets can pull closer together as the viewport
-narrows) also made the *track itself* visibly shorter, not just the spacing
-between planets — the progress bar read as a different length in compact
-mode than in full mode. `align-items:stretch` on `.rail-body` then stretches
-both `ol` and `.rail-gauge` to fill that fixed height regardless of mode;
-`ol`'s own `gap` still sets a *minimum* spacing (so the narrowing behaviour
-described above is unaffected), and `justify-content:space-between` spends
-whatever height is left over beyond that minimum evenly between the planets.
-**If the rail ever needs to look taller or shorter, change this one height**
-— not the mode-specific gaps, which exist to control spacing, not overall
-length, and changing them now no longer changes the track's length at all.
+add up to, which meant compact mode's smaller gaps also made the *track*
+shorter, not just the spacing between planets. `align-items:stretch` stretches
+both `ol` and `.rail-gauge` to fill that height regardless of mode, and
+`justify-content:space-between` spreads the planets across it.
+**If the rail ever needs to look taller or shorter, change this one height** —
+not the gaps. The vertical gaps are now only a *floor*; space-between supplies
+the real spacing, so changing them no longer changes the track's length at all.
+
+⚠ **That height must be ≥ the `ol`'s natural content height, and getting this
+wrong breaks three things at once in a way that looks like three separate
+bugs.** It was first set to `min(58vh,446px)` while full mode's six planets
+plus their then-46px gaps needed 530px. The consequences, all from that one
+number:
+
+1. The `ol` overflowed its box downward, so **the planets stopped being
+   vertically centred** even though the rail around them still was.
+2. `.rail-gauge` stretches to the *box*, not to the overflowing content, so
+   **the track ended up shorter than the span of dots it measures**.
+3. The rocket's position is computed against dot positions and then clamped
+   to the track, so **it stopped ~60px short of Contact** and the fill maxed
+   out early.
+
+The defence is to keep the vertical `gap` values *small* — a floor, not the
+real spacing — so that even when the `vh` term shrinks the height on a short
+viewport, content still fits and space-between just distributes less. There
+is a Python snippet worth reusing here: model `H = min(0.66*vh, 560)`, each
+mode's per-item height and gap floor, then assert `content + 5*gap <= H` and
+that the gauge's `14px` inset margins still enclose the first and last dot
+centres, across a range of viewport heights.
+
+Compact mode deliberately gets the **same** height as full mode rather than a
+smaller one — "keep the rail alive longer as the screen narrows, shrink the
+page instead" applies to width only. Narrowing the window costs horizontal
+room (`.rail-body`'s gap is still a `clamp()` that pulls the planets in
+toward the rocket); it must never cost vertical room, because the vertical
+extent is what makes the gauge legible as a progress indicator.
+
+**`.rail-pct` is `position:absolute` (`bottom:100%`), not a block in flow.**
+`.rail` centres itself with `top:50%` + `translateY(-50%)`, which centres its
+whole box — so while the readout was in flow, the thing being centred was
+"readout + planets", and the planet column sat ~18px below true screen
+centre. Taking the readout out of flow makes `.rail`'s box exactly
+`.rail-body`, so what centres is what the reader actually looks at. It also
+means `.rail::before` (the separator, `top:50%`) centres on the planets too.
 
 Fill height and rocket `top` are **not** driven by raw page-scroll percentage —
 that was tried first and drifted out of sync with the dots, because sections
@@ -406,6 +505,16 @@ against a section's position must get both numbers from the same
 measurement API** — mixing `getBoundingClientRect()` with `offsetTop`/
 `offsetHeight` reintroduces exactly this class of rare, self-healing-until-
 it-isn't bug.
+
+**At the very bottom of the document, `idx`/`frac` are forced to the last
+section and `1`.** The reader anchor sits 45% down the viewport, so at max
+scroll it is still short of `#contact`'s own bottom edge by the footer's
+height plus the remaining 55% of the viewport — meaning `frac` never
+organically reached `1`, the end-of-track overshoot below never fired, and
+the fill stalled a few percent short while the readout beside it already
+said 100%. Any future "have we finished the page" check needs the same
+treatment: the anchor point is not the bottom of the viewport, so it never
+reaches the bottom of the last element on its own.
 
 The rocket also **deliberately overshoots past the track's ends** at the very
 top and bottom of the whole scrollable range (before `#about`, past
@@ -598,24 +707,40 @@ before hand-drawing another star shape.
 closed teardrop floating just below the body, which left a visible hole at the
 engine end — **if you redraw it, keep both endpoints on that edge.**
 
-The fins are **closed triangles**, not a single flare line and not an open
-fin-plus-step zigzag — both were tried and rejected. A single stroked line
-(`M9.6 17 7.4 20.5`) reads as a wire, not a fin. The original zigzag's second
-segment doubled back in toward the rocket's centreline right after flaring
-out, and that return stroke crossed straight through the flame's curve just
-below the body. The fix that works is a genuine closed triangle
-(`M9.6 17 7.1 20.4 9.6 15.3Z`) — attach corner on the body's bottom edge, out
-to a tip, then back up to a second attach point higher on the body, closed —
-with every vertex kept at or outside the body's own edge (`x<=9.6` for the
-left fin, `x>=14.4` for the right), so the diagonal return edge never enters
-the flame's leftward bulge (its curve only reaches about `x=9` on that side).
-**If a fin's shape changes again, check every vertex against the flame's
-bulge, not just the endpoints** — it's the diagonal *edge*, not just where it
-starts and ends, that can cut through the flame if a vertex drifts inward.
+The fins are **wide closed triangles whose root edge lies along the body's own
+outline**: `M8.4 14.4 9.6 17 7 20.8Z` and its mirror. The top vertex
+`(8.4,14.4)` is a point evaluated **on the body's left bezier at t=0.5**, the
+bottom vertex `(9.6,17)` is the body's bottom-left corner, and the tip sweeps
+down and outboard from there.
+
+This took three attempts, and the two failures are worth keeping because they
+are the two *different* ways this geometry can go wrong:
+
+1. **An open zigzag** (`M9.6 17 7.7 20.2l2.6-.9`) whose return leg came back
+   in to `x=10.3`. The flame's left curve bulges out to about `x=9.4`, so
+   that vertex was **inside the flame**.
+2. **A triangle with a flat third vertex at `(9.6,15.3)`.** Correct on the
+   flame, wrong on the hull: the body tapers, and by `y=15.3` its edge has
+   already pulled in to about `x=8.8` — so `x=9.6` at that height is
+   **inside the body**.
+
+A single stroked flare line avoids both hazards but reads as a wire rather
+than a fin, so it isn't an option either.
+
+**The rule that satisfies everything: put the root's vertices on the hull's
+real curve (evaluate the bezier, don't guess a round number), and keep the
+tip strictly outboard of the body's widest point.** A fin that only ever
+moves outward and downward from a root on the hull cannot re-enter either the
+hull or the flame, because both are confined to the body-width column it is
+moving away from. When checking a change, check the diagonal *edges*, not
+just the vertices — an edge between two legal vertices can still cross the
+flame if it cuts the corner.
+
 The rail's own inline rocket (`#railRocket`'s `<svg>`, a separate hand-drawn
-shape, not a `<use>` of `#d-rocket`) had the identical bug for the identical
-reason and got the identical fix — keep the two in sync if either's fins
-change.
+shape with a slightly different body bezier, not a `<use>` of `#d-rocket`)
+has had every one of these bugs and fixes in parallel — its root vertex is
+re-derived against *its own* curve (`8.3,14.4`), not copied. **Keep the two
+in sync if either's fins change, but re-derive rather than copy the numbers.**
 
 ### Stroke width — the thing that makes or breaks these
 
@@ -913,6 +1038,14 @@ and image. Keep six tiles and keep the size classes as they are.
 **Add a social link** → copy a `.socials` anchor, swap the `<use href="#i-…">`.
 Instagram, globe, mail, GitHub and LinkedIn symbols already exist.
 
+**Outbound links are deliberately not repeated everywhere.** The POLANA link
+lives in the `#contact` socials and on the POLANA entry itself, and was
+removed from the `#about` socials and the footer icon row — it is one of
+Jędrzej's projects rather than one of his profiles, so repeating it in every
+link cluster over-weighted it. GitHub is still in all three clusters, kept
+for now despite a thin commit history; if that changes, remove it from
+`#about` and the footer first and leave `#contact`, same shape as POLANA.
+
 ---
 
 ## 13. Things not to do
@@ -921,7 +1054,10 @@ Instagram, globe, mail, GitHub and LinkedIn symbols already exist.
 - Do not restore a single flat list of entries in place of the groups.
 - Do not make the mosaic tiles uniform.
 - Do not promote the CV strip or the timelines up the page — this is not a CV.
-- Do not add a third accent colour.
+- Do not add a third accent colour (the per-card `--cat-hue` values are a
+  flagged, temporary experiment, not a precedent — see §5).
+- Do not set mono metadata back to 400 weight / 10px / `--ink-3`.
+- Do not give `.rail-body` a height smaller than the planet column needs.
 - Do not let decorative elements compete with content.
 - Do not add scroll listeners outside the existing `rAF` loop.
 - Do not put personal contact details beyond email and LinkedIn into the repo.
