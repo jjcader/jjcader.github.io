@@ -98,49 +98,153 @@ a{color:var(--accent)}
   .nav-toggle{display:block}
 }
 
-/* ============ PROGRESS RAIL — right edge ============ */
-.rail{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:50;display:none}
+/* ============ PROGRESS RAIL — right edge ============
+   The rail is fixed and overlays the page, so it must fit inside the empty
+   margin to the right of the content or it sits on top of the text. That
+   margin is:  freeRight = max(0,(100vw - var(--wrap))/2) + var(--gutter)
+   Full mode    (pill labels beside the planets) occupies 251px → needs ~1800px
+   Compact mode (tiny labels under the planets)  occupies 113px → fits above
+     ~1520px on the natural gutter alone; below that down to 900px, `.wrap`
+     gets extra reserved padding (see "RAIL CLEARANCE" below) so compact mode
+     keeps working all the way down to 900px instead of the natural gutter
+     running out at 1520px. Below 900px neither fits, so the rail hides.
+   **Re-derive these numbers if --wrap, --gutter or the pill width change.**
+   ============================================================ */
+.rail{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:50;display:none;
+  pointer-events:none}
+.rail a{pointer-events:auto}
+/* hairline that fences the rail off from the page, Jayanth-style: taller and
+   more visible than a standard hairline — this is a deliberate section
+   divider, not a subtle rule — but still faded at both ends rather than a
+   hard sidebar edge. Sits at the rail's own left edge, which padding-left
+   (full mode) or the fixed layout (compact mode) aligns to the labels' outer
+   edge. */
+.rail::before{content:"";position:absolute;right:100%;top:50%;margin-right:16px;
+  width:2px;height:min(100vh,980px);transform:translateY(-50%);
+  background:linear-gradient(180deg,transparent,
+    color-mix(in srgb,var(--accent-2) 75%,transparent) 22%,
+    var(--accent) 50%,
+    color-mix(in srgb,var(--accent-2) 75%,transparent) 78%,transparent)}
 .rail-pct{font-family:var(--mono);font-size:14px;font-weight:500;letter-spacing:.1em;
   color:var(--accent);text-align:right;margin-bottom:18px}
-.rail-body{display:flex;align-items:stretch;gap:20px}
+/* Fixed height (not "however tall the content+gaps happen to be") so the
+   track is the SAME physical length in full and compact mode. Without this,
+   compact mode's smaller ol/rail-body gaps (below) made the whole gauge
+   visibly shorter, not just narrower. align-items:stretch then stretches
+   both ol and .rail-gauge to fill it; ol's own `gap` still sets the MINIMUM
+   space between planets (so they can still pull closer together as the
+   viewport narrows) while justify-content:space-between spends any leftover
+   height evenly between them, keeping the track length constant. */
+.rail-body{display:flex;align-items:stretch;gap:20px;height:min(58vh,446px)}
 .rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;
-  justify-content:space-between;gap:28px}
-.rail a{display:flex;align-items:center;justify-content:flex-end;gap:16px;text-decoration:none;
-  font-family:var(--mono);font-size:12px;letter-spacing:.15em;text-transform:uppercase;
-  color:var(--ink-3);padding:7px 0 7px 22px;border-radius:8px;
+  justify-content:space-between;gap:46px}
+.rail a{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:16px;
+  text-decoration:none;font-family:var(--mono);font-size:12px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--ink-2);padding:7px 0;border-radius:8px;
   transition:color .3s var(--ease),background .3s var(--ease)}
-.rail .rail-label{opacity:.68;transition:opacity .3s var(--ease),transform .3s var(--ease)}
-.rail .dot{width:24px;height:24px;border-radius:50%;background:var(--paper);
-  border:2px solid var(--rule);flex:0 0 auto;display:grid;place-items:center;
-  transition:border-color .3s var(--ease),transform .3s var(--ease),box-shadow .3s var(--ease)}
-.rail .dot::after{content:"";width:9px;height:9px;border-radius:50%;background:var(--accent);
-  transform:scale(0);transition:transform .3s var(--ease)}
-.rail a:hover{color:var(--ink);background:color-mix(in srgb,var(--paper-2) 75%,transparent)}
+/* Label pills are the DEFAULT at every width the rail appears at — the boxes
+   used to exist only below 1800px, so on a large monitor they vanished and
+   the labels read as loose floating text. min-width + centred text keeps every
+   pill identical in size; a ragged column of different-width boxes looks
+   sloppy. Sized to the longest label ("Experience"). Opacity/colour raised
+   (was .85 / --ink-2) so the unselected items read clearly, not just the
+   active one. */
+.rail .rail-label{position:absolute;right:100%;top:50%;margin-right:16px;
+  white-space:nowrap;background:var(--paper);color:var(--ink);
+  min-width:134px;text-align:center;
+  border:1px solid var(--rule);border-radius:999px;padding:6px 13px;
+  opacity:.95;box-shadow:0 8px 18px -14px rgba(16,97,125,.3);
+  transform:translateY(-50%);
+  transition:opacity .25s var(--ease),transform .25s var(--ease),
+    border-color .25s var(--ease),color .25s var(--ease)}
+/* each section marker is a tiny planet/moon rather than a plain dot. Sized up
+   and given real contrast at rest (was 30px, --ink-3 @ .55 — close to
+   invisible); the active state is colour + scale + a soft glow —
+   deliberately NOT a box-shadow ring, which grew outward into the label pill
+   and collided with it. drop-shadow blurs outward without claiming layout
+   space. */
+.rail .dot{width:36px;height:36px;flex:0 0 auto;display:grid;place-items:center;
+  color:var(--ink-2);opacity:.8;
+  transition:color .3s var(--ease),opacity .3s var(--ease),
+    transform .3s var(--ease),filter .3s var(--ease)}
+.rail .dot svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:1.4;
+  stroke-linecap:round;stroke-linejoin:round}
+.rail a:hover{color:var(--ink)}
 .rail a:hover .rail-label{opacity:1}
-.rail a:hover .dot{border-color:var(--accent-2)}
+.rail a:hover .dot{color:var(--accent-2);opacity:1}
 .rail a.is-active{color:var(--accent)}
-.rail a.is-active .rail-label{opacity:1;transform:translateX(-3px)}
-.rail a.is-active .dot{border-color:var(--accent);transform:scale(1.16);
-  box-shadow:0 0 0 6px var(--accent-soft)}
-.rail a.is-active .dot::after{transform:scale(1)}
+.rail a.is-active .rail-label{opacity:1;color:var(--accent);border-color:var(--accent);
+  box-shadow:0 10px 22px -12px rgba(16,97,125,.45);
+  transform:translateY(-50%) scale(1.05)}
+.rail a.is-active .dot{color:var(--accent);opacity:1;transform:scale(1.24);
+  filter:drop-shadow(0 0 6px color-mix(in srgb,var(--accent) 38%,transparent))}
 /* the gauge lives in its own column, so the rocket never overlaps the dots */
-.rail-gauge{position:relative;width:9px;flex:0 0 auto;margin:12px 0}
+.rail-gauge{position:relative;width:11px;flex:0 0 auto;margin:14px 0}
 .rail-track{position:absolute;inset:0;background:var(--rule);border-radius:9px;
   box-shadow:inset 0 0 0 1px rgba(0,0,0,.03)}
 .rail-fill{position:absolute;left:0;top:0;width:100%;height:0;border-radius:9px;
   background:linear-gradient(180deg,var(--accent-2),var(--accent));transition:height .12s linear}
-.rail-rocket{position:absolute;left:50%;top:0;width:34px;height:34px;
+.rail-rocket{position:absolute;left:50%;top:0;width:44px;height:44px;
   transform:translate(-50%,-50%);color:var(--accent);pointer-events:none;
-  transition:top .12s linear;filter:drop-shadow(0 2px 8px rgba(16,97,125,.4))}
+  transition:top .12s linear;filter:drop-shadow(0 2px 10px rgba(16,97,125,.45))}
 .rail-rocket svg{width:100%;height:100%;stroke:currentColor;fill:var(--paper);
   stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
-.rail-rocket .flame{stroke:var(--accent-warm);opacity:.9}
-/* dots-only below 1800px so the wider page still has room */
-@media (min-width:1400px){.rail{display:block}}
-@media (max-width:1799px){
-  .rail .rail-label{display:none}
-  .rail a{padding-left:0}
+.rail-rocket .flame{fill:var(--accent-warm);stroke:none}
+.rail-rocket .flame-core{fill:color-mix(in srgb,var(--accent-warm) 55%,var(--paper));stroke:none}
+/* FULL MODE — pills beside the planets. padding-left on .rail reserves the
+   strip the absolutely-positioned pills occupy, so the rail's own box
+   actually encloses them — that's what lets ::before land on their outer
+   edge rather than through the middle of them.
+   The gap between a pill and its planet wasn't clickable (.rail-label being
+   position:absolute means it never contributed to its <a>'s own box, so the
+   <a>'s hit-area stopped at the planet). The fix is an invisible ::before on
+   the <a>, NOT padding-left on the <a> — padding-left was tried first and
+   silently broke the pill's own position: .rail-label's `right:100%` is
+   measured against its containing block's PADDING box, so widening that box
+   with padding-left pushed the visible pill 150px further left than
+   intended. A separate ::before sized to the same 150px reserve adds hit-area
+   without touching the box .rail-label positions itself against. */
+@media (min-width:1800px){
+  .rail{display:block;padding-left:150px}
+  .rail a::before{content:"";position:absolute;top:0;bottom:0;right:100%;width:150px}
+}
+/* COMPACT MODE — the pill strip doesn't fit, so the label drops underneath
+   its planet and shrinks to a caption. Still always visible: the whole point
+   of the rail is being able to navigate by section name. Runs all the way
+   down to 900px (see "RAIL CLEARANCE" below for how that stays clear of
+   content down there) — deliberately kept alive longer than the natural
+   gutter alone would allow, rather than disappearing as soon as it gets
+   tight. */
+@media (min-width:900px) and (max-width:1799px){
+  .rail{display:block;right:16px}
+  .rail::before{margin-right:8px;height:min(94vh,760px)}
   .rail-pct{font-size:12px}
+  /* both gaps scale down with viewport width, so the whole rail progressively
+     squeezes tighter as the window narrows instead of holding one fixed size
+     right up until it disappears at the 900px floor. gap between the planet
+     column and the gauge is also pulled in generally (was a flat 14px) so
+     the planets sit closer to the rocket. */
+  .rail-body{gap:clamp(6px,.8vw,10px)}
+  .rail ol{gap:clamp(10px,1.3vw,22px)}
+  .rail a{flex-direction:column;justify-content:center;gap:5px;padding:0}
+  .rail .rail-label{position:static;transform:none;background:none;border:0;
+    box-shadow:none;min-width:0;width:72px;padding:0;opacity:.82;color:var(--ink-2);
+    font-size:10px;letter-spacing:.04em;line-height:1.25}
+  .rail a:hover .rail-label{transform:none}
+  .rail a.is-active .rail-label{transform:none;box-shadow:none;color:var(--accent);opacity:1}
+}
+/* RAIL CLEARANCE — below ~1520px the natural gutter alone is no longer wide
+   enough for compact mode's footprint (≤119px, using each gap's clamp()
+   maximum — at 900px the natural gutter is only ~40px), so .wrap gets extra
+   reserved padding in this sub-range specifically. This is "shrink the
+   content, not the rail": deliberately narrowing the page here rather than
+   letting the rail disappear early. 100px clears the 900px floor with slack
+   to spare; it's flat rather than scaling with viewport because CSS can't
+   subtract a clamp() from a fixed target in one declaration — a flat value
+   just needs to be safe at the low end (it leaves more slack than necessary
+   near 1519px, which is fine, just unused margin). */
+@media (min-width:900px) and (max-width:1519px){
+  .wrap{padding-right:calc(var(--gutter) + 100px)}
 }
 
 /* ============ HERO ============ */
@@ -155,13 +259,15 @@ a{color:var(--accent)}
 .hero-eyebrow{color:rgba(255,255,255,.76);margin:0 0 10px;display:flex;align-items:center;gap:9px}
 .hero-name{font-family:var(--serif);font-weight:400;color:#fff;font-size:clamp(46px,9vw,104px);
   line-height:.94;letter-spacing:-.025em;margin:0;text-shadow:0 1px 28px rgba(0,0,0,.34)}
-.hero-name em{font-style:italic}
+.hero-pronounce{font-family:var(--mono);font-size:12.5px;letter-spacing:.05em;
+  color:rgba(255,255,255,.66);margin:12px 0 0;text-shadow:0 1px 12px rgba(0,0,0,.5)}
 .hero-sub{color:rgba(255,255,255,.94);max-width:52ch;margin:16px 0 0;
   font-size:clamp(15px,.6vw + 13px,19px);text-shadow:0 1px 18px rgba(0,0,0,.5)}
 @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 .hero-copy > .wrap > *{animation:rise .9s var(--ease) both}
 .hero-copy > .wrap > *:nth-child(2){animation-delay:.08s}
 .hero-copy > .wrap > *:nth-child(3){animation-delay:.16s}
+.hero-copy > .wrap > *:nth-child(4){animation-delay:.24s}
 /* scroll cue */
 .scroll-cue{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
   color:rgba(255,255,255,.6);animation:bob 2.6s var(--ease) infinite}
@@ -189,27 +295,97 @@ section:first-of-type::before{display:none}
    To remove one, delete its <div class="deco ..."> in the markup.
    ============================================================ */
 .deco{position:absolute;pointer-events:none;color:var(--accent);z-index:0;
-  opacity:.09;overflow:visible}
+  opacity:.24;overflow:visible}
 .deco svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;
-  stroke-width:1;vector-effect:non-scaling-stroke}
+  stroke-width:1.6}
+/* Every deco shape draws a hairline stroke at the SAME on-screen width no
+   matter how far its viewBox is scaled up. Without this, stroke-width is
+   multiplied by the scale factor, so a 24-unit icon blown up to 200px drew
+   an ~8px stroke while a 400-unit orbit ring at the same size drew ~1px —
+   which is exactly why the background rockets looked far heavier than
+   everything around them. Note this can't reach inside <use>, so the d-*
+   symbols carry the attribute on their own paths instead. */
+.deco svg *{vector-effect:non-scaling-stroke}
 .deco.warm{color:var(--accent-warm)}
 section > .wrap,.strip > *{position:relative;z-index:1}
 section{overflow:hidden}
 
+/* ORBIT RINGS — the motif that works best on this page: sparse concentric
+   circles + a tilted ellipse + a satellite dot or two, always spinning very
+   slowly. Reach for another one of these before inventing a new shape.
+   Vary the ring count, ellipse tilt and satellites so they aren't clones. */
 .deco-orbit{top:-70px;right:-130px;width:min(460px,44vw);aspect-ratio:1}
-.deco-orbit-2{bottom:-140px;left:-120px;width:min(380px,38vw);aspect-ratio:1;opacity:.07}
-.deco-stars{top:8%;left:4%;width:min(420px,40vw);aspect-ratio:2/1;opacity:.16}
-.deco-stars svg circle{fill:currentColor;stroke:none}
-.deco-traj{top:-30px;right:6%;width:min(300px,30vw);aspect-ratio:1/1.4;opacity:.14}
-.deco-traj svg path{stroke-dasharray:3 9}
-.deco-waves{left:0;right:0;bottom:-10px;width:100%;height:170px;opacity:.13}
-.deco-waves-top{left:0;right:0;top:-20px;width:100%;height:130px;opacity:.09}
+.deco-orbit-sm{top:auto;bottom:-70px;right:-50px;width:min(240px,22vw);aspect-ratio:1;opacity:.2}
+.deco-orbit-about{top:auto;bottom:-110px;left:-90px;width:min(340px,32vw);aspect-ratio:1;opacity:.21}
+.deco-orbit-left{top:12%;left:-150px;width:min(400px,38vw);aspect-ratio:1;opacity:.21}
+.deco-orbit-2{bottom:-140px;left:-120px;width:min(380px,38vw);aspect-ratio:1;opacity:.2}
+.deco-orbit-mid{top:56%;right:-150px;width:min(340px,32vw);aspect-ratio:1;opacity:.2}
+.deco-orbit-edu{top:auto;bottom:-120px;right:-100px;width:min(320px,32vw);aspect-ratio:1;opacity:.21}
+.deco-orbit-edu-2{top:6%;left:-70px;width:min(330px,31vw);aspect-ratio:1;opacity:.24}
+.deco-orbit-3{top:34%;right:-150px;width:min(340px,32vw);aspect-ratio:1;opacity:.22}
+.deco-orbit-4{top:6%;left:-100px;width:min(300px,28vw);aspect-ratio:1;opacity:.21}
+.deco-orbit-contact{top:2%;left:-90px;width:min(280px,26vw);aspect-ratio:1;opacity:.2}
+/* dashed trajectory arcs */
+.deco-traj{top:12%;right:5%;width:min(300px,30vw);aspect-ratio:1/1.4;opacity:.28}
+.deco-traj svg path{stroke-dasharray:1.5 11;stroke-linecap:round}
+.deco-traj-2{top:auto;bottom:5%;left:4%;width:min(220px,24vw);aspect-ratio:1/1.3;opacity:.24}
+.deco-traj-2 svg path{stroke-dasharray:4 12}
+/* ROCKETS — #d-rocket, which carries its own flame. Kept off the right edge
+   and out of the vertical band the fixed progress rail occupies, or a
+   background rocket ends up visually arguing with the real one on the rail.
+   Varied size + tilt so a pair reads as scattered, not copy-pasted; the
+   rotation goes on the inner svg so the wrapper's transform stays free for
+   keyframes. */
+.deco-rocket{top:44%;left:-40px;width:min(180px,17vw);aspect-ratio:1;opacity:.2}
+.deco-rocket svg{transform:rotate(-14deg)}
+.deco-rocket-b{top:33%;left:-55px;width:min(200px,19vw);aspect-ratio:1;opacity:.19}
+.deco-rocket-b svg{transform:rotate(16deg)}
+/* full-bleed wave crests — never two of these near each other on the page */
+.deco-waves{left:0;right:0;bottom:-10px;width:100%;height:170px;opacity:.27}
+.deco-waves-top{left:0;right:0;top:-20px;width:100%;height:130px;opacity:.22}
+.deco-waves-proj{left:0;right:0;top:-16px;width:100%;height:120px;opacity:.21}
+/* hand-drawn one-offs, each parked beside the content it belongs to: a
+   telescope + moon by the JPL tile, a quadcopter by the swarm tile, a robot
+   by the robotics group, a Rubik's cube by the hobbies group. */
+.deco-telescope{top:20%;left:-50px;width:min(300px,28vw);aspect-ratio:1;opacity:.22}
+/* stars are filled sprites, not stroked outlines — a tiny 4-point sparkle
+   read as an outline is barely legible at this scale */
+.deco-telescope svg use{fill:currentColor;stroke:none}
+.deco-drone{top:64%;left:-60px;width:min(300px,28vw);aspect-ratio:1;opacity:.21}
+.deco-drone svg{transform:rotate(-24deg)}
+.deco-robot{top:46%;left:-45px;width:min(280px,26vw);aspect-ratio:1;opacity:.2}
+.deco-robot svg{transform:rotate(-8deg)}
+.deco-cube{top:76%;left:-30px;width:min(230px,22vw);aspect-ratio:1;opacity:.21}
+.deco-cube svg{transform:rotate(6deg)}
 
 /* slow drift, disabled under reduced motion */
 @keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
 @keyframes spin-slow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-.deco-orbit svg,.deco-orbit-2 svg{animation:spin-slow 200s linear infinite;transform-origin:50% 50%}
-.deco-stars{animation:drift 15s ease-in-out infinite}
+/* waves flow sideways rather than sitting still. The wave paths are drawn
+   from x=-200 to x=1400 inside a 0–1200 viewBox specifically so this drift
+   never exposes a bare edge — and it animates the inner <g>, not the <svg>,
+   so the SVG's own clip stays put and the overhang scrolls into view. */
+@keyframes wave-drift{0%,100%{transform:translateX(0)}50%{transform:translateX(-34px)}}
+.deco-orbit svg,.deco-orbit-2 svg,.deco-orbit-3 svg,.deco-orbit-left svg,.deco-orbit-edu svg,
+.deco-orbit-edu-2 svg,.deco-orbit-about svg,.deco-orbit-sm svg,.deco-orbit-4 svg,
+.deco-orbit-mid svg,.deco-orbit-contact svg{
+  animation:spin-slow 200s linear infinite;transform-origin:50% 50%}
+.deco-drone{animation:drift 15s ease-in-out infinite}
+.deco .wave-g{animation:wave-drift 16s ease-in-out infinite}
+/* a rocket or satellite making an actual orbit of its planet — the ring it
+   rides spins too, so the two rates compound into something that never quite
+   repeats. fill:var(--paper) is what keeps it looking like it's flying IN
+   FRONT of the ring rather than being pierced by it: document order alone
+   already paints it last (on top), but the ring's stroke is still visible
+   through it unless the orbiting shape is actually opaque — everything else
+   in this deco system is stroke-only outlines, but an orbiting body needs to
+   occlude what's behind it the way a real object would. */
+.deco .orbiter{animation:spin-slow 80s linear infinite;transform-origin:200px 200px;
+  fill:var(--paper)}
+/* a second orbiter on the same ring (a different radius) goes the other way
+   — animation-direction:reverse plays spin-slow backwards, no separate
+   keyframes needed */
+.deco .orbiter.rev{animation-direction:reverse}
 
 /* ============ ABOUT ============ */
 .about-grid{display:grid;grid-template-columns:300px 1fr;gap:clamp(26px,5vw,70px);align-items:start}
@@ -339,6 +515,21 @@ section{overflow:hidden}
   transform:translateX(-50%) rotate(45deg);background:var(--paper);
   border:1px solid var(--rule);border-radius:1px}
 .strip-viewport{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+/* Keep the marquee's cards from sliding under the fixed rail. The strip is
+   deliberately full-bleed (edge to edge, no .wrap), so this can't be solved
+   with padding — overflow:hidden clips at the padding edge, meaning padding
+   sits INSIDE the visible/clipped region and content still shows through it.
+   margin-right, on a width:auto block, actually shrinks the box itself (and
+   therefore its overflow-clip boundary), so cards are hidden before they
+   reach the rail's column. Values are generous rather than exact-fit,
+   matching the rail's footprint from the rule above with a safety margin. */
+@media (min-width:1800px){.strip-viewport{margin-right:270px}}
+@media (min-width:900px) and (max-width:1799px){.strip-viewport{margin-right:135px}}
+/* Full mobile pass is a separate task, but this one visibly broke on touch
+   (the marquee only pauses on :hover/:focus-within, neither of which fires
+   on a touch device, so cards drift while you're trying to tap one) — cut
+   it now rather than leave a known-broken interaction live. */
+@media (max-width:700px){.strip{display:none}}
 @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .strip-track{display:flex;gap:14px;width:max-content;animation:marquee 62s linear infinite}
 .strip:hover .strip-track,.strip-track:focus-within{animation-play-state:paused}
@@ -407,15 +598,15 @@ footer{border-top:1px solid var(--rule);padding-block:30px;background:var(--pape
 
 /* ============ BACK TO TOP ============ */
 .to-top{position:fixed;right:24px;bottom:24px;z-index:55;
-  display:inline-flex;align-items:center;gap:10px;cursor:pointer;
-  padding:14px 20px;border-radius:999px;background:var(--paper);
+  display:inline-flex;align-items:center;gap:12px;cursor:pointer;
+  padding:17px 25px;border-radius:999px;background:var(--paper);
   border:1px solid var(--rule);color:var(--accent);
-  font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
   opacity:0;pointer-events:none;transform:translateY(12px);transition:.3s var(--ease);
   box-shadow:0 14px 34px -16px rgba(16,97,125,.55)}
 .to-top.show{opacity:1;pointer-events:auto;transform:none}
 .to-top:hover{border-color:var(--accent);background:var(--accent-soft)}
-.to-top .ic{width:20px;height:20px;transition:transform .35s var(--ease)}
+.to-top .ic{width:25px;height:25px;transition:transform .35s var(--ease)}
 .to-top:hover .ic{transform:translateY(-4px)}
 @media (max-width:520px){.to-top span{display:none}.to-top{padding:15px}}
 </style>
@@ -441,6 +632,46 @@ footer{border-top:1px solid var(--rule);padding-block:30px;background:var(--pape
   <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.5l2.5 6.9 6.9 2.6-6.9 2.6L12 21.5l-2.5-6.9L2.6 12l6.9-2.6z"/></symbol>
   <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M12 2.5c2.6 2.3 4.1 5.5 4.1 8.9 0 2-.6 4-1.7 5.6H9.6C8.5 15.4 7.9 13.4 7.9 11.4c0-3.4 1.5-6.6 4.1-8.9z"/><circle cx="12" cy="9.4" r="1.7"/><path d="M9.6 17 7.7 20.2l2.6-.9M14.4 17l1.9 3.2-2.6-.9"/></symbol>
+
+  <!-- Planets/moons for the progress rail's section markers. Six distinct
+       bodies so each section is recognisable at a glance, all the same
+       visual weight so the column still reads as one set of markers. -->
+  <symbol id="p-saturn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.6"/><ellipse cx="12" cy="12" rx="11" ry="3.3" transform="rotate(-20 12 12)"/></symbol>
+  <symbol id="p-moon" viewBox="0 0 24 24"><path d="M14.2 5.2a7 7 0 1 0 0 13.6 5.4 7 0 1 1 0-13.6z"/></symbol>
+  <symbol id="p-banded" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M5.6 9.2h12.8M6.4 15.2h11.2"/></symbol>
+  <symbol id="p-cratered" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="9.4" cy="9.6" r="1.5"/><circle cx="14.6" cy="14.2" r="2.1"/></symbol>
+  <symbol id="p-saturn-2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><ellipse cx="12" cy="12" rx="10.6" ry="3" transform="rotate(26 12 12)"/></symbol>
+  <symbol id="p-twin" viewBox="0 0 24 24"><circle cx="10.8" cy="13" r="6.2"/><circle cx="19.4" cy="5.6" r="2.3"/></symbol>
+
+  <!-- Decoration-only variants. vector-effect="non-scaling-stroke" is baked
+       onto the paths so these stay hairline no matter how far up they're
+       scaled — a plain <use> of a 24px symbol at 200px would otherwise draw
+       an ~8px stroke and read as a heavy blob. Keep that attribute on any
+       new d-* symbol. The rocket carries its own flame so background rockets
+       match the one on the progress rail; it inherits currentColor, so the
+       flame is always the same colour as the rocket body. -->
+  <symbol id="d-rocket" viewBox="0 0 24 24">
+    <path vector-effect="non-scaling-stroke" d="M12 2.5c2.6 2.3 4.1 5.5 4.1 8.9 0 2-.6 4-1.7 5.6H9.6C8.5 15.4 7.9 13.4 7.9 11.4c0-3.4 1.5-6.6 4.1-8.9z"/>
+    <circle vector-effect="non-scaling-stroke" cx="12" cy="9.4" r="1.7"/>
+    <!-- closed triangles, not an open zigzag — every vertex sits at x<=9.6
+         (left fin) / x>=14.4 (right fin), i.e. level with or outside the
+         body's own edge, so the diagonal back-edge never crosses into the
+         flame's leftward bulge (its curve only reaches to about x=9 on that
+         side). The old zigzag's return segment cut back in toward x=10.3,
+         which is what sliced through the flame. -->
+    <path vector-effect="non-scaling-stroke" d="M9.6 17 7.1 20.4 9.6 15.3Z M14.4 17 16.9 20.4 14.4 15.3Z"/>
+    <!-- The flame starts and ends exactly on the body's bottom edge (9.6,17)
+         and (14.4,17) so the outline is continuous. An earlier version was a
+         closed teardrop floating below the body, which left a visible hole
+         at the engine end. -->
+    <path vector-effect="non-scaling-stroke" d="M9.6 17c-.6 2.5.4 4.7 2.4 6.5 2-1.8 3-4 2.4-6.5"/>
+  </symbol>
+  <symbol id="d-satellite" viewBox="0 0 24 24">
+    <rect vector-effect="non-scaling-stroke" x="9" y="9" width="6" height="6"/>
+    <path vector-effect="non-scaling-stroke" d="M9 12H3M15 12H21"/>
+    <rect vector-effect="non-scaling-stroke" x="0" y="7" width="3" height="10"/>
+    <rect vector-effect="non-scaling-stroke" x="21" y="7" width="3" height="10"/>
+  </symbol>
 </svg>
 
 <header class="site-header">
@@ -469,12 +700,12 @@ footer{border-top:1px solid var(--rule);padding-block:30px;background:var(--pape
   <div class="rail-pct" id="railPct">0%</div>
   <div class="rail-body">
     <ol>
-      <li><a href="#about"><span class="rail-label">About</span><span class="dot"></span></a></li>
-      <li><a href="#selected"><span class="rail-label">Selected</span><span class="dot"></span></a></li>
-      <li><a href="#projects"><span class="rail-label">Projects</span><span class="dot"></span></a></li>
-      <li><a href="#education"><span class="rail-label">Education</span><span class="dot"></span></a></li>
-      <li><a href="#experience"><span class="rail-label">Experience</span><span class="dot"></span></a></li>
-      <li><a href="#contact"><span class="rail-label">Contact</span><span class="dot"></span></a></li>
+      <li><a href="#about"><span class="rail-label">About</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-saturn"/></svg></span></a></li>
+      <li><a href="#selected"><span class="rail-label">Selected</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-moon"/></svg></span></a></li>
+      <li><a href="#projects"><span class="rail-label">Projects</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-banded"/></svg></span></a></li>
+      <li><a href="#education"><span class="rail-label">Education</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-cratered"/></svg></span></a></li>
+      <li><a href="#experience"><span class="rail-label">Experience</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-saturn-2"/></svg></span></a></li>
+      <li><a href="#contact"><span class="rail-label">Contact</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-twin"/></svg></span></a></li>
     </ol>
     <div class="rail-gauge">
       <div class="rail-track"><div class="rail-fill" id="railFill"></div></div>
@@ -482,8 +713,9 @@ footer{border-top:1px solid var(--rule);padding-block:30px;background:var(--pape
         <svg viewBox="0 0 24 24">
           <path d="M12 2.4c2.7 2.4 4.2 5.6 4.2 9 0 2-.6 4-1.7 5.6H9.5C8.4 15.4 7.8 13.4 7.8 11.4c0-3.4 1.5-6.6 4.2-9z"/>
           <circle cx="12" cy="9.5" r="1.8"/>
-          <path d="M9.5 17 7.6 20.3l2.6-.9M14.5 17l1.9 3.3-2.6-.9"/>
-          <path class="flame" d="M12 18.4v3.2"/>
+          <path d="M9.5 17 7 20.4 9.5 15.3Z M14.5 17 17 20.4 14.5 15.3Z"/>
+          <path class="flame" d="M12 17.3c1.7 1.8 2.8 3.5 2.8 4.9a2.8 2.8 0 0 1-5.6 0c0-1.4 1.1-3.1 2.8-4.9z"/>
+          <path class="flame-core" d="M12 19c.9 1 1.5 1.9 1.5 2.7a1.5 1.5 0 0 1-3 0c0-.8.6-1.7 1.5-2.7z"/>
         </svg>
       </div>
     </div>
@@ -504,7 +736,8 @@ footer{border-top:1px solid var(--rule);padding-block:30px;background:var(--pape
   <div class="hero-copy">
     <div class="wrap">
       <p class="label hero-eyebrow">Mechanical engineer · Zürich → Cambridge, MA</p>
-      <h1 class="hero-name">Jędrzej <em>Cader</em></h1>
+      <h1 class="hero-name">Jędrzej Cader</h1>
+      <p class="hero-pronounce">Pronounced: Yan-Jay Cader. (yes, really)</p>
       <p class="hero-sub">I build things that have to survive being set on fire. Rocket engines
          at ARIS, a lunar radio telescope at NASA JPL, and right now a master's thesis at MIT.</p>
     </div>
@@ -514,11 +747,15 @@ footer{border-top:1px solid var(--rule);padding-block:30px;background:var(--pape
 
 <!-- ============ EDIT ME #4 — ABOUT ============ -->
 <section id="about">
-  <div class="deco deco-stars" aria-hidden="true"><svg viewBox="0 0 400 200">
-    <circle cx="24" cy="38" r="2.4"/><circle cx="88" cy="14" r="1.5"/><circle cx="132" cy="72" r="2"/>
-    <circle cx="196" cy="30" r="1.4"/><circle cx="244" cy="96" r="2.6"/><circle cx="310" cy="46" r="1.7"/>
-    <circle cx="366" cy="112" r="2.1"/><circle cx="56" cy="128" r="1.8"/><circle cx="172" cy="158" r="2.3"/>
-    <circle cx="286" cy="168" r="1.5"/><circle cx="348" cy="20" r="1.3"/><circle cx="112" cy="186" r="1.9"/>
+  <!-- low, off the bottom-LEFT corner — clear of both the facts list and the
+       prose so it never sits directly behind dense text -->
+  <div class="deco deco-orbit-about warm" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="184"/><circle cx="200" cy="200" r="122"/><circle cx="200" cy="200" r="58"/>
+    <ellipse cx="200" cy="200" rx="184" ry="58" transform="rotate(-22 200 200)"/>
+    <circle cx="200" cy="200" r="7" fill="currentColor" stroke="none"/>
+    <circle cx="322" cy="262" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="96" cy="126" r="4" fill="currentColor" stroke="none"/>
+    <g class="orbiter"><use href="#d-satellite" x="184" y="62" width="32" height="32"/></g>
   </svg></div>
 
   <div class="wrap">
@@ -567,6 +804,79 @@ footer{border-top:1px solid var(--rule);padding-block:30px;background:var(--pape
     <ellipse cx="200" cy="200" rx="192" ry="66" transform="rotate(-24 200 200)"/>
     <circle cx="340" cy="128" r="6" fill="currentColor" stroke="none"/>
     <circle cx="92" cy="286" r="4" fill="currentColor" stroke="none"/>
+    <!-- riding the r=138 ring -->
+    <g class="orbiter"><g transform="rotate(90 200 62)"><use href="#d-rocket" x="177" y="39" width="46" height="46"/></g></g>
+    <!-- a second orbiter, the r=84 ring, going the other way -->
+    <g class="orbiter rev"><use href="#d-satellite" x="187" y="103" width="26" height="26"/></g>
+  </svg></div>
+  <!-- a second, smaller ring in the opposite corner — more of the motif above -->
+  <div class="deco deco-orbit-sm warm" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="180"/><circle cx="200" cy="200" r="118"/>
+    <ellipse cx="200" cy="200" rx="180" ry="54" transform="rotate(30 200 200)"/>
+    <circle cx="70" cy="90" r="5" fill="currentColor" stroke="none"/>
+    <g class="orbiter"><use href="#d-satellite" x="185" y="67" width="30" height="30"/></g>
+  </svg></div>
+  <!-- A refractor on a tripod, aimed up-right at a crescent moon — behind and
+       left of the JPL tile, big enough that it runs on under the mosaic. -->
+  <div class="deco deco-telescope warm" aria-hidden="true"><svg viewBox="0 0 100 100">
+    <!-- Everything rigidly attached to the tube is drawn once, in the tube's
+         own local coordinates, inside a SINGLE rotated <g> — the earlier
+         version gave the finder scope and eyepiece their own independent
+         rotate() transforms around slightly different centres, which is what
+         let them drift out of alignment with the tube. One group, one pivot,
+         guarantees everything stays attached regardless of the angle. -->
+    <g transform="rotate(-34 40 56)">
+      <!-- main tube, tapered wider at the objective end -->
+      <path d="M12 51 L66 46 L66 62 L12 58 Z"/>
+      <!-- centreline dividing wide/narrow portions sits at the tube's true
+           midpoint (x=39 — same point the tripod mount below is anchored
+           to, so the two visually meet) and stops exactly on the tube's own
+           slanted top/bottom edges at that x (48.5/60), not past them. -->
+      <path d="M39 48.5V60"/>
+      <!-- finder scope riding on top, WITH a support reaching the actual tube
+           surface below it — the tube's top edge is a slanted line (51→46),
+           so at x=32 that surface sits at y≈49.2, not y=47. Using a flat
+           guess there is exactly why it read as floating/disconnected. -->
+      <rect x="22" y="38" width="20" height="6" rx="1.5"/>
+      <path d="M32 44v5.2"/>
+      <!-- eyepiece -->
+      <rect x="3" y="52" width="9" height="7" rx="1.5"/>
+    </g>
+    <!-- mount stays vertical regardless of the tube's angle. Attachment point
+         is the tube's true geometric centre (local x=39, the midpoint of the
+         12–66 span, on the tube's lower edge), rotated by the same transform
+         as the tube — not eyeballed, so it's centred and not biased toward
+         either end. -->
+    <path d="M41 60v18"/>
+    <path d="M41 78 28 94M41 78 54 94M41 78 41 92"/>
+    <!-- crescent moon, made smaller and pushed further into the corner (off
+         the viewBox edge) so it reads as further away still, and partly
+         tucked behind the JPL mosaic tile in front of it -->
+    <path d="M76 0a14 14 0 1 0 0 28 10 14 0 1 1 0-28z"/>
+    <!-- a scattered handful of real stars (the sprite's #i-star, not hand-
+         drawn dots), clustered around the smaller/relocated moon -->
+    <use href="#i-star" x="60" y="0" width="6" height="6"/>
+    <use href="#i-star" x="72" y="16" width="5" height="5"/>
+    <use href="#i-star" x="90" y="2" width="7" height="7"/>
+    <use href="#i-star" x="99" y="16" width="8" height="8"/>
+    <use href="#i-star" x="84" y="30" width="6" height="6"/>
+    <use href="#i-star" x="66" y="26" width="4" height="4"/>
+    <use href="#i-star" x="52" y="10" width="5" height="5"/>
+    <use href="#i-star" x="94" y="32" width="6" height="6"/>
+  </svg></div>
+  <!-- Top-down quadcopter — arms spring from the body's rounded corners
+       rather than crossing through it (the earlier version drew an X inside
+       the square, which read as a scribble), props are blades rather than
+       guard rings, and there's a gimbal camera slung underneath. Sits low
+       and left, level with the drone-swarm tile in the mosaic's last row. -->
+  <div class="deco deco-drone" aria-hidden="true"><svg viewBox="0 0 100 100">
+    <path d="M39.8 39.8 26 26M60.2 39.8 74 26M39.8 60.2 26 74M60.2 60.2 74 74"/>
+    <rect x="38" y="38" width="24" height="24" rx="6"/>
+    <path d="M50 62v5"/><circle cx="50" cy="70.5" r="4"/>
+    <circle cx="26" cy="26" r="3"/><ellipse cx="26" cy="26" rx="15" ry="3.6" transform="rotate(-28 26 26)"/>
+    <circle cx="74" cy="26" r="3"/><ellipse cx="74" cy="26" rx="15" ry="3.6" transform="rotate(28 74 26)"/>
+    <circle cx="26" cy="74" r="3"/><ellipse cx="26" cy="74" rx="15" ry="3.6" transform="rotate(28 26 74)"/>
+    <circle cx="74" cy="74" r="3"/><ellipse cx="74" cy="74" rx="15" ry="3.6" transform="rotate(-28 74 74)"/>
   </svg></div>
 
   <div class="wrap">
@@ -633,12 +943,62 @@ footer{border-top:1px solid var(--rule);padding-block:30px;background:var(--pape
 <section id="projects">
   <div class="deco deco-traj warm" aria-hidden="true"><svg viewBox="0 0 200 280">
     <path d="M18 268C58 250 96 196 118 132 134 84 138 42 136 10"/>
+    <!-- filled dot = launch point, hollow ring = where the trajectory is headed -->
     <circle cx="18" cy="268" r="4" fill="currentColor" stroke="none"/>
+    <circle cx="136" cy="10" r="5"/>
   </svg></div>
-  <div class="deco deco-orbit-2" aria-hidden="true"><svg viewBox="0 0 400 400">
+  <div class="deco deco-orbit-2 warm" aria-hidden="true"><svg viewBox="0 0 400 400">
     <circle cx="200" cy="200" r="180"/><circle cx="200" cy="200" r="110"/>
     <ellipse cx="200" cy="200" rx="180" ry="52" transform="rotate(38 200 200)"/>
     <circle cx="288" cy="322" r="5" fill="currentColor" stroke="none"/>
+    <g class="orbiter"><use href="#d-satellite" x="185" y="75" width="30" height="30"/></g>
+  </svg></div>
+  <!-- sits behind the space & rocketry group, near the left edge -->
+  <div class="deco deco-orbit-left" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="188"/><circle cx="200" cy="200" r="128"/><circle cx="200" cy="200" r="70"/>
+    <ellipse cx="200" cy="200" rx="188" ry="60" transform="rotate(18 200 200)"/>
+    <circle cx="356" cy="150" r="5" fill="currentColor" stroke="none"/>
+    <g class="orbiter"><use href="#d-satellite" x="183" y="55" width="34" height="34"/></g>
+  </svg></div>
+  <!-- one rocket only, halfway down. A second one used to sit at 26%, right
+       on top of the orbit ring above — overlapping decos read as clutter. -->
+  <div class="deco deco-rocket-b" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#d-rocket"/></svg></div>
+  <div class="deco deco-orbit-mid" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="184"/><circle cx="200" cy="200" r="112"/><circle cx="200" cy="200" r="48"/>
+    <ellipse cx="200" cy="200" rx="184" ry="62" transform="rotate(-34 200 200)"/>
+    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="66" cy="272" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="308" cy="104" r="4" fill="currentColor" stroke="none"/>
+    <!-- riding the r=112 ring -->
+    <g class="orbiter"><g transform="rotate(90 200 88)"><use href="#d-rocket" x="179" y="67" width="42" height="42"/></g></g>
+  </svg></div>
+  <!-- sits behind the robotics & simulation group -->
+  <div class="deco deco-robot warm" aria-hidden="true"><svg viewBox="0 0 100 100">
+    <circle cx="50" cy="11" r="3"/><path d="M50 14v8"/>
+    <rect x="30" y="22" width="40" height="28" rx="7"/>
+    <circle cx="41" cy="35" r="3.5"/><circle cx="59" cy="35" r="3.5"/>
+    <path d="M43 43h14"/>
+    <path d="M50 50v6"/>
+    <rect x="27" y="56" width="46" height="30" rx="6"/>
+    <rect x="43" y="64" width="14" height="12" rx="2"/>
+    <path d="M27 62 16 62 16 78"/><path d="M73 62 84 62 84 78"/>
+    <circle cx="16" cy="82" r="4"/><circle cx="84" cy="82" r="4"/>
+    <path d="M38 86v8M62 86v8M32 94h12M56 94h12"/>
+  </svg></div>
+  <!-- a Rubik's cube down by the hobbies group, where the puzzles entry lives -->
+  <div class="deco deco-cube warm" aria-hidden="true"><svg viewBox="0 0 100 100">
+    <path d="M50 14 84 34 84 66 50 86 16 66 16 34z"/>
+    <path d="M50 54 84 34M50 54 16 34M50 54v32"/>
+    <path d="M27.3 27.3 61.3 47.3M38.7 20.7 72.7 40.7M61.3 20.7 27.3 40.7M72.7 27.3 38.7 47.3"/>
+    <path d="M16 44.7 50 64.7M16 55.3 50 75.3M27.3 40.7v32M38.7 47.3v32"/>
+    <path d="M84 44.7 50 64.7M84 55.3 50 75.3M61.3 47.3v32M72.7 40.7v32"/>
+  </svg></div>
+  <!-- one wavy set above "Browse by area" -->
+  <div class="deco deco-waves-proj" aria-hidden="true"><svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+    <g class="wave-g">
+      <path d="M-200 40c100 0 100 28 200 28s100-28 200-28 100 28 200 28 100-28 200-28 100 28 200 28 100-28 200-28 100 28 200 28 100-28 200-28"/>
+      <path d="M-200 78c100 0 100 28 200 28s100-28 200-28 100 28 200 28 100-28 200-28 100 28 200 28 100-28 200-28 100 28 200 28 100-28 200-28"/>
+    </g>
   </svg></div>
 
   <div class="wrap">
@@ -1069,8 +1429,10 @@ footer{border-top:1px solid var(--rule);padding-block:30px;background:var(--pape
      ============================================================ -->
 <div class="strip" style="position:relative;overflow:hidden">
   <div class="deco deco-waves-top" aria-hidden="true"><svg viewBox="0 0 1200 130" preserveAspectRatio="none">
-    <path d="M0 40c120 0 120 34 240 34s120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34"/>
-    <path d="M0 86c120 0 120 34 240 34s120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34"/>
+    <g class="wave-g">
+      <path d="M-240 40c120 0 120 34 240 34s120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34"/>
+      <path d="M-240 86c120 0 120 34 240 34s120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34"/>
+    </g>
   </svg></div>
 
   <div class="wrap" style="margin-bottom:22px"><p class="label">Bits and pieces</p></div>
@@ -1114,11 +1476,26 @@ footer{border-top:1px solid var(--rule);padding-block:30px;background:var(--pape
 
 <!-- ============ EDIT ME #9 — EDUCATION ============ -->
 <section id="education">
-  <div class="deco deco-stars" aria-hidden="true"><svg viewBox="0 0 400 200">
-    <circle cx="24" cy="38" r="2.4"/><circle cx="88" cy="14" r="1.5"/><circle cx="132" cy="72" r="2"/>
-    <circle cx="196" cy="30" r="1.4"/><circle cx="244" cy="96" r="2.6"/><circle cx="310" cy="46" r="1.7"/>
-    <circle cx="366" cy="112" r="2.1"/><circle cx="56" cy="128" r="1.8"/><circle cx="172" cy="158" r="2.3"/>
-    <circle cx="286" cy="168" r="1.5"/><circle cx="348" cy="20" r="1.3"/><circle cx="112" cy="186" r="1.9"/>
+  <!-- A rocket riding an actual orbit around its planet. Replaces a scattered
+       star field that sat here and read as dirt on the screen. -->
+  <div class="deco deco-orbit-edu-2" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="150"/><circle cx="200" cy="200" r="46"/>
+    <ellipse cx="200" cy="200" rx="150" ry="44" transform="rotate(-18 200 200)"/>
+    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
+    <!-- The inner rotate() turns the rocket 90° about its own centre so its
+         nose lies along the orbit rather than pointing at the planet. The
+         outer .orbiter group is what actually carries it around. -->
+    <g class="orbiter"><g transform="rotate(90 200 50)"><use href="#d-rocket" x="176" y="26" width="48" height="48"/></g></g>
+    <!-- a second orbiter, the tight r=46 ring, going the other way -->
+    <g class="orbiter rev"><use href="#d-satellite" x="190" y="144" width="20" height="20"/></g>
+  </svg></div>
+  <div class="deco deco-orbit-edu warm" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="176"/><circle cx="200" cy="200" r="118"/><circle cx="200" cy="200" r="62"/>
+    <ellipse cx="200" cy="200" rx="176" ry="56" transform="rotate(-16 200 200)"/>
+    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="70" cy="284" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="330" cy="132" r="4" fill="currentColor" stroke="none"/>
+    <g class="orbiter"><use href="#d-satellite" x="184" y="66" width="32" height="32"/></g>
   </svg></div>
 
   <div class="wrap">
@@ -1158,6 +1535,33 @@ footer{border-top:1px solid var(--rule);padding-block:30px;background:var(--pape
 
 <!-- ============ EDIT ME #10 — EXPERIENCE ============ -->
 <section id="experience">
+  <!-- bled almost entirely off the right edge — only a sliver shows, kept
+       clear of the fixed progress rail on purpose -->
+  <div class="deco deco-orbit-3 warm" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="170"/><circle cx="200" cy="200" r="100"/><circle cx="200" cy="200" r="44"/>
+    <ellipse cx="200" cy="200" rx="170" ry="48" transform="rotate(-30 200 200)"/>
+    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="70" cy="130" r="6" fill="currentColor" stroke="none"/>
+    <!-- riding the r=100 ring -->
+    <g class="orbiter"><use href="#d-satellite" x="182" y="82" width="36" height="36"/></g>
+  </svg></div>
+  <!-- a second ring on the left, to balance the one on the right -->
+  <div class="deco deco-orbit-4" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="178"/><circle cx="200" cy="200" r="112"/><circle cx="200" cy="200" r="54"/>
+    <ellipse cx="200" cy="200" rx="178" ry="50" transform="rotate(20 200 200)"/>
+    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="330" cy="86" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="94" cy="296" r="4" fill="currentColor" stroke="none"/>
+    <g class="orbiter"><use href="#d-satellite" x="184" y="72" width="32" height="32"/></g>
+  </svg></div>
+  <!-- mid-height on the left. It used to sit at the bottom-left, directly on
+       top of the trajectory arc below — overlapping decos read as clutter. -->
+  <div class="deco deco-rocket" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#d-rocket"/></svg></div>
+  <div class="deco deco-traj-2 warm" aria-hidden="true"><svg viewBox="0 0 200 260">
+    <path d="M182 8C150 34 118 92 100 156 86 206 82 240 84 252"/>
+    <circle cx="182" cy="8" r="4" fill="currentColor" stroke="none"/>
+  </svg></div>
+
   <div class="wrap">
     <div class="section-head reveal">
       <p class="label">Experience</p>
@@ -1222,9 +1626,19 @@ footer{border-top:1px solid var(--rule);padding-block:30px;background:var(--pape
 <!-- ============ EDIT ME #11 — CONTACT ============ -->
 <section id="contact">
   <div class="deco deco-waves" aria-hidden="true"><svg viewBox="0 0 1200 170" preserveAspectRatio="none">
-    <path d="M0 44c100 0 100 30 200 30s100-30 200-30 100 30 200 30 100-30 200-30 100 30 200 30 100-30 200-30"/>
-    <path d="M0 88c100 0 100 30 200 30s100-30 200-30 100 30 200 30 100-30 200-30 100 30 200 30 100-30 200-30"/>
-    <path d="M0 132c100 0 100 30 200 30s100-30 200-30 100 30 200 30 100-30 200-30 100 30 200 30 100-30 200-30"/>
+    <g class="wave-g">
+      <path d="M-200 44c100 0 100 30 200 30s100-30 200-30 100 30 200 30 100-30 200-30 100 30 200 30 100-30 200-30 100 30 200 30 100-30 200-30"/>
+      <path d="M-200 88c100 0 100 30 200 30s100-30 200-30 100 30 200 30 100-30 200-30 100 30 200 30 100-30 200-30 100 30 200 30 100-30 200-30"/>
+      <path d="M-200 132c100 0 100 30 200 30s100-30 200-30 100 30 200 30 100-30 200-30 100 30 200 30 100-30 200-30 100 30 200 30 100-30 200-30"/>
+    </g>
+  </svg></div>
+  <div class="deco deco-orbit-contact warm" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="182"/><circle cx="200" cy="200" r="116"/><circle cx="200" cy="200" r="56"/>
+    <ellipse cx="200" cy="200" rx="182" ry="60" transform="rotate(28 200 200)"/>
+    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="336" cy="248" r="6" fill="currentColor" stroke="none"/>
+    <!-- riding the r=116 ring -->
+    <g class="orbiter"><use href="#d-satellite" x="183" y="67" width="34" height="34"/></g>
   </svg></div>
 
   <div class="wrap reveal">
@@ -1302,22 +1716,49 @@ var revealer=new IntersectionObserver(function(es){
 },{rootMargin:'0px 0px -8% 0px',threshold:.05});
 document.querySelectorAll('.reveal').forEach(function(el){ revealer.observe(el); });
 
-/* 5 — scrollspy for top nav and rail */
+/* 5 — nav links, active-section highlighting computed in the rAF loop below
+   (see #6) rather than via a separate IntersectionObserver. An observer-based
+   version was tried first and could disagree with the rocket: it fires
+   per-target as sections cross a rootMargin band, so during a fast scroll it
+   can process entries out of visual order and leave a stale section marked
+   active — reproducible by scrolling from #experience up into #education
+   quickly, where #experience would stay highlighted after the rocket had
+   already reached #education. Computing idx once per frame and driving both
+   the rocket AND this highlight from it makes that class of bug impossible:
+   there is exactly one number that says which section is "current". */
 var navLinks=document.querySelectorAll('.site-nav a, .rail a');
-var spy=new IntersectionObserver(function(es){
-  es.forEach(function(e){
-    if(!e.isIntersecting) return;
-    navLinks.forEach(function(l){
-      l.classList.toggle('is-active', l.getAttribute('href')==='#'+e.target.id);
-    });
+/* Native anchor scrolling (plus scroll-padding-top) lands a clicked section's
+   TOP edge just below the header — but the rocket/active-section logic reads
+   a point 45% down the viewport, not the top. Landing at the raw top means
+   you arrive with that section already a few hundred pixels into its own
+   "current" range, which felt like an overshoot and put the rocket further
+   down the gauge than the item you just clicked. Scrolling to the same 45%
+   anchor instead makes a nav click land exactly where onFrame() would call
+   frac=0 for that section — nav clicks and organic scrolling agree by
+   construction, the same way the rocket and the highlight now do (see #6). */
+navLinks.forEach(function(l){
+  l.addEventListener('click',function(e){
+    var id=l.getAttribute('href').slice(1);
+    var el=document.getElementById(id);
+    if(!el) return;
+    e.preventDefault();
+    var targetY=el.getBoundingClientRect().top+window.scrollY-window.innerHeight*0.45;
+    var maxY=document.documentElement.scrollHeight-window.innerHeight;
+    targetY=Math.max(0,Math.min(maxY,targetY));
+    window.scrollTo({top:targetY,behavior:reduced?'auto':'smooth'});
+    if(window.history && history.pushState) history.pushState(null,'','#'+id);
   });
-},{rootMargin:'-45% 0px -50% 0px'});
-document.querySelectorAll('section[id]').forEach(function(s){ spy.observe(s); });
+});
 
 /* 6 — progress bar, rocket, parallax, back-to-top: one rAF loop */
 var railFill=document.getElementById('railFill');
 var railPct=document.getElementById('railPct');
 var railRocket=document.getElementById('railRocket');
+var railTrack=document.querySelector('.rail-track');
+var railDots=Array.prototype.slice.call(document.querySelectorAll('.rail ol .dot'));
+/* same order as the rail's <ol> */
+var railSections=['about','selected','projects','education','experience','contact']
+  .map(function(id){ return document.getElementById(id); });
 var heroMedia=document.getElementById('heroMedia');
 var toTop=document.getElementById('toTop');
 var ticking=false;
@@ -1326,13 +1767,64 @@ function onFrame(){
   var y=window.scrollY;
   var max=document.documentElement.scrollHeight - window.innerHeight;
   var pct=max>0 ? Math.min(100,Math.max(0,(y/max)*100)) : 0;
+  if(railPct) railPct.textContent=Math.round(pct)+'%';
 
-  if(railFill) railFill.style.height=pct+'%';
-  if(railPct)  railPct.textContent=Math.round(pct)+'%';
-  if(railRocket){
-    var track=railRocket.parentElement.querySelector('.rail-track');
-    var h=track ? track.offsetHeight : 0;
-    railRocket.style.top=(10 + h*pct/100)+'px';
+  /* idx/frac below are computed from a single anchor point 45% down the
+     viewport, then drive BOTH the nav highlight and the rocket — the rocket
+     itself is positioned by interpolating between the dots' real on-screen
+     positions, not a raw page-scroll percentage, so it always lines up with
+     whichever section is current regardless of how long that section is. */
+  if(railDots.length===railSections.length){
+    var readerY=y+window.innerHeight*0.45;
+    /* idx threshold and the nav-click target (#5 above) must be measured
+       with the SAME api. offsetTop is layout-tree-relative and rounds to an
+       integer; getBoundingClientRect() is sub-pixel. Comparing readerY
+       (derived from a click target built from rect+scrollY) against
+       s.offsetTop could miss by a fraction of a pixel right at the boundary
+       — invisible normally, but if that miss lands on the FINAL resting
+       scroll position of a smooth-scroll nav click, no further scroll event
+       ever fires to self-correct, so the highlight sticks on the previous
+       section until the reader scrolls manually. Reading rect+scrollY here
+       too (plus a small epsilon) removes the cross-api mismatch entirely. */
+    var idx=0, secTop=[];
+    for(var i=0;i<railSections.length;i++){
+      var s=railSections[i];
+      secTop[i]=s ? s.getBoundingClientRect().top+y : 0;
+      if(s && readerY>=secTop[i]-1) idx=i;
+    }
+    var cur=railSections[idx], frac=0;
+    if(cur){
+      var top=secTop[idx], bottom=top+cur.offsetHeight;
+      frac=bottom>top ? Math.min(1,Math.max(0,(readerY-top)/(bottom-top))) : 0;
+    }
+    /* This idx is the single source of truth for "which section is current" —
+       used for the nav highlight AND the rocket, so they can't disagree. */
+    var activeId=cur?cur.id:null;
+    navLinks.forEach(function(l){
+      l.classList.toggle('is-active', !!activeId && l.getAttribute('href')==='#'+activeId);
+    });
+    if(railRocket && railFill && railTrack){
+      var trackRect=railTrack.getBoundingClientRect();
+      var dotA=railDots[idx].getBoundingClientRect();
+      var dotB=railDots[idx+1] ? railDots[idx+1].getBoundingClientRect() : dotA;
+      var yA=dotA.top+dotA.height/2-trackRect.top;
+      var yB=dotB.top+dotB.height/2-trackRect.top;
+      var rocketTop=yA+(yB-yA)*frac;
+      /* Deliberate overshoot at the very top/bottom of the whole tracked
+         range — not just clamping, forcing it — so the rocket clears the
+         track with no unfilled rule showing past it. NOT symmetric: the nose
+         is a narrow pointed shape, so the same pixel overshoot that looks
+         right for the wide rounded flame at the bottom reads as "way too
+         much rocket poking out" at the top — top only needs to clear by the
+         tip. idx===0/last && frac===0/1 only happens at the true start/end
+         (before #about, or past #contact). */
+      var OVER_TOP=0, OVER_BOTTOM=13;
+      if(idx===0 && frac===0) rocketTop=Math.min(rocketTop,-OVER_TOP);
+      if(idx===railSections.length-1 && frac===1) rocketTop=Math.max(rocketTop,trackRect.height+OVER_BOTTOM);
+      rocketTop=Math.max(-OVER_TOP,Math.min(trackRect.height+OVER_BOTTOM,rocketTop));
+      railRocket.style.top=rocketTop+'px';
+      railFill.style.height=(trackRect.height ? Math.max(0,Math.min(100,rocketTop/trackRect.height*100)) : 0)+'%';
+    }
   }
   if(heroMedia && !reduced && y < window.innerHeight*1.2){
     heroMedia.style.transform='translateY('+(y*0.28)+'px)';

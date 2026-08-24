@@ -123,8 +123,15 @@ belonging to this person rather than to a template. Keep metadata in mono.
 
 1. **Sticky header** — brand, two status chips, vertical divider, nav, mobile
    menu button.
-2. **Hero** — full-bleed photo with parallax, gradient veil, serif name,
-   one-line positioning statement, bobbing scroll cue.
+2. **Hero** — full-bleed photo with parallax, gradient veil, serif name, a
+   small mono pronunciation line, one-line positioning statement, bobbing
+   scroll cue. The name is plain text, no `<em>` — an earlier version
+   italicised the surname only, which read as if it were being emphasised or
+   were a different name; first and last name now share identical styling.
+   The pronunciation line (`.hero-pronounce`, small mono, dim white,
+   between the name and the positioning statement) exists specifically
+   because "Jędrzej" trips up an English-speaking reader — keep it dry
+   ("(yes, really)"), not apologetic, matching the rest of the voice.
 3. **`#about`** — facts sidebar (left), prose (right), social pills.
 4. **`#selected`** — mosaic of six featured tiles.
 5. **`#projects`** — five category cards, then five grouped lists of entries.
@@ -216,46 +223,585 @@ must be duplicated exactly once** for the loop to be seamless. Pauses on hover
 and on keyboard focus-within. Each card is a button with `data-target` and opens
 an entry, same as the tiles.
 
+The strip is deliberately full-bleed (no `.wrap`), which means it sits under
+the fixed progress rail's screen column whenever the rail is visible.
+`.strip-viewport` gets `margin-right` (270px full mode / 135px compact mode,
+matching the rail's footprint above with a safety margin) to keep cards from
+sliding under it. **This has to be `margin-right`, not `padding-right`** —
+`overflow:hidden` clips at the padding edge, so content in the padding area is
+still visible; only shrinking the box itself (which `margin-right` does, on a
+`width:auto` block) actually narrows what's visible.
+
+Hidden below 700px (`.strip{display:none}`) — the marquee only pauses on
+`:hover`/`:focus-within`, neither of which fires on touch, so cards drift
+while you're trying to tap one. That's a real broken interaction, not just an
+unpolished one, so it's cut for now rather than left live pending a full
+mobile pass.
+
 ### Progress rail
 
-Right-hand side, screens ≥1400px. Structure: percentage readout, then a flex row
+Right-hand side, screens ≥900px. Structure: percentage readout, then a flex row
 containing the nav list and a separate `.rail-gauge` column. The gauge being its
 own column is the fix for an earlier bug where the rocket overlapped the section
 dots — **keep the rocket inside `.rail-gauge`, never in the list column.**
 
-Fill height and rocket `top` are both driven by page scroll percentage in the
-shared `requestAnimationFrame` loop. Labels hide below 1800px so the wider
-content area has room; dots and gauge remain.
+#### Sizing — why the breakpoints are what they are
+
+The rail is `position:fixed`, so it overlays the page rather than displacing
+it. It therefore has to fit inside the empty margin to the right of the
+content, which is:
+
+```
+freeRight = max(0, (100vw − var(--wrap)) / 2) + var(--gutter)
+```
+
+Two modes, chosen so the rail never lands on text:
+
+| Width | Mode | Rail occupies | Layout |
+|---|---|---|---|
+| ≥1800px | full | 259px | label pill beside each planet |
+| 900–1799px | compact | ≤119px | tiny label *under* each planet |
+| <900px | hidden | — | — |
+
+Compact mode's footprint is a ceiling, not a fixed number — `.rail-body` and
+`.rail ol`'s gaps are `clamp()`s that shrink as the viewport narrows within
+that range (planets pull in toward the rocket, and the whole list compresses)
+rather than holding one size until the 900px cliff. 119px is the clamp's
+*maximum*, at the top of the range; it only gets smaller from there, so it
+never threatens the clearance math below.
+
+**These numbers are hand-derived and must be re-derived if `--wrap`,
+`--gutter`, the pill's `min-width`, the planet size, or the rail's `right`
+offset change.** The old rail showed from 1400px in one fixed layout, and
+between 1400 and 1500px it sat directly on top of the text — that's the bug
+these breakpoints fix, so don't lower a threshold without redoing the
+arithmetic (there's a Python snippet worth reusing for this: model
+`freeRight(vw)` and each mode's exact box-model footprint, then check the
+floor of its range).
+
+Compact mode's floor was pushed from 1520px down to 900px on request ("keep
+the rail alive longer as the screen narrows, shrink the page instead of
+losing the rail") — but the natural gutter alone isn't wide enough for
+compact's 123px footprint below ~1520px (at 900px it's only ~40px). The fix
+is a **separate** `900–1519px` query that adds `100px` of extra
+`padding-right` to `.wrap` — i.e. the page's content column itself gets
+narrower in that range, which is "shrink the rest, not the rail" quite
+literally. That padding rule is intentionally flat (not `vw`-scaled) because
+CSS can't subtract a `clamp()` from a fixed target in one declaration; it only
+needs to be safe at the 900px floor, so it leaves unused slack near 1519px —
+that's fine.
+
+`.rail` is `pointer-events:none` with `pointer-events:auto` restored on the
+links. Without that, the 150px of `padding-left` that reserves room for the
+pills would swallow clicks on the page underneath it.
+
+In full mode, `.rail-label` being `position:absolute` means it doesn't
+contribute to its parent `<a>`'s own box — so the `<a>`'s clickable area
+stopped at the planet, and the gap between the visible pill and the planet
+wasn't clickable. **The fix is an invisible `.rail a::before`** sized to the
+same 150px reserve, not `padding-left` on the `<a>` — padding-left was tried
+first and broke the pill's own position: `.rail-label`'s `right:100%` is
+measured against its containing block's *padding box*, so widening `<a>`'s
+padding box with `padding-left` pushed the visible pill another 150px further
+left than intended, opening a large visible gap between the pill and its
+planet. **If extending an element's click area and it also contains an
+absolutely-positioned, percentage-offset child, use a separate pseudo-element
+or sibling for the hit area — never grow that element's own padding/box**,
+since that's exactly the box any percentage offset inside it is measured
+against.
+
+`.rail::before` is a hairline that fences the rail off from the page —
+deliberately more visible than a standard `--rule` divider: 2px,
+`min(100vh,980px)` tall in full mode / `min(94vh,760px)` in compact
+(stretching nearly the full viewport height on request), and coloured with
+the **same blue gradient as the gauge fill** (`--accent-2` → `--accent` →
+`--accent-2`, not the neutral `--ink-3`/`--rule` mix it started as) so the
+rail visually reads as one blue system rather than a grey divider next to a
+blue bar. The fade at each end is deliberately gradual — stops at `22%`/`78%`,
+not a tight `8%`/`92%` — so the line reads as emerging from/receding into the
+page rather than switching on abruptly. This is a purposeful section
+boundary, not incidental chrome. It's positioned at `right:100%`, i.e. the
+rail's own left edge — which is only in the right place because
+`padding-left` on `.rail` (not on the `<a>`s — see above) makes the rail's
+box actually enclose its absolutely-positioned pills. Drop the padding and
+the rule lands in the middle of them.
+
+**The label pills are the default at every width the rail appears at.** They
+were once scoped to a `max-width:1799px` query, so on a large monitor the
+boxes disappeared and the labels read as loose floating text.
+
+**Unselected items must stay clearly visible, not just the active one.**
+Planets were `--ink-3 @ .55` and close to invisible; they're now `--ink-2 @
+.8` at 36px (up from 30px). Stroke-width went `1.5→1.7` then back down to
+`1.4` — 1.7 overshot into looking heavy-handed once the size and opacity were
+already fixed, so don't stack all three dials up at once next time; opacity
+and size carry most of the "can I see this" job, stroke is a fine-tuner.
+Labels went from `--ink-2 @ .85` to `--ink @ .95`. If a future pass wants the
+active state to stand out *more*, push the active item's treatment further
+rather than dimming the rest — dimming the rest is what broke this the first
+time. `.rail ol`'s `gap` also went `38px→46px`, making the whole rail taller
+so there's more air between markers ("more separation between sections") —
+purely vertical, doesn't touch the horizontal clearance math above.
+
+**`.rail-body` carries an explicit `height:min(58vh,446px)`** — without it,
+the track's physical length was whatever `ol`'s content-plus-gaps happened to
+add up to, which meant compact mode's smaller `.rail-body`/`.rail ol` gaps
+(shrunk deliberately so planets can pull closer together as the viewport
+narrows) also made the *track itself* visibly shorter, not just the spacing
+between planets — the progress bar read as a different length in compact
+mode than in full mode. `align-items:stretch` on `.rail-body` then stretches
+both `ol` and `.rail-gauge` to fill that fixed height regardless of mode;
+`ol`'s own `gap` still sets a *minimum* spacing (so the narrowing behaviour
+described above is unaffected), and `justify-content:space-between` spends
+whatever height is left over beyond that minimum evenly between the planets.
+**If the rail ever needs to look taller or shorter, change this one height**
+— not the mode-specific gaps, which exist to control spacing, not overall
+length, and changing them now no longer changes the track's length at all.
+
+Fill height and rocket `top` are **not** driven by raw page-scroll percentage —
+that was tried first and drifted out of sync with the dots, because sections
+have very different heights (`#projects` alone holds all seventeen entries) so
+a linear scroll fraction doesn't land on the right dot. Instead, each frame:
+find which section contains a fixed anchor point 45% down the viewport,
+compute how far through that section the reader is, then interpolate between
+that section's dot and the next dot's *actual measured screen position*
+(`getBoundingClientRect`). This guarantees the rocket always sits on (or
+between) the correct dots regardless of section length. **Do not go back to a
+page-scroll-percentage formula for the rocket/fill** — reading real dot
+positions is what keeps it correct.
+
+**That same computed `idx` also drives which nav link gets `is-active`** —
+for both `.site-nav` and `.rail`, in the same `onFrame()` pass, not via a
+separate `IntersectionObserver`. An observer-based scrollspy was the original
+implementation and could disagree with the rocket: it fires once per section
+as it crosses a rootMargin band, using its OWN, slightly different reference
+geometry, and during a fast scroll can process a batch of entries out of
+visual order, leaving a stale section marked active — reproducible by
+scrolling from `#experience` up into `#education` and landing fully in
+`#education` while `#experience` stayed highlighted. **Don't reintroduce a
+separate observer/mechanism for nav highlighting** — there must be exactly
+one calculation for "which section is current," or the rocket and the
+highlighted label can drift apart again.
+
+Having one calculation wasn't quite enough on its own, though: a second,
+subtler version of the same class of bug showed up as clicking a nav link
+sometimes leaving the *previous* section highlighted even once the page had
+visibly scrolled to the right place — reproducible occasionally, not always,
+and self-correcting the moment you scrolled manually afterward. The cause was
+a units mismatch, not a logic mismatch: the click handler computes its scroll
+target from `getBoundingClientRect().top + scrollY` (sub-pixel), while the
+`idx` loop was comparing that against `s.offsetTop` (layout-tree-relative,
+rounded to an integer). The two numbers describe the same point but can
+differ by a fraction of a pixel, and right at a section boundary that's
+enough to miss the `readerY >= offsetTop` threshold. Normally a near-miss like
+that self-heals on the next scroll event — but a `behavior:'smooth'`
+`scrollTo()` fires its *last* scroll event exactly at its resting position,
+so if that final position is the one that misses, nothing scrolls again to
+correct it, and the wrong section stays lit until the reader moves the page
+by hand. The fix: the `idx` loop now reads each section's position with
+`getBoundingClientRect()` too (plus a 1px epsilon for general safety), so the
+click target and the highlight threshold are always measured with the same
+API at the same precision. **Any code comparing a scroll-derived position
+against a section's position must get both numbers from the same
+measurement API** — mixing `getBoundingClientRect()` with `offsetTop`/
+`offsetHeight` reintroduces exactly this class of rare, self-healing-until-
+it-isn't bug.
+
+The rocket also **deliberately overshoots past the track's ends** at the very
+top and bottom of the whole scrollable range (before `#about`, past
+`#contact`) — forced to `-OVER_TOP`/`trackHeight+OVER_BOTTOM` rather than
+merely clamped to `0`/`trackHeight`, so the nose/flame visibly clears the
+track with no unfilled rule showing past it. This only triggers when
+`idx===0/last && frac===0/1` — i.e. truly at an end, not just near a dot —
+so normal interpolation between dots is unaffected. **The two overshoot
+amounts are intentionally different (top `0px`, bottom `13px`), not a
+typo** — the nose is a narrow pointed shape and the flame is a wide rounded
+one, so the same pixel overshoot reads as "way too much rocket" at the
+pointed end and looks right at the rounded one. Top went through `5px` before
+settling at `0`: even with zero *forced* overshoot, the nose still visibly
+clears the track on its own, because the rocket icon isn't vertically
+symmetric around its own bounding-box centre — the nose sits well above the
+icon's geometric middle (window circle) while the flame sits well below, so
+centring the 44px box on the track position already puts the nose several
+pixels above the line before any forcing is added on top. Forcing on top of
+that inherent offset was doubling up and reading as "way too much rocket" at
+the top specifically; the bottom doesn't have the same problem because the
+flame is much closer to the icon's true visual weight, so its `13px` forced
+overshoot is additive on a nearly-zero inherent offset instead. If the top
+ever needs to poke out *more* again, prefer nudging the icon's own vertical
+centring before reaching back for a positive `OVER_TOP`. If either end starts
+looking off again, adjust that end's constant, not both together.
+
+**Nav-link clicks (`.site-nav a`, `.rail a`) don't use native anchor
+scrolling** — they're intercepted (`preventDefault` + `window.scrollTo`) to
+land at the same 45%-down-viewport anchor point `onFrame()` reads for
+`idx`/`frac`, not at the section's raw top edge. Native anchor scroll (via
+`scroll-padding-top`) lands the target's top just under the header, which is
+a *different* reference point than the rocket uses — arriving that way means
+the section is already a few hundred pixels into its own "current" range on
+arrival, so the rocket sits visibly past its own dot right after you click
+it, which read as unnatural. Scrolling to the 45% anchor instead makes a nav
+click and organic scrolling agree on frac=0 for the same landing spot, the
+same way §"single source of truth" above makes the rocket and the highlight
+agree. `scroll-padding-top:96px` on `html` is left in place as a fallback for
+real anchor navigation this doesn't intercept (a direct link to `#about`,
+browser back/forward) — it's fine that this is a different offset from the
+JS one, since it's a secondary path, not the primary interaction.
+
+**The labels must stay visible at all times** in every mode, never hover-only
+— people need to read the section names to navigate by them. **Don't go back
+to a blanket `display:none`, or to hover-only visibility, on `.rail-label`**
+— both were tried and made the rail unusable as navigation. Every planet/label
+pair is a single `<a href="#section">`, i.e. already a real link — no separate
+click handler needed when extending this.
+
+The rocket's flame (`.rail-rocket .flame` / `.flame-core`) is two nested
+teardrop `<path>`s, not a stroked line — a straight line has no fill area, so
+if it's flattened back to one path it will disappear rather than shrink. Outer
+flame is solid `--accent-warm`; inner core is that same token blended toward
+`--paper` via `color-mix()`, not a new colour — keep any future flame tweaks
+to variations on those two tokens, not a new hue.
+
+The section markers are **tiny planets and moons**, not plain dots — six
+distinct `#p-*` sprites (ringed planet, crescent moon, banded planet, cratered
+moon, second ringed planet, planet-with-companion), one per section, all at the
+same visual weight so the column still reads as one set of markers. The active
+state is colour + `scale()` + a `drop-shadow` glow. **It must not go back to a
+`box-shadow` ring** — a spread ring grows outward into the label pill next to
+it and collides with it; `drop-shadow` blurs outward without claiming layout
+space. The labels themselves carry `min-width` + `text-align:center` so every
+pill is identical in size regardless of how long the section name is.
 
 ### Icon sprite
 
 An inline `<svg>` of `<symbol>` elements at the top of `<body>`, used as
 `<svg class="ic"><use href="#i-mail"/></svg>`. All stroke-based, all inheriting
-`currentColor` so they recolour with context. Eighteen symbols currently. Add
-more by copying a `<symbol>` with `viewBox="0 0 24 24"` and stroke paths —
-**no `fill` attributes**, the `.ic` class handles that.
+`currentColor` so they recolour with context. Add more by copying a `<symbol>`
+with `viewBox="0 0 24 24"` and stroke paths — **no `fill` attributes**, the
+`.ic` class handles that.
+
+Three families, distinguished by id prefix:
+
+- `i-*` — real UI icons used through `.ic`.
+- `p-*` — the progress rail's planet/moon markers.
+- `d-*` — decoration-only. These carry `vector-effect="non-scaling-stroke"`
+  **on their own paths**, because CSS can't reach inside a `<use>` shadow tree
+  to set it (see §6). Any new decoration symbol needs that attribute or it
+  will draw a hugely thick stroke when scaled up.
 
 ---
 
 ## 6. The decorative layer
 
-`.deco` elements are absolutely-positioned SVGs behind content: orbit rings,
-scattered stars, a dashed trajectory arc, wave crests. They give the page
-personality without noise, and they mix two motif families deliberately —
-**space** (rockets, orbits, stars, trajectories) around the engineering
-sections, **water** (waves) around the photo strip, hobbies and contact.
+`.deco` elements are absolutely-positioned SVGs behind content. Three ways to
+build one, in order of preference:
+
+1. **Orbit rings** (`deco-orbit*`) — concentric circles + a tilted ellipse +
+   a filled core and one or two satellite dots, always spinning at
+   200s/rotation. **This is the house motif and the thing to reach for first.**
+   The one at the top-right of `#selected` is the reference example. Vary the
+   ring count, ellipse tilt and satellite placement between instances so they
+   aren't clones, and feel free to hang extra things on one (a planet at the
+   centre, a rocket in orbit) — that's the intended way to get variety, rather
+   than inventing an unrelated new shape.
+2. **Sprite reuse** — `<use href="#d-rocket"/>` or `<use href="#d-satellite"/>`,
+   scaled way up. Use the `d-*` decoration variants, never `i-*` directly: they
+   carry `vector-effect="non-scaling-stroke"` so they stay hairline at any size
+   (see the stroke-width note below). `#d-rocket` is reused because it already
+   means something elsewhere (the to-top button, the progress rail);
+   `#d-satellite` — a central square body, a rod out of two opposite sides,
+   a rectangle (panel) on each rod end — exists purely for this layer, since
+   nothing else in the UI needed a satellite. Both are drawn simply on
+   purpose: at decoration scale, fine detail disappears anyway.
+3. **Hand-drawn one-offs** — trajectory arcs (dashed `stroke-dasharray:1.5 11`
+   + `stroke-linecap:round` paths — small round dashes read as a dotted flight
+   path; the earlier flat-cap `4 12` read as broken tick marks), or bespoke
+   content-specific glyphs, each parked beside the thing it refers to rather
+   than floating generically: the telescope-aimed-at-a-moon and the quadcopter
+   sit behind the JPL and swarm tiles in `#selected`, the robot behind the
+   robotics group, the Rubik's cube by the hobbies group where the puzzles
+   entry lives. Build a one-off when the content calls for something
+   *specific*, not as a default.
+
+`deco-traj`'s arc has a filled dot at the launch end and a **hollow** ring at
+the other — give a trajectory two different markers, not two identical dots,
+so it visibly reads as "from here, to there" rather than just being a curved
+line with decoration at both ends.
+
+**Any hand-drawn glyph built from several rigidly-connected parts (a tube +
+its mount, a body + its limbs) should rotate as ONE `<g transform="rotate(...)">`
+wrapping all of them, with every part's coordinates written in that group's
+local space — not each part given its own independent `transform="rotate(...)"`.**
+`deco-telescope` originally did the latter (the tube, the finder scope and the
+eyepiece each had their own separate rotation, around three slightly different
+pivot points), and even with the same angle on all three, independent pivots
+meant they didn't stay correctly attached to each other. One shared group with
+one shared pivot makes that whole class of misalignment impossible — parts
+drawn touching in local coordinates stay touching after rotation, always.
+
+A part that must stay unrotated regardless of the assembly's angle
+(`deco-telescope`'s tripod mount) sits outside the group, anchored to a point
+computed by applying the same rotation to the assembly's actual attachment
+coordinate — **that point should be the assembly's true geometric centre, not
+an eyeballed guess.** The mount was originally attached at a hand-picked point
+that turned out to read as biased toward the objective end; it's now anchored
+to the tube's actual midpoint (local x=39, the middle of the 12–66 span),
+rotated through the exact same transform as the tube. If a similarly-composed
+glyph's mount/leg/stand looks off-centre, check whether its attachment point
+was computed from the assembly's real geometry or just guessed.
+
+The same tube also carries a centreline marking where its wide and narrow
+portions meet (`M39 48.5V60`, inside the rotated group). It has to be
+anchored at that same `x=39` the mount uses, not just "wherever it looks
+about right" — the two are meant to visually meet at the tripod, and any
+offset between them (it was at `x=40` before, one unit off) puts the
+centreline's rotated position several units away from the mount's rotated
+position once the `-34°` transform is applied to both, since only the
+rotation's exact pivot point stays fixed under rotation — everything else
+moves, by an amount that grows with its distance from the pivot. Its two
+endpoints are also computed from the tube's actual slanted top/bottom edges
+at `x=39` (`48.5` and `60`) rather than a rounder-looking guess, the same
+edge-interpolation fix already applied to the finder-scope strut below — a
+flat guess is what let the earlier version poke a bit past the tube's own
+top surface.
+
+A part that's meant to *touch* another rigidly-rotated part but isn't itself
+inside the rotation group (`deco-telescope`'s finder-scope support strut,
+connecting to the tube's slanted top edge) needs its endpoint computed
+against that edge's actual position at that x, not a flat guess — the tube's
+top edge is a slanted line (`(12,51)→(66,46)`), so "where does the strut end"
+is a linear interpolation, not a constant. Using a flat guess there is what
+originally left the finder scope reading as disconnected from the tube.
+
+The moon reads as "further away" through distance and scale, not size alone —
+it's deliberately small (`r=14`/`10`, down from an earlier oversized `r=22`)
+and pushed almost entirely off the corner of the viewBox so most of it bleeds
+past the edge, on a canvas shrunk back down (`300px`/`28vw`, down from an
+earlier `420px`/`40vw` — that width was wide enough to overflow and break
+layout in narrow/compact viewports) so it partially tucks behind the JPL
+mosaic tile sitting in front of this deco — "further away, partially behind
+the image" was the brief; making the moon itself bigger had actually pushed
+the opposite reading (closer, more prominent), so shrinking it while keeping
+it corner-bled is what sells "distant." Its stars are `<use href="#i-star"/>`
+(the sprite's proper 4-point
+sparkle, filled via `.deco-telescope svg use{fill:currentColor;stroke:none}`),
+not hand-drawn diamond `<path>`s — the diamonds were a workaround for a
+vector-effect concern that turns out not to apply here: that concern is only
+about *stroked* shapes scaling their stroke-width, and these stars are
+rendered with `stroke:none`, so there's no stroke to scale in the first
+place. **`<use href="#i-star"/>` with `fill:currentColor;stroke:none` is safe
+to reuse anywhere a small filled star accent is wanted** — reach for that
+before hand-drawing another star shape.
+
+`#d-rocket`'s flame starts and ends exactly on the body's bottom edge
+(`9.6,17` → `14.4,17`) so the outline is continuous. It was originally a
+closed teardrop floating just below the body, which left a visible hole at the
+engine end — **if you redraw it, keep both endpoints on that edge.**
+
+The fins are **closed triangles**, not a single flare line and not an open
+fin-plus-step zigzag — both were tried and rejected. A single stroked line
+(`M9.6 17 7.4 20.5`) reads as a wire, not a fin. The original zigzag's second
+segment doubled back in toward the rocket's centreline right after flaring
+out, and that return stroke crossed straight through the flame's curve just
+below the body. The fix that works is a genuine closed triangle
+(`M9.6 17 7.1 20.4 9.6 15.3Z`) — attach corner on the body's bottom edge, out
+to a tip, then back up to a second attach point higher on the body, closed —
+with every vertex kept at or outside the body's own edge (`x<=9.6` for the
+left fin, `x>=14.4` for the right), so the diagonal return edge never enters
+the flame's leftward bulge (its curve only reaches about `x=9` on that side).
+**If a fin's shape changes again, check every vertex against the flame's
+bulge, not just the endpoints** — it's the diagonal *edge*, not just where it
+starts and ends, that can cut through the flame if a vertex drifts inward.
+The rail's own inline rocket (`#railRocket`'s `<svg>`, a separate hand-drawn
+shape, not a `<use>` of `#d-rocket`) had the identical bug for the identical
+reason and got the identical fix — keep the two in sync if either's fins
+change.
+
+### Stroke width — the thing that makes or breaks these
+
+`.deco svg *{vector-effect:non-scaling-stroke}` makes every deco shape draw at
+the same on-screen hairline no matter how far its viewBox is scaled up.
+Without it `stroke-width` is multiplied by the scale factor, so a 24-unit icon
+blown up to 200px drew an ~8px stroke while a 400-unit orbit ring at the same
+size drew ~1px — which is exactly why the background rockets once looked far
+heavier than everything around them. **Don't remove that rule, and don't go
+back to hand-tuning tiny per-class `stroke-width` values to compensate.** The
+rule can't reach inside a `<use>` shadow tree, which is why the `d-*` symbols
+carry the attribute on their own paths instead.
+
+### Orbiters — a rocket or satellite actually riding a ring
+
+Almost every orbit ring on the page now carries at least one `<g
+class="orbiter">` wrapping a `<use>` of `#d-rocket` or `#d-satellite`,
+positioned at the top of one of the ring's circles and spinning around the
+ring's centre (`.orbiter{animation:spin-slow 80s...;transform-origin:200px
+200px}` — a different rate from the ring's own 200s spin, so the two never
+fall back into sync). Two rings (the education ring, and the `#selected`
+favourite ring) carry **two** orbiters each, riding different circles: the
+second one adds class `rev` (`.orbiter.rev{animation-direction:reverse}` —
+plays the same `spin-slow` keyframe backwards, no separate keyframe needed)
+so the pair visibly counter-rotate rather than reading as one shape trailing
+another. **There's no cap on how many orbiters one ring can carry** — the
+request that produced the second ones was explicitly "no problem having two
+on one symbol, orbiting in different directions," so treat that as
+permission, not a special case.
+
+**`.orbiter` carries `fill:var(--paper)`, and that's load-bearing.** Every
+other deco shape is a bare stroke outline (`fill:none`), which is fine when
+nothing crosses behind it — but an orbiting body visually crosses the ring
+it's riding, and document order alone (later paint = on top) doesn't stop an
+*unfilled* shape from looking pierced by a stroke that's technically behind
+it, because there's nothing opaque to occlude it with. Giving the orbiter a
+real fill is what makes it read as flying in front of the ring rather than
+being skewered by it. **Don't drop that fill to "match" the rest of the
+hairline system** — the reason every other deco *can* stay unfilled is that
+nothing else in this layer overlaps another deco shape by design.
+
+A rocket orbiter also needs an inner `rotate(90 cx cy)` on top of the outer
+`.orbiter` rotation — `#d-rocket`'s nose points "up" in its own coordinates,
+and the 90° turn is what makes it tangential to the ring (flying alongside
+the orbit) instead of pointing straight out of the planet. `#d-satellite` is
+symmetric enough along its rod axis that it doesn't need the equivalent turn.
+
+### Motifs and placement
+
+Two families deliberately — **space** (rockets, satellites, orbits, planets,
+trajectories) around the engineering sections, **water** (full-bleed wave
+paths) around the photo strip, hobbies and contact.
+
+### ⚠ Ongoing colour experiment — expect this to possibly get reverted
+
+`.warm` (switches a deco's `color` from `--accent` to `--accent-warm`) is
+currently applied to roughly half the deco elements, **interleaved within
+sections rather than assigned by whole section**, as an explicit,
+flagged-as-temporary experiment ("test having half the decorations a
+different colour... we might revert later", later escalated to "mix and match
+the colours more... switch them up more"). It is **not** a settled design
+decision the way the rest of this file's rules are. If a future session is
+asked to revert it: remove `warm` from the `class` list on each deco div
+listed *(warm)* in the table below — `deco-traj` and `deco-traj-2` keep it
+regardless, they were warm before this experiment and aren't part of it.
+Section 3's "copper, used sparingly, on a tight leash" rule for
+`--accent-warm` is exactly the constraint this experiment is testing against;
+don't treat this section as having quietly overridden that rule until the
+experiment is confirmed to stay.
+
+**No scattered star fields.** Two versions were tried — plain `<circle>` dots
+and `#i-star` sparkles as a standalone field — and both read as dirt on the
+screen rather than as sky. Where one used to sit, an orbit ring goes instead.
+The realised version of "stars as a deliberate accent inside another deco" is
+`deco-telescope`'s eight `<use href="#i-star"/>` stars around the moon (see
+the one-offs section below for why `<use>` is safe here despite the general
+`vector-effect`-can't-reach-`<use>` caveat — short version: these are filled,
+`stroke:none`, so there's no stroke to scale in the first place).
+
+Every content section carries at least one `.deco`, and long sections carry
+several so the motif recurs as you scroll rather than appearing once at the
+top and vanishing. Essentially every orbit ring on the page now carries at
+least one orbiter (see above) — treat "plain, orbiter-less ring" as the
+exception going forward, not the default.
+
+| Section | Decorations, roughly top to bottom |
+|---|---|
+| `#about` | `deco-orbit-about` *(warm)* — bottom-**left**, bled off the corner, satellite orbiter |
+| `#selected` | `deco-orbit` — top-right, the reference, rocket + counter-rotating satellite; `deco-telescope` *(warm)* (left); `deco-drone` (left, low, level with the swarm tile); `deco-orbit-sm` *(warm)* — bottom-right, satellite orbiter |
+| `#projects` | `deco-waves-proj` (a wavy set across the top, above "Browse by area"); `deco-traj` *(warm)* (right); `deco-orbit-left` (left, behind space & rocketry, satellite orbiter); `deco-rocket-b` (left, 33%); `deco-robot` *(warm)* (left, 46%, behind robotics & simulation); `deco-orbit-mid` (right, rocket orbiter); `deco-cube` *(warm)* (left, 76%, by the hobbies group where the puzzles entry lives); `deco-orbit-2` *(warm)* (bottom-left, satellite orbiter) |
+| photo strip | `deco-waves-top` |
+| `#education` | `deco-orbit-edu-2` (top-left, rocket + counter-rotating satellite); `deco-orbit-edu` *(warm)* (bottom-right, satellite orbiter) |
+| `#experience` | `deco-orbit-4` (top-left, satellite orbiter); `deco-orbit-3` *(warm)* (right, bled almost fully off-canvas, satellite orbiter); `deco-rocket` (left, mid); `deco-traj-2` *(warm)* (bottom-left) |
+| `#contact` | `deco-orbit-contact` *(warm)* (top-left, satellite orbiter); `deco-waves` (bottom) |
+
+*(warm)* = part of the ongoing colour experiment, see below — expect these
+tags to go stale if it's reverted. The assignment was deliberately reshuffled
+once already (originally applied by whole section — every deco in
+about/projects/experience warm, everything else blue — which read as blocky;
+now interleaved within each section too) on the explicit request to "mix and
+match the colours more." **If asked to mix further, keep editing
+individual elements' `warm` class, don't go back to toggling it by section.**
+
+Suffixes (`-2`/`-3`/`-4`/`-b`/`-mid`/`-left`/`-edu`/`-about`/`-sm`/`-contact`)
+exist so a repeated motif never sits at an identical offset twice; follow that
+pattern rather than reusing one class's exact position in two places.
+
+`#projects` is the crowded one — five decorations down its left edge. Because
+they're placed by `top:%` against a section whose height depends on how many
+entries exist, **adding or removing entries shifts them all**. The current
+spacing assumes the entries are collapsed (~2150px tall) and leaves 45–80px
+between neighbours; if entries are added, re-check the gaps.
+
+**Never let two decorations overlap each other.** This has been flagged
+repeatedly and is the single easiest way to make the page look cluttered: a
+rocket landed on top of an orbit ring in `#projects`, and another sat on the
+trajectory arc in `#experience`. When adding one, work out the vertical band
+it occupies (`top`/`bottom` % × the section's real height, plus its own
+height) and check it against every other deco in that section. Opposite sides
+of the page don't count as overlapping.
+
+**Keep decor — especially rocket-shaped decor — off the right edge in the
+vertical band the fixed progress rail occupies (roughly the middle third of
+the viewport, at any scroll position, ≥1400px).** A background rocket sitting
+near the rail's own rocket reads as the two arguing with each other, not as
+atmosphere; a background orbit ring there is a smaller problem but still
+competes with real navigation UI. Where a right-side element is kept anyway
+(`deco-orbit-3` in `#experience`), bleed nearly all of it off-canvas so only a
+sliver shows. Prefer the left edge for anything new.
+
+**Don't put two full-width wave paths (`deco-waves`/`deco-waves-top`-style)
+close together on the page** — that was tried in `#projects` right above the
+photo strip's own wave and read as a mistake, not a motif, once you scrolled
+past both in the same screenful. The three that exist (`deco-waves-proj` at
+the top of `#projects`, `deco-waves-top` on the photo strip, `deco-waves` at
+contact) are each separated by most of a section's height.
+
+A small contained wave *glyph* was tried as a middle ground near the hobbies
+group and cut — it read as a leftover next to the orbit rings rather than as
+part of the set. The water family is now full-bleed wave paths only; the
+`#d-wave` symbol that backed it has been deleted. **Don't reintroduce a small
+wave icon** — if a section needs more presence, add an orbit ring.
+
+Full-bleed wave paths are drawn from `x=-200` out to `x=1400` inside a
+`0 0 1200 …` viewBox, and wrapped in `<g class="wave-g">`. Both details are
+load-bearing for the `wave-drift` animation: the overhang means the sideways
+drift never exposes a bare edge, and animating the inner `<g>` (rather than
+the `<svg>`) keeps the SVG's own clip still so the overhang scrolls into view.
+**If you add a wave, copy that structure** — a path drawn 0→1200 directly on
+the `<svg>` will visibly tear at the right edge as it drifts.
+
+**Don't place decor directly behind dense text blocks** (a facts list, a
+tight paragraph) — even at low opacity it reads as clutter once you consciously
+notice it, which is exactly what happened with the original stars behind the
+`#about` facts list. Bleed decor off a corner or edge so it sits mostly in the
+page's outer margin instead, `deco-orbit-about` being the fix for that
+specific case.
 
 Rules for anything added here:
 
-- `pointer-events: none`, `z-index: 0`, opacity between `.07` and `.16`.
+- `pointer-events: none`, `z-index: 0`, opacity roughly `.19`–`.28`, base
+  stroke-width `1.6` (raised in three rounds from an original `.07`–`.16` @
+  `1.2` — every round of feedback said the previous range still read as too
+  faint. Treat `.19`–`.28` as the current working range, not a ceiling: if a
+  future pass says "still can't see it," the answer is to raise the range
+  again, not to assume this one is final). Now that everything strokes at a
+  uniform hairline, the rockets no longer need to be held at a lower opacity
+  than the rings to stop them shouting.
 - Content sits above via `section > .wrap { position: relative; z-index: 1 }`.
 - Sections are `overflow: hidden` so decor can bleed past edges without causing
   horizontal scroll. Decor placed outside a section must be clipped manually.
-- Motion is very slow (200s orbit rotation, 15s star drift) and frozen entirely
-  under `prefers-reduced-motion`.
+- Motion is very slow and frozen entirely under `prefers-reduced-motion`.
+  Three keyframes are in play, and new decoration should reuse them rather
+  than inventing a fourth: `spin-slow` (200s, every orbit ring; also 80s on
+  `.orbiter`, so a rocket in orbit compounds the two rates into something
+  that never quite repeats), `wave-drift` (16s sideways, on `.wave-g`), and
+  `drift` (15s vertical bob, on the drone). Rotations that need to coexist
+  with a keyframe go on the inner `<svg>` (see `.deco-drone svg`), because an
+  animation on the wrapper would otherwise overwrite its `transform`.
 
-**The brief was "subtle — don't overdo it."** If a decoration is noticeable
-before the content is, it is too strong. Reduce opacity rather than deleting it.
+**The brief moved in stages: "subtle — don't overdo it" → "more pronounced,
+more of it" → "still not enough, be more creative, more flair."** Read that
+trajectory as the standing direction, not any single snapshot of it — when in
+doubt, add another orbit ring rather than holding back. The one constraint
+that hasn't moved: don't reach for a third accent colour, and don't let a
+motif actually overlap content people are trying to read or click.
 
 ---
 
