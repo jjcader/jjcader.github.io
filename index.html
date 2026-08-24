@@ -27,23 +27,28 @@
      so it loses contrast twice over. Darkened rather than up-weighted alone:
      weight and colour each do about half the work of "less faint". */
   --ink:#1b1a18; --ink-2:#4c4842; --ink-3:#736d65;
+  --ink-body:#38342f;      /* prose — darker than --ink-2, softer than --ink */
   --rule:#e6e0d6;          /* warm hairline — still the default for borders */
-  --accent:#10617d;        /* deep water blue */
-  --accent-2:#3a9fb8;      /* shallow water, for gradients */
-  --accent-warm:#c47a45;   /* copper — for heat, motion, hover */
-  --accent-soft:#e7f0f4;
-  --warm-soft:#f7ece2;     /* copper's equivalent of --accent-soft */
+  --accent:#0a5fd0;        /* bright royal blue */
+  --accent-2:#16b8c8;      /* turquoise — the bright partner, gradients + graphics */
+  --accent-warm:#f07a1a;   /* bright orange — flames, icons, fills (graphics only) */
+  --accent-warm-ink:#b85410; /* darker orange — anywhere copper has to be READ */
+  --accent-soft:#e4efff;
+  --warm-soft:#fdeede;     /* orange's equivalent of --accent-soft */
   /* Blue-tinted hairline. The plain warm --rule is still right for small
      interior borders (tags, chips, cards); this one is for structural rules
      that should read as part of the same blue system as the progress rail. */
   --rule-blue:color-mix(in srgb,var(--accent) 26%,var(--rule));
-  /* The rail separator's gradient, extracted so section dividers can reuse
-     the exact same recipe rather than approximating it. Horizontal here;
-     the rail rotates the same stops vertically. */
-  --rule-grad:linear-gradient(90deg,transparent,
-    color-mix(in srgb,var(--accent-2) 70%,transparent) 20%,
-    var(--accent) 50%,
-    color-mix(in srgb,var(--accent-2) 70%,transparent) 80%,transparent);
+  /* ONE divider recipe, in two orientations sharing identical stops, so the
+     header rule, every section divider and the rail's vertical separator are
+     visibly the same object turned different ways. The stops sit at 6/30/70/94
+     rather than fading from the very ends: an even fade left the middle
+     strong but the outer thirds effectively invisible, so on a wide screen
+     the section dividers read as MISSING rather than as subtle. */
+  --rule-grad:linear-gradient(90deg,transparent 0%,var(--accent-2) 6%,
+    var(--accent) 30%,var(--accent) 70%,var(--accent-2) 94%,transparent 100%);
+  --rule-grad-v:linear-gradient(180deg,transparent 0%,var(--accent-2) 6%,
+    var(--accent) 30%,var(--accent) 70%,var(--accent-2) 94%,transparent 100%);
 
   --serif:"Instrument Serif",Georgia,serif;
   --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
@@ -74,9 +79,14 @@ a{color:var(--accent)}
 }
 
 /* ============ HEADER ============ */
+/* The header's bottom edge is the SAME 2px gradient as the section dividers
+   and the rail's vertical separator, not a flat tinted hairline — a flat 1px
+   rule beside the rail's saturated gradient read as two unrelated lines. */
 .site-header{position:sticky;top:0;z-index:60;
   background:color-mix(in srgb,var(--paper) 88%,transparent);
-  backdrop-filter:blur(12px);border-bottom:1px solid var(--rule-blue)}
+  backdrop-filter:blur(12px)}
+.site-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
+  background:var(--rule-grad)}
 .header-inner{display:flex;align-items:center;gap:18px;height:78px}
 .brand{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink);text-decoration:none;white-space:nowrap}
@@ -139,12 +149,11 @@ a{color:var(--accent)}
    hard sidebar edge. Sits at the rail's own left edge, which padding-left
    (full mode) or the fixed layout (compact mode) aligns to the labels' outer
    edge. */
+/* same stops as every horizontal divider on the page, just rotated — see
+   --rule-grad / --rule-grad-v in :root */
 .rail::before{content:"";position:absolute;right:100%;top:50%;margin-right:16px;
   width:2px;height:min(100vh,980px);transform:translateY(-50%);
-  background:linear-gradient(180deg,transparent,
-    color-mix(in srgb,var(--accent-2) 75%,transparent) 22%,
-    var(--accent) 50%,
-    color-mix(in srgb,var(--accent-2) 75%,transparent) 78%,transparent)}
+  background:var(--rule-grad-v)}
 /* Absolutely positioned, NOT a block in the rail's flow. `.rail` is centred
    with top:50%/translateY(-50%), which centres its whole box — so while the
    readout was in flow, the thing actually being centred was "readout +
@@ -221,10 +230,28 @@ a{color:var(--accent)}
 .rail-rocket{position:absolute;left:50%;top:0;width:44px;height:44px;
   transform:translate(-50%,-50%);color:var(--accent);pointer-events:none;
   transition:top .12s linear;filter:drop-shadow(0 2px 10px rgba(16,97,125,.45))}
+/* ANIMATION — the rocket leans into the direction of travel (--tilt) and its
+   flame stretches with scroll speed (--flame). Both are plain custom
+   properties written by onFrame(); the rotation goes on the inner <svg>
+   because .rail-rocket's own transform is already spoken for by its
+   translate(-50%,-50%) centring. Defaults here (0deg / 1) are what you get
+   under prefers-reduced-motion, where the JS never writes them at all. */
 .rail-rocket svg{width:100%;height:100%;stroke:currentColor;fill:var(--paper);
-  stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+  stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;
+  transform:rotate(var(--tilt,0deg))}
+/* transform-box:fill-box makes transform-origin resolve against the path's
+   OWN bounding box, so "50% 0" is the top of the flame where it meets the
+   engine — scaling from there lengthens the flame downward instead of
+   inflating it around its middle and detaching it from the body. */
+.rail-rocket .flame,.rail-rocket .flame-core{transform-box:fill-box;
+  transform-origin:50% 0;transform:scaleY(var(--flame,1))}
 .rail-rocket .flame{fill:var(--accent-warm);stroke:none}
 .rail-rocket .flame-core{fill:color-mix(in srgb,var(--accent-warm) 55%,var(--paper));stroke:none}
+/* During a nav-click jump the rocket has to cross the whole rail at once —
+   the 0.12s tracking transition would read as a teleport, so it glides for
+   roughly the length of the smooth scroll instead. */
+.rail.is-jumping .rail-rocket{transition:top .55s var(--ease)}
+.rail.is-jumping .rail-fill{transition:height .55s var(--ease)}
 /* FULL MODE — pills beside the planets. padding-left on .rail reserves the
    strip the absolutely-positioned pills occupy, so the rail's own box
    actually encloses them — that's what lets ::before land on their outer
@@ -330,7 +357,11 @@ section:first-of-type::before{display:none}
 .section-note{color:var(--ink-2);max-width:58ch;margin:12px 0 0}
 
 
-.g-water .group-head{border-bottom-color:var(--accent)}
+/* the hobbies group is the water one — its rule and icon lean turquoise.
+   (This targeted .group-head's border-bottom until that became a gradient
+   ::after; it has to override the same property the base rule now sets.) */
+.g-water .group-head::after{background:linear-gradient(90deg,var(--accent-2),
+  color-mix(in srgb,var(--accent-2) 55%,transparent) 68%,transparent)}
 .g-water .group-ic{color:var(--accent-2)}
 
 /* ============ DECORATIVE BACKGROUND LAYER
@@ -445,10 +476,17 @@ section{overflow:hidden}
   font-weight:500;letter-spacing:.04em;text-decoration:none;color:var(--ink);
   border:1px solid var(--rule-blue);border-radius:999px;padding:9px 15px;transition:.22s var(--ease)}
 .socials a .ic{color:var(--accent);transition:color .22s var(--ease)}
-.socials a:hover{background:var(--warm-soft);border-color:var(--accent-warm);color:var(--accent-warm);
+/* ANIMATION — the envelope flap lifts on hover. The flap path is a V from
+   (22,7) through (12,13) to (2,7); flipping it vertically about its own top
+   edge (y=7) turns it into a Λ standing above the box, which reads exactly
+   as an opened flap without needing a second drawing of the icon. */
+.mail-ic .flap{transform-box:fill-box;transform-origin:center top;
+  transition:transform .34s var(--ease)}
+.socials a:hover .mail-ic .flap,.foot-links a:hover .mail-ic .flap{transform:scaleY(-1)}
+.socials a:hover{background:var(--warm-soft);border-color:var(--accent-warm);color:var(--accent-warm-ink);
   transform:translateY(-2px)}
-.socials a:hover .ic{color:var(--accent-warm)}
-.about-text p{margin:0 0 18px;color:var(--ink-2)}
+.socials a:hover .ic{color:var(--accent-warm-ink)}
+.about-text p{margin:0 0 18px;color:var(--ink-body)}
 .about-text p:first-child{font-family:var(--serif);font-size:clamp(22px,2.3vw,30px);
   line-height:1.36;color:var(--ink)}
 @media (max-width:980px){.about-grid{grid-template-columns:1fr}}
@@ -458,8 +496,8 @@ section{overflow:hidden}
 .tile{position:relative;overflow:hidden;border:1px solid var(--rule);background:var(--paper-2);
   cursor:pointer;padding:0;text-align:left;font:inherit;color:inherit;
   transition:transform .4s var(--ease),border-color .3s var(--ease),box-shadow .4s var(--ease)}
-.tile:hover{transform:translateY(-4px);border-color:var(--accent-2);
-  box-shadow:0 14px 34px -18px rgba(15,95,122,.5)}
+.tile:hover{transform:translateY(-4px);border-color:var(--accent-warm);
+  box-shadow:0 14px 34px -18px color-mix(in srgb,var(--accent-warm) 60%,transparent)}
 .tile img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
 .tile:hover img{transform:scale(1.05)}
 .tile-ph{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:12px}
@@ -507,7 +545,7 @@ section{overflow:hidden}
 .cat-n{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--ink-3)}
 .cat-ic{width:24px;height:24px;color:var(--cat-hue);margin-top:12px;
   transition:color .28s var(--ease),transform .28s var(--ease)}
-.cat:hover .cat-ic{color:var(--accent-warm);transform:scale(1.12)}
+.cat:hover .cat-ic{color:var(--accent-warm-ink);transform:scale(1.12)}
 .cat-name{font-family:var(--serif);font-size:clamp(19px,1.8vw,24px);line-height:1.15;margin:6px 0 0}
 .cat-desc{font-size:13px;color:var(--ink-2);margin:8px 0 0;line-height:1.5}
 .cat-go{display:flex;align-items:center;gap:6px;margin-top:14px;font-family:var(--mono);
@@ -515,17 +553,10 @@ section{overflow:hidden}
   opacity:.72;transition:opacity .3s var(--ease),gap .3s var(--ease)}
 .cat:hover .cat-go{opacity:1;gap:11px}
 
-/* ⚠ TEMPORARY BLUE-HUE EXPERIMENT — one candidate hue per category card so
-   they can be compared side by side on the real page rather than as swatches.
-   Cards are in DOM order: 01 Space, 02 Robotics, 03 Making, 04 Leadership,
-   05 Hobbies. Once a winner is picked, delete this whole block and set the
-   winning value on --accent in :root. This is NOT a settled decision and the
-   five-different-blues state is not meant to ship. */
-.cat:nth-child(1){--cat-hue:#10617d}  /* A — deep water (current --accent), the control */
-.cat:nth-child(2){--cat-hue:#0e7490}  /* B — cyan teal, brighter and more saturated */
-.cat:nth-child(3){--cat-hue:#0b6ca8}  /* C — azure, a truer blue, less green */
-.cat:nth-child(4){--cat-hue:#2a5d8f}  /* D — steel blue, softer and more navy */
-.cat:nth-child(5){--cat-hue:#1a8a9d}  /* E — shallow teal, closest to --accent-2 */
+/* The five-different-blues experiment is RESOLVED: card 03's azure won and
+   was pushed brighter/more royal into --accent (#0a5fd0). Every card now
+   shares that one hue, and the variety people liked comes from the blue →
+   orange transition on interaction instead of from five different blues. */
 
 /* ============ CATEGORY GROUPS ============ */
 .group{margin-top:clamp(44px,5vw,70px);scroll-margin-top:100px}
@@ -542,8 +573,15 @@ section{overflow:hidden}
 .group-count{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.1em;
   color:var(--ink-3);margin-left:auto;white-space:nowrap}
 
-.entry{border-bottom:1px solid var(--rule)}
-.entry-head{width:100%;background:none;border:0;cursor:pointer;font:inherit;color:inherit;text-align:left;
+.entry{position:relative;border-bottom:1px solid var(--rule)}
+/* orange bar wipes down the left edge on hover — the same blue-at-rest /
+   orange-on-interaction move as the category cards and timeline cards */
+.entry::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent-warm));
+  transform:scaleY(0);transform-origin:top;transition:transform .3s var(--ease)}
+.entry:hover::before,.entry[data-open="true"]::before{transform:scaleY(1)}
+.entry-head{position:relative;width:100%;background:none;border:0;cursor:pointer;font:inherit;
+  color:inherit;text-align:left;
   display:grid;grid-template-columns:1fr auto 24px;align-items:baseline;gap:16px;
   padding:16px 6px;transition:background .22s var(--ease),padding-left .22s var(--ease)}
 .entry-head:hover{background:var(--paper-2);padding-left:14px}
@@ -553,12 +591,25 @@ section{overflow:hidden}
    metadata column reads as one deliberate system down the page. */
 .entry-meta{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.06em;
   text-transform:uppercase;color:var(--accent);text-align:right;white-space:nowrap;opacity:.9}
-.entry-toggle{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--accent);
-  justify-self:end;transition:transform .3s var(--ease),color .3s var(--ease)}
+.entry-toggle{position:relative;font-family:var(--mono);font-size:18px;font-weight:500;
+  color:var(--accent);justify-self:end;
+  transition:transform .3s var(--ease),color .3s var(--ease)}
 /* warm on hover/open — heat where the interaction is */
-.entry-head:hover .entry-toggle{color:var(--accent-warm)}
-.entry[data-open="true"] .entry-toggle{transform:rotate(135deg);color:var(--accent-warm)}
+.entry-head:hover .entry-toggle{color:var(--accent-warm-ink)}
+.entry[data-open="true"] .entry-toggle{transform:rotate(135deg);color:var(--accent-warm-ink)}
 .entry.flash{background:var(--accent-soft)}
+/* ANIMATION — ignition ring. A single ring expands out of the toggle each
+   time an entry opens or closes: an exhaust puff for the engineering groups,
+   and (below) a water-coloured ripple for the hobbies group, so the accent
+   matches the motif of the group it fires in rather than being one generic
+   effect everywhere. Purely decorative and driven by a class the JS removes
+   again, so nothing depends on it having finished. */
+.entry-toggle::after{content:"";position:absolute;left:50%;top:50%;width:30px;height:30px;
+  margin:-15px 0 0 -15px;border-radius:50%;border:2px solid var(--accent-warm);
+  opacity:0;pointer-events:none}
+.entry.igniting .entry-toggle::after{animation:ignite .62s var(--ease)}
+.g-water .entry.igniting .entry-toggle::after{border-color:var(--accent-2)}
+@keyframes ignite{from{opacity:.9;transform:scale(.3)}to{opacity:0;transform:scale(2.1)}}
 
 .entry-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .38s var(--ease)}
 .entry[data-open="true"] .entry-body{grid-template-rows:1fr}
@@ -567,7 +618,7 @@ section{overflow:hidden}
   gap:clamp(18px,3vw,44px);padding:6px 6px 32px;opacity:0;transform:translateY(10px);
   transition:opacity .4s var(--ease) .06s,transform .4s var(--ease) .06s}
 .entry[data-open="true"] .entry-content{opacity:1;transform:none}
-.entry-content p{margin:0 0 14px;color:var(--ink-2);max-width:54ch}
+.entry-content p{margin:0 0 14px;color:var(--ink-body);max-width:54ch}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px;padding:0;list-style:none}
 .tags li{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.06em;
   text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
@@ -576,8 +627,8 @@ section{overflow:hidden}
 .entry-links a{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12.5px;
   font-weight:500;text-decoration:none;border-bottom:1px solid var(--accent);padding-bottom:2px;
   transition:color .22s var(--ease),border-color .22s var(--ease),background .22s var(--ease)}
-.entry-links a:hover{background:var(--warm-soft);color:var(--accent-warm);
-  border-bottom-color:var(--accent-warm)}
+.entry-links a:hover{background:var(--warm-soft);color:var(--accent-warm-ink);
+  border-bottom-color:var(--accent-warm-ink)}
 .shots{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .shot{background:var(--paper-2);border:1px solid var(--rule);overflow:hidden;
   display:grid;place-items:center;text-align:center;padding:8px}
@@ -623,8 +674,8 @@ section{overflow:hidden}
 .strip-card{position:relative;width:clamp(200px,23vw,310px);flex:0 0 auto;overflow:hidden;
   background:var(--paper);border:1px solid var(--rule);padding:0;font:inherit;color:inherit;
   text-align:left;cursor:pointer;transition:.3s var(--ease)}
-.strip-card:hover{border-color:var(--accent-2);transform:translateY(-4px);
-  box-shadow:0 14px 30px -18px rgba(15,95,122,.5)}
+.strip-card:hover{border-color:var(--accent-warm);transform:translateY(-4px);
+  box-shadow:0 14px 30px -18px color-mix(in srgb,var(--accent-warm) 60%,transparent)}
 .strip-media{aspect-ratio:4/3;background:var(--paper-2);display:grid;place-items:center;
   text-align:center;padding:10px;overflow:hidden}
 .strip-media img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
@@ -635,7 +686,7 @@ section{overflow:hidden}
   text-transform:uppercase;color:var(--ink-2);line-height:1.4}
 .strip-cap .ic{width:14px;height:14px;color:var(--accent);opacity:.65;
   transition:opacity .3s var(--ease),transform .3s var(--ease),color .3s var(--ease)}
-.strip-card:hover .strip-cap .ic{opacity:1;transform:translate(2px,-2px);color:var(--accent-warm)}
+.strip-card:hover .strip-cap .ic{opacity:1;transform:translate(2px,-2px);color:var(--accent-warm-ink)}
 
 /* ============ TIMELINE — boxed cards ============ */
 .path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
@@ -648,8 +699,8 @@ section{overflow:hidden}
 .path-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
   background:linear-gradient(180deg,var(--accent-2),var(--accent) 62%,var(--accent-warm));
   transform:scaleY(0);transform-origin:top;transition:transform .38s var(--ease)}
-.path-item:hover{border-color:var(--accent-2);transform:translateX(3px);
-  box-shadow:0 12px 28px -20px rgba(16,97,125,.55)}
+.path-item:hover{border-color:var(--accent-warm);transform:translateX(3px);
+  box-shadow:0 12px 28px -20px color-mix(in srgb,var(--accent-warm) 55%,transparent)}
 .path-item:hover::before{transform:scaleY(1)}
 /* The years get the strongest metadata treatment on the page: they're the
    spine of both timelines, sitting alone in a 170px column where 11.5px
@@ -659,9 +710,12 @@ section{overflow:hidden}
 .path-when{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--accent);
   letter-spacing:.04em;white-space:nowrap;padding-top:6px;text-align:center}
 .path-role{font-family:var(--serif);font-size:clamp(21px,2.1vw,28px);line-height:1.18;margin:0}
+/* --accent-warm-ink, not --accent-warm: this is resting body-adjacent text at
+   11.5px, and the bright orange only clears ~3:1 against paper. The darker
+   variant clears 4.5:1. Bright orange stays for graphics. */
 .path-org{display:block;font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--accent-warm);margin-top:8px}
-.path-item p{margin:11px 0 0;color:var(--ink-2);max-width:70ch}
+  text-transform:uppercase;color:var(--accent-warm-ink);margin-top:8px}
+.path-item p{margin:11px 0 0;color:var(--ink-body);max-width:70ch}
 @media (max-width:700px){
   .path-item{grid-template-columns:1fr;gap:8px}
   .path-when{text-align:left;padding-top:0}
@@ -682,7 +736,7 @@ section{overflow:hidden}
   letter-spacing:-.02em;margin:14px 0 0;word-break:break-word}
 .contact-line a{text-decoration:none;border-bottom:2px solid var(--rule-blue);
   transition:border-color .25s var(--ease),color .25s var(--ease)}
-.contact-line a:hover{border-bottom-color:var(--accent-warm);color:var(--accent-warm)}
+.contact-line a:hover{border-bottom-color:var(--accent-warm);color:var(--accent-warm-ink)}
 footer{position:relative;padding-block:30px;background:var(--paper-2)}
 footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--rule-grad)}
 .foot-inner{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:center}
@@ -693,7 +747,7 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
 .foot-links a{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;
   color:var(--accent);border:1px solid var(--rule-blue);background:var(--paper);
   transition:.22s var(--ease)}
-.foot-links a:hover{color:var(--accent-warm);border-color:var(--accent-warm);
+.foot-links a:hover{color:var(--accent-warm-ink);border-color:var(--accent-warm);
   background:var(--warm-soft);transform:translateY(-2px)}
 .foot-links .ic{width:17px;height:17px}
 
@@ -710,7 +764,7 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
 /* the icon is a rocket, so it goes copper on hover as it lifts — same
    blue-body/warm-thrust logic as the rail rocket's flame */
 .to-top .ic{width:25px;height:25px;transition:transform .35s var(--ease),color .35s var(--ease)}
-.to-top:hover .ic{transform:translateY(-4px);color:var(--accent-warm)}
+.to-top:hover .ic{transform:translateY(-4px);color:var(--accent-warm-ink)}
 @media (max-width:520px){.to-top span{display:none}.to-top{padding:15px}}
 </style>
 </head>
@@ -719,6 +773,19 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
 <!-- ============ ICON SPRITE — add more <symbol>s as needed ============ -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></symbol>
+  <!-- The envelope split into two independently-referenceable pieces, for the
+       flap-opens-on-hover animation. CSS cannot reach inside a <use> shadow
+       tree to transform one path of a symbol (see §6) — but it CAN transform
+       the <use> element itself, so the trick is two <use>s rather than one.
+       These are <g> in <defs> rather than <symbol>: a <use> of a <symbol>
+       with its own viewBox re-establishes a viewport and remaps coordinates,
+       which makes the flap's transform-origin unpredictable; a <use> of a
+       <g> is copied straight into the current coordinate system, so the
+       original 24x24 icon coordinates still mean what they say. -->
+  <defs>
+    <g id="i-mail-box"><rect x="2" y="4" width="20" height="16" rx="2"/></g>
+    <g id="i-mail-flap"><path d="m22 7-10 6L2 7"/></g>
+  </defs>
   <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4V10h4v1.5A6 6 0 0 1 16 8z"/><rect x="2" y="10" width="4" height="11"/><circle cx="4" cy="4.5" r="2"/></symbol>
   <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></symbol>
   <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8"/></symbol>
@@ -884,7 +951,7 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
         <div class="socials">
           <a href="https://www.linkedin.com/in/jedrzejcader/"><svg class="ic"><use href="#i-linkedin"/></svg> LinkedIn</a>
           <a href="https://github.com/jjcader"><svg class="ic"><use href="#i-github"/></svg> GitHub</a>
-          <a href="mailto:jcader@ethz.ch"><svg class="ic"><use href="#i-mail"/></svg> Email</a>
+          <a href="mailto:jcader@ethz.ch"><svg class="ic mail-ic" viewBox="0 0 24 24"><use href="#i-mail-box"/><use class="flap" href="#i-mail-flap"/></svg> Email</a>
           <!-- Add Instagram: <a href="..."><svg class="ic"><use href="#i-instagram"/></svg> Instagram</a> -->
         </div>
       </div>
@@ -1122,31 +1189,31 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
 
     <div class="cats reveal">
       <button class="cat" data-goto="g-space">
-        <div class="cat-n">01 · 06 entries</div>
+        <div class="cat-n">01 · <span class="count" data-n="6">06</span> entries</div>
         <svg class="ic cat-ic"><use href="#i-rocket"/></svg><h3 class="cat-name">Space &amp; rocketry</h3>
         <p class="cat-desc">Engines, cryogenic valves, test stands, and a lunar telescope.</p>
         <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
       </button>
       <button class="cat" data-goto="g-robotics">
-        <div class="cat-n">02 · 03 entries</div>
+        <div class="cat-n">02 · <span class="count" data-n="3">03</span> entries</div>
         <svg class="ic cat-ic"><use href="#i-cpu"/></svg><h3 class="cat-name">Robotics &amp; simulation</h3>
         <p class="cat-desc">Swarm control, mechatronics, and things that move on their own.</p>
         <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
       </button>
       <button class="cat" data-goto="g-making">
-        <div class="cat-n">03 · 02 entries</div>
+        <div class="cat-n">03 · <span class="count" data-n="2">02</span> entries</div>
         <svg class="ic cat-ic"><use href="#i-tool"/></svg><h3 class="cat-name">Making</h3>
         <p class="cat-desc">CNC, CAM, stainless steel, and time spent on a shop floor.</p>
         <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
       </button>
       <button class="cat" data-goto="g-people">
-        <div class="cat-n">04 · 03 entries</div>
+        <div class="cat-n">04 · <span class="count" data-n="3">03</span> entries</div>
         <svg class="ic cat-ic"><use href="#i-users"/></svg><h3 class="cat-name">Leadership &amp; teaching</h3>
         <p class="cat-desc">POLANA, the European Youth Parliament, and nine years of teaching.</p>
         <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
       </button>
       <button class="cat" data-goto="g-hobbies">
-        <div class="cat-n">05 · 03 entries</div>
+        <div class="cat-n">05 · <span class="count" data-n="3">03</span> entries</div>
         <svg class="ic cat-ic"><use href="#i-waves"/></svg><h3 class="cat-name">Hobbies</h3>
         <p class="cat-desc">Long rides, cold water, and puzzles that fit in one hand.</p>
         <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
@@ -1775,7 +1842,7 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
     <div class="foot-links">
       <a href="https://www.linkedin.com/in/jedrzejcader/" aria-label="LinkedIn"><svg class="ic"><use href="#i-linkedin"/></svg></a>
       <a href="https://github.com/jjcader" aria-label="GitHub"><svg class="ic"><use href="#i-github"/></svg></a>
-      <a href="mailto:jcader@ethz.ch" aria-label="Email"><svg class="ic"><use href="#i-mail"/></svg></a>
+      <a href="mailto:jcader@ethz.ch" aria-label="Email"><svg class="ic mail-ic" viewBox="0 0 24 24"><use href="#i-mail-box"/><use class="flap" href="#i-mail-flap"/></svg></a>
     </div>
     <p class="label">© 2026 Jędrzej Cader</p>
   </div>
@@ -1786,12 +1853,21 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
 <script>
 var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* 1 — expand / collapse entries */
+/* 1 — expand / collapse entries, plus the ignition ring (see .igniting).
+   The class is removed and re-added with a forced reflow between, so that
+   opening and closing in quick succession restarts the animation instead of
+   doing nothing the second time (an already-present class is not a state
+   change, so the animation would never re-run). */
 document.querySelectorAll('.entry-head').forEach(function(btn){
   btn.addEventListener('click',function(){
     var entry=btn.closest('.entry'), open=entry.dataset.open==='true';
     entry.dataset.open=String(!open);
     btn.setAttribute('aria-expanded',String(!open));
+    if(reduced) return;
+    entry.classList.remove('igniting');
+    void entry.offsetWidth;
+    entry.classList.add('igniting');
+    setTimeout(function(){ entry.classList.remove('igniting'); },640);
   });
 });
 
@@ -1818,10 +1894,33 @@ document.querySelectorAll('.cat').forEach(function(cat){
   });
 });
 
-/* 4 — reveal on scroll */
+/* 4 — reveal on scroll. The same observer also fires the entry-count roll-up
+   (see .cat-n .count) rather than a second observer — one "this became
+   visible" mechanism, same reasoning as the single-idx rule in #6. */
+function countUp(root){
+  if(reduced) return;
+  root.querySelectorAll('.count').forEach(function(el){
+    var target=parseInt(el.dataset.n,10);
+    if(!(target>0)) return;
+    var pad=el.textContent.trim().length, t0=null, DUR=760;
+    (function step(now){
+      if(t0===null) t0=now;
+      var p=Math.min(1,(now-t0)/DUR);
+      /* ease-out so it decelerates into the real number instead of
+         snapping — a linear counter reads as a glitch, not a readout */
+      var v=Math.round(target*(1-Math.pow(1-p,3)));
+      el.textContent=String(v).padStart(pad,'0');
+      if(p<1) requestAnimationFrame(step);
+    })(performance.now());
+  });
+}
 var revealer=new IntersectionObserver(function(es){
   es.forEach(function(e){
-    if(e.isIntersecting){ e.target.classList.add('in'); revealer.unobserve(e.target); }
+    if(e.isIntersecting){
+      e.target.classList.add('in');
+      countUp(e.target);
+      revealer.unobserve(e.target);
+    }
   });
 },{rootMargin:'0px 0px -8% 0px',threshold:.05});
 document.querySelectorAll('.reveal').forEach(function(el){ revealer.observe(el); });
@@ -1846,6 +1945,24 @@ var navLinks=document.querySelectorAll('.site-nav a, .rail a');
    anchor instead makes a nav click land exactly where onFrame() would call
    frac=0 for that section — nav clicks and organic scrolling agree by
    construction, the same way the rocket and the highlight now do (see #6). */
+/* While a nav click's smooth scroll is in flight, onFrame() reads idx/frac
+   from the DESTINATION rather than from the live scroll position (navJumpY
+   below). Without that, the highlight only changed at the very END of the
+   animation: the reader anchor has to actually cross the target section's
+   top edge before that section becomes current, and during a smooth scroll
+   it spends the whole ~500ms still inside the PREVIOUS section — so clicking
+   "Contact" lit "Experience" for half a second first.
+   Note this is not a second mechanism for "which section is current" — there
+   is still exactly one idx calculation, driving both the rocket and the
+   highlight (see #6). All that changes is which scroll position is fed into
+   it, so the rocket and the label still cannot disagree. */
+var railEl=document.querySelector('.rail');
+var navJumpY=null, navJumpUntil=0;
+function endNavJump(){
+  if(navJumpY===null) return;
+  navJumpY=null;
+  if(railEl) railEl.classList.remove('is-jumping');
+}
 navLinks.forEach(function(l){
   l.addEventListener('click',function(e){
     var id=l.getAttribute('href').slice(1);
@@ -1855,9 +1972,21 @@ navLinks.forEach(function(l){
     var targetY=el.getBoundingClientRect().top+window.scrollY-window.innerHeight*0.45;
     var maxY=document.documentElement.scrollHeight-window.innerHeight;
     targetY=Math.max(0,Math.min(maxY,targetY));
+    if(!reduced){
+      navJumpY=targetY;
+      navJumpUntil=Date.now()+1400;
+      if(railEl) railEl.classList.add('is-jumping');
+    }
     window.scrollTo({top:targetY,behavior:reduced?'auto':'smooth'});
     if(window.history && history.pushState) history.pushState(null,'','#'+id);
+    requestFrame();
   });
+});
+/* Grabbing the page mid-flight cancels the jump, so a manual scroll always
+   wins over an in-progress animation. Not scroll listeners — these are input
+   events, and the rAF loop is still the only thing bound to 'scroll'. */
+['wheel','touchstart'].forEach(function(ev){
+  window.addEventListener(ev,endNavJump,{passive:true});
 });
 
 /* 6 — progress bar, rocket, parallax, back-to-top: one rAF loop */
@@ -1872,6 +2001,33 @@ var railSections=['about','selected','projects','education','experience','contac
 var heroMedia=document.getElementById('heroMedia');
 var toTop=document.getElementById('toTop');
 var ticking=false;
+var lastY=window.scrollY, flameLvl=0, tiltLvl=0;
+
+/* Decorations that take part in the parallax (animation 11). Two families are
+   deliberately excluded: the full-bleed waves, which are anchored to a
+   section's own top/bottom edge and would expose a bare strip if moved
+   vertically; and the drone, whose WRAPPER already carries the `drift`
+   keyframe — writing style.transform on it would fight the animation for the
+   same property. Anything else whose wrapper gains an animation later has to
+   be excluded here too (inner-<svg> animations are fine, which is why every
+   spinning orbit ring is safe). */
+var decos=[];
+if(!reduced){
+  document.querySelectorAll('.deco').forEach(function(el){
+    var c=el.className;
+    if(c.indexOf('deco-waves')>-1 || c.indexOf('deco-drone')>-1) return;
+    decos.push({el:el, mid:0, depth:c.indexOf('deco-orbit')>-1 ? 0.07 : 0.12});
+  });
+}
+function measureDecos(){
+  for(var i=0;i<decos.length;i++){
+    var el=decos[i].el, t=0, n=el;
+    while(n){ t+=n.offsetTop; n=n.offsetParent; }
+    decos[i].mid=t+el.offsetHeight/2;
+  }
+}
+measureDecos();
+window.addEventListener('load',function(){ measureDecos(); requestFrame(); });
 
 function onFrame(){
   var y=window.scrollY;
@@ -1884,8 +2040,18 @@ function onFrame(){
      itself is positioned by interpolating between the dots' real on-screen
      positions, not a raw page-scroll percentage, so it always lines up with
      whichever section is current regardless of how long that section is. */
+  /* During a nav jump the anchor is the destination, not where we are now —
+     see #5. Settles when the scroll arrives, or gives up after the timeout
+     in case the browser stops short (a scroll-anchoring adjustment, a
+     resize mid-flight) and the exact target is never reached. */
+  var anchorY=y;
+  if(navJumpY!==null){
+    if(Math.abs(y-navJumpY)<=2 || Date.now()>navJumpUntil) endNavJump();
+    else anchorY=navJumpY;
+  }
+
   if(railDots.length===railSections.length){
-    var readerY=y+window.innerHeight*0.45;
+    var readerY=anchorY+window.innerHeight*0.45;
     /* idx threshold and the nav-click target (#5 above) must be measured
        with the SAME api. offsetTop is layout-tree-relative and rounds to an
        integer; getBoundingClientRect() is sub-pixel. Comparing readerY
@@ -1913,7 +2079,7 @@ function onFrame(){
        remaining 55% of the viewport — meaning frac never organically
        reached 1, the end-of-track overshoot below never fired, and the fill
        stalled a few percent short while the readout already said 100%. */
-    if(y>=max-1){ idx=railSections.length-1; cur=railSections[idx]; frac=1; }
+    if(anchorY>=max-1){ idx=railSections.length-1; cur=railSections[idx]; frac=1; }
     /* This idx is the single source of truth for "which section is current" —
        used for the nav highlight AND the rocket, so they can't disagree. */
     var activeId=cur?cur.id:null;
@@ -1948,11 +2114,48 @@ function onFrame(){
   }
   if(toTop) toTop.classList.toggle('show', y > window.innerHeight*0.9);
 
+  /* ANIMATIONS 1 + 2 — flame length and rocket lean, both driven by scroll
+     VELOCITY rather than position. Each is an exponential glide toward its
+     target so a jerky wheel doesn't make the rocket twitch; the flame decays
+     back to rest once scrolling stops. Both are written as custom properties
+     and consumed by the CSS in .rail-rocket, so no layout is touched here. */
+  if(railRocket && !reduced){
+    var dy=y-lastY;
+    var speed=Math.min(1,Math.abs(dy)/60);
+    var dir=dy>0?1:(dy<0?-1:0);
+    flameLvl+=(speed-flameLvl)*0.3;
+    tiltLvl+=(dir*speed-tiltLvl)*0.18;
+    if(flameLvl<0.005) flameLvl=0;
+    if(Math.abs(tiltLvl)<0.005) tiltLvl=0;
+    railRocket.style.setProperty('--flame',(1+flameLvl*1.15).toFixed(3));
+    railRocket.style.setProperty('--tilt',(tiltLvl*11).toFixed(2)+'deg');
+  }
+
+  /* ANIMATION 11 — decorative parallax. Decor drifts against the scroll at a
+     fraction of its speed so the background sits at a genuine depth rather
+     than being glued to the content. Positions are measured once (and on
+     resize) via the offsetTop chain, which is layout geometry and therefore
+     unaffected by the transform we are about to write — measuring with
+     getBoundingClientRect() here would feed each frame's own offset back
+     into the next frame's measurement and drift. */
+  if(decos.length){
+    var vpMid=y+window.innerHeight/2, limit=window.innerHeight*1.6;
+    for(var d=0;d<decos.length;d++){
+      var deco=decos[d], dist=vpMid-deco.mid;
+      if(Math.abs(dist)>limit) continue;
+      deco.el.style.transform='translate3d(0,'+(dist*deco.depth).toFixed(1)+'px,0)';
+    }
+  }
+
   ticking=false;
+  lastY=y;
+  /* keep the loop alive while the flame/tilt are still easing back to rest —
+     scroll events have stopped by then, so nothing else would re-schedule it */
+  if(flameLvl>0 || tiltLvl!==0) requestFrame();
 }
 function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFrame); } }
 window.addEventListener('scroll',requestFrame,{passive:true});
-window.addEventListener('resize',requestFrame);
+window.addEventListener('resize',function(){ measureDecos(); requestFrame(); });
 requestFrame();
 
 toTop.addEventListener('click',function(){

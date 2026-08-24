@@ -78,48 +78,93 @@ All design tokens live in the `:root` block at the top of the `<style>` element.
 | `--paper` | `#fffdfa` | Page background — warm white, not pure white |
 | `--paper-2` | `#f6f2ec` | Secondary surface: CV strip, hovers, placeholders |
 | `--ink` | `#1b1a18` | Body text |
+| `--ink-body` | `#38342f` | Prose — darker than `--ink-2`, softer than `--ink` |
 | `--ink-2` | `#4c4842` | Secondary text |
 | `--ink-3` | `#736d65` | Metadata, labels, placeholder text |
 | `--rule` | `#e6e0d6` | Warm hairline — small interior borders (tags, chips, cards) |
 | `--rule-blue` | `mix(--accent 26%, --rule)` | Structural hairlines that belong to the blue system |
-| `--rule-grad` | gradient | The rail separator's exact recipe, horizontal — for section dividers |
-| `--accent` | `#10617d` | Deep water blue — links, active states, icons, metadata |
-| `--accent-2` | `#3a9fb8` | Shallow water — gradient partners, hover borders |
-| `--accent-warm` | `#c47a45` | Copper — heat, motion, and hover feedback |
-| `--accent-soft` | `#e7f0f4` | Tinted background for active/hover states |
-| `--warm-soft` | `#f7ece2` | Copper's equivalent of `--accent-soft` |
+| `--rule-grad` | gradient | The one divider recipe, horizontal |
+| `--rule-grad-v` | gradient | The same stops, vertical — the rail separator |
+| `--accent` | `#0a5fd0` | Bright royal blue — links, active states, icons, metadata |
+| `--accent-2` | `#16b8c8` | Turquoise — gradient partner, water motif, graphics |
+| `--accent-warm` | `#f07a1a` | Bright orange — flames, fills, bars, icons on dark |
+| `--accent-warm-ink` | `#b85410` | Darker orange — anywhere orange has to be *read* |
+| `--accent-soft` | `#e4efff` | Tinted background for active/hover states |
+| `--warm-soft` | `#fdeede` | Orange's equivalent of `--accent-soft` |
 
-The scheme is **warm neutrals with a cool accent**. An earlier version used
-cold blue-tinted greys for surfaces and read clinical; paper and rule tones were
-warmed toward sand while the accent stayed blue. Do not neutralise the warmth
-back out of `--paper` / `--paper-2` / `--rule`, and do not introduce a third
-accent hue — copper is already the second.
+**There are two oranges and the split is an accessibility constraint, not a
+style choice.** `--accent-warm` (`#f07a1a`) clears only ~3:1 against paper —
+fine for a flame, a filled bar, an icon on a dark photo veil, or a border,
+all of which are graphics. It is *not* enough for text. Any orange that has
+to be read — `.path-org`, hover text on links and pills, the contact line, a
+stroked UI icon sitting on paper — uses `--accent-warm-ink` (`#b85410`,
+~4.8:1). **When adding a new orange thing, ask whether a person has to read
+it**; if yes it takes the ink variant, and if you are unsure, the ink variant
+is always the safe answer.
+
+The scheme is **warm neutral surfaces with a vivid two-colour accent system**.
+Do not neutralise the warmth back out of `--paper` / `--paper-2` / `--rule` —
+the surfaces stay warm and quiet precisely so the accents can be loud. Do not
+introduce a third accent hue.
 
 The blue is a water reference (Jędrzej swims and surfs) and doubles as a
 technical/blueprint tone. That double meaning is intentional.
 
-**Blue and copper have distinct jobs — keep them apart.** Blue is structure
-and state: rules, metadata, icons at rest, the active nav item, links.
-Copper is heat, motion and feedback: anything that appears, slides, lifts or
-turns over *because the reader did something*. The entry `+` toggle, the
-arrow that slides into a tile, the social pills on hover, the rocket on the
-back-to-top button, the bottom of the timeline hover bar. Applying this rule
-consistently is what stopped copper reading as "a random second colour" and
-started it reading as a system — so when adding a new interactive element,
-ask which of the two jobs it does rather than picking whichever looks nicer.
-This supersedes the earlier "copper on a tight leash, used sparingly"
-framing: the leash is now *semantic* rather than quantitative.
+**The accents were deliberately moved off "subtle".** The palette began as a
+muted deep teal (`#10617d`) with a muted copper (`#c47a45`), and both were
+pushed to a bright royal blue and a real orange on request — "I know that this
+site is supposed to be subtle, but I like a bit less mellow of a feel." The
+brief is now **quiet surfaces, vivid accents**, so the answer to "this looks
+flat" is to strengthen an accent, not to tint a surface. A five-way
+side-by-side comparison on the category cards picked the azure candidate,
+which was then pushed brighter and more royal into the current `--accent`.
 
-**Structural rules are blue, not warm grey.** `--rule-grad` — a horizontal
-version of the progress rail's separator gradient, fading to transparent at
-both ends — is the divider between every top-level band: each `section::after`,
-the photo strip, the footer. `--rule-blue` is the flat blue-tinted hairline
-for everything structural but smaller: the header's bottom edge, the `#about`
-facts table, social pills, the CV strip, the back-to-top button. The point of
-sharing one recipe with the rail is that the rail stops reading as a blue
-thing bolted onto a grey page. **A section divider must be a pseudo-element,
-not a `border-top`** — a border can't fade out at its ends, and the fade is
-the whole recipe.
+**Blue and orange have distinct jobs — keep them apart.** Blue is structure
+and state: rules, metadata, icons at rest, the active nav item, links.
+Orange is heat, motion and feedback: anything that appears, slides, lifts,
+ignites or turns over *because the reader did something*.
+
+**Every hoverable panel on the page runs the same blue-at-rest →
+orange-on-interaction move**, and that consistency is the point — it is what
+stopped orange reading as "a random second colour". The full set: category
+cards (icon + left bar), project entries (left bar + `+` toggle + ignition
+ring), mosaic tiles (border + the arrow that slides in), photo-strip cards
+(border + arrow), timeline cards (border + the warm end of the wipe bar),
+social pills, footer icons, entry links, the contact line, and the
+back-to-top rocket. **When adding a new interactive element, give it this
+same move** rather than inventing a different feedback colour — and when
+adding a new *resting* element, it is blue.
+
+This supersedes the earlier "copper on a tight leash, used sparingly"
+framing: the leash is now *semantic* rather than quantitative. The theme is
+explicit — blue for the space/water side, orange for flame and heat.
+
+**Structural rules are blue, not warm grey.** There is exactly **one divider
+recipe**, in two orientations that share identical colour stops:
+`--rule-grad` (horizontal) and `--rule-grad-v` (vertical). Between them they
+draw the site header's bottom edge, every `section::after`, the photo strip,
+the footer, and the progress rail's vertical separator. They must stay in
+sync — the whole point is that these read as the same object turned different
+ways. `--rule-blue` is the flat blue-tinted hairline for everything
+structural but smaller: the `#about` facts table, social pills, the CV strip,
+the back-to-top button.
+
+**A divider must be a pseudo-element, not a `border-top`** — a border can't
+fade out at its ends, and the fade is the recipe. This bit `.g-water
+.group-head` once: it set `border-bottom-color`, which silently became a
+no-op the moment `.group-head`'s rule turned into a gradient `::after`. If
+you convert a border to a gradient, grep for anything overriding that
+border's colour.
+
+**The stops are `6% / 30% / 70% / 94%`, not an even fade from the ends.** An
+even `transparent → accent → transparent` gradient looked fine in the middle
+of the screen and was effectively invisible across the outer third, so on a
+wide monitor the section dividers read as *missing* rather than as subtle —
+reported as "we lost the divider line between Selected and Browse by area."
+Keeping ~64% of the width at full strength with short fades at the very edges
+gives a real line that still doesn't terminate in a hard edge. **If a divider
+is ever reported as invisible again, check where the reader's viewport sits
+relative to those stops before assuming the element isn't rendering.**
 
 ### Typography
 
@@ -230,28 +275,23 @@ list: sixteen rows of identical weight with nothing for the eye to hold onto.
 Chunking into named groups with large serif headings fixed it. **Do not
 reintroduce a single flat list.**
 
-#### ⚠ Ongoing blue-hue experiment — the five cards are NOT meant to ship
+#### The blue-hue experiment (resolved)
 
-Each `.cat` card currently sets a different `--cat-hue`, as a deliberate,
-explicitly temporary side-by-side comparison ("experiment with different hues
-of blue and then have me pick the best one... make e.g. each section in
-'browse by area' a different colour"):
+The five cards each briefly carried a different candidate blue via `--cat-hue`,
+as a side-by-side comparison on the real page. **Card 03's azure won and was
+pushed brighter and more royal into `--accent` (`#0a5fd0`).** The
+`.cat:nth-child(n)` overrides are gone; every card now shares that one hue.
 
-| Card | Hue | Character |
-|---|---|---|
-| 01 Space | `#10617d` | deep water — the current `--accent`, i.e. the control |
-| 02 Robotics | `#0e7490` | cyan teal, brighter and more saturated |
-| 03 Making | `#0b6ca8` | azure, a truer blue with less green |
-| 04 Leadership | `#2a5d8f` | steel blue, softer and more navy |
-| 05 Hobbies | `#1a8a9d` | shallow teal, closest to `--accent-2` |
+`--cat-hue` itself is kept, defaulting to `var(--accent)`, because everything
+blue inside a card reads from it — that is what made swapping five hues a
+one-line change, and it is worth keeping for the next time something similar
+is asked for.
 
-Everything blue inside a card — icon, `::before` bar, "JUMP" line, hover
-border and shadow — reads from that one variable, so **collapsing the
-experiment is a one-line change**: delete the `.cat:nth-child(n)` block and
-set the winning value on `--accent` in `:root`. Until a winner is picked this
-is a page in an unfinished state, not a design decision; don't build anything
-new on top of the five-hue arrangement, and don't treat it as licence to give
-other components their own hues.
+The thing people actually liked about the five-card state was not five blues:
+it was **the colour changing under the cursor**. So the variety now comes from
+the blue → orange transition on interaction, applied consistently (below),
+rather than from per-component hues. Do not give other components their own
+resting hues.
 
 ### Entries
 
@@ -505,6 +545,30 @@ against a section's position must get both numbers from the same
 measurement API** — mixing `getBoundingClientRect()` with `offsetTop`/
 `offsetHeight` reintroduces exactly this class of rare, self-healing-until-
 it-isn't bug.
+
+**While a nav-click's smooth scroll is in flight, `onFrame()` reads the
+anchor from the DESTINATION (`navJumpY`) instead of the live scroll
+position.** Without that, the highlight only changed at the very end of the
+animation — the reader anchor has to physically cross the target section's
+top edge before that section becomes current, and for the whole ~500ms of the
+scroll it is still inside the *previous* section. Clicking "Contact" lit
+"Experience" for half a second first, which read as lag.
+
+**This is not a second mechanism for "which section is current"** — the rule
+above still holds, there is one `idx` calculation driving both the rocket and
+the highlight, and all that changes during a jump is *which scroll position
+is fed into it*. That distinction is the whole reason this fix is safe: feed
+the one calculation a different input, never add a second calculation. The
+jump ends when the scroll arrives (within 2px), on a timeout in case the
+browser stops short, or immediately if the reader grabs the page — `wheel`
+and `touchstart` cancel it, so a manual scroll always beats an animation in
+progress. Those are input listeners, not `scroll` listeners; the rAF loop is
+still the only thing bound to `scroll`.
+
+Because the rocket is driven from the same `idx`, it crosses the whole rail
+at once during a jump — so `.rail.is-jumping` lengthens its `top` transition
+to roughly the length of the smooth scroll, or the 0.12s tracking transition
+would read as a teleport.
 
 **At the very bottom of the document, `idx`/`frac` are forced to the last
 section and `1`.** The reader anchor sits 45% down the viewport, so at max
@@ -941,7 +1005,79 @@ motif actually overlap content people are trying to read or click.
   `{passive:true}` on the scroll listener. New scroll-driven behaviour goes into
   `onFrame()` — do not attach another scroll listener.
 - Everything is disabled by the `@media (prefers-reduced-motion: reduce)` block.
-  **Any new animation must be covered by it.**
+  **Any new animation must be covered by it.** That block kills all
+  `animation` and `transition` globally, which covers anything CSS-driven for
+  free — but **it cannot stop JavaScript from writing inline styles**, so
+  every JS-driven effect below also carries its own `if(reduced) return`
+  guard. A new JS effect needs both.
+
+### The rocket's flame and lean
+
+The flame's length (`--flame`) and the rocket's lean (`--tilt`) are driven by
+scroll **velocity**, not position: `onFrame()` diffs `y` against `lastY`,
+normalises it, and eases each value toward its target so a jerky wheel
+doesn't make the rocket twitch. Both are written as custom properties and
+consumed entirely in CSS, so no layout is touched.
+
+Two details are load-bearing. The rotation goes on the **inner `<svg>`**,
+because `.rail-rocket`'s own `transform` is already spoken for by its
+`translate(-50%,-50%)` centring — the same rule as the decorative layer. And
+the flame paths use `transform-box:fill-box` with `transform-origin:50% 0`,
+so scaling happens from the flame's own top edge where it meets the engine;
+without `fill-box` the origin resolves against the whole SVG viewport and the
+flame inflates around its middle, detaching from the body.
+
+**The rAF loop re-schedules itself while the flame is still easing back to
+rest.** Scroll events have stopped by then, so nothing else would keep it
+running and the flame would freeze at whatever length it had when you
+stopped. Any future velocity-decay effect needs the same self-scheduling.
+
+### Decorative parallax
+
+`.deco` elements drift against the scroll at 0.07× (orbit rings) or 0.12×
+(one-off glyphs) so the background sits at a real depth. Two families are
+**excluded and must stay excluded**:
+
+- **the full-bleed waves**, which are anchored to a section's top or bottom
+  edge — moving them vertically exposes a bare strip;
+- **the drone**, whose *wrapper* carries the `drift` keyframe. Writing
+  `style.transform` on it would fight the animation for the same property.
+  Inner-`<svg>` animations are fine, which is why every spinning orbit ring is
+  safe — so the test for a new deco is *"is the animation on the wrapper?"*,
+  not *"is it animated?"*
+
+Positions are measured **once** (and on `load` and `resize`) by walking the
+`offsetTop`/`offsetParent` chain, which is layout geometry and therefore
+unaffected by the transform being written. Measuring with
+`getBoundingClientRect()` here would feed each frame's own offset back into
+the next frame's measurement and drift steadily off.
+
+### Ignition ring, count-up, envelope
+
+- **Ignition ring** — a ring expands out of an entry's `+` each time it opens
+  *or closes*, orange for the engineering groups and turquoise under
+  `.g-water` so the accent matches the group's motif. The class is removed,
+  a reflow forced, then re-added: re-adding a class that is already present
+  is not a state change, so without the reflow the animation would not re-run
+  on a quick open/close.
+- **Count-up** — the category entry counts roll up when scrolled into view,
+  driven from **the existing `revealer` observer**, not a second one. Same
+  reasoning as the single-`idx` rule: one "this became visible" mechanism.
+  The literal number stays in the markup as the no-JS fallback, and the count
+  is zero-padded back to its original width. Note this means each `.cat-n`
+  now holds a `<span class="count" data-n="N">` — **when updating a category's
+  entry count, update `data-n` as well as the visible text.**
+- **Envelope flap** — the mail icon's flap lifts on hover. CSS still cannot
+  reach inside a `<use>` shadow tree to transform one path of a symbol, but it
+  *can* transform the `<use>` element itself, so the envelope is split into
+  two `<use>`s (`#i-mail-box` + `#i-mail-flap`). Those two are `<g>` inside
+  `<defs>`, **not `<symbol>`**: a `<use>` of a `<symbol>` with its own
+  `viewBox` re-establishes a viewport and remaps coordinates, which makes the
+  flap's `transform-origin` unpredictable; a `<use>` of a `<g>` is copied
+  straight into the current coordinate system. Flipping the flap about its own
+  top edge turns the V into a Λ standing above the box — an open flap for
+  free, with no second drawing of the icon. **`<g>` in `<defs>` + two `<use>`s
+  is the pattern to reuse whenever one part of an icon needs to animate.**
 
 ---
 
