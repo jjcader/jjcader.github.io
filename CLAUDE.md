@@ -165,17 +165,38 @@ the right edge in full mode (≥1800px → ≤15.7% of the viewport) and ~135px 
 compact at its 900px floor (15%). **If the rail's width or `right` offset
 changes, re-derive this the same way.**
 
-**The divider ornament is a slowly turning gear, positioned entirely below the
-line.** It replaced a small rotated square at `top:-4px` which, because
-sections are `overflow:hidden`, was clipped to its bottom half and read as a
-notch chewed out of the divider rather than as an ornament. **Anything placed
-on a section's top edge has to live at a positive `top`** — the section will
-clip whatever sits above it. The gear is drawn as a CSS `mask` over a
-`background-color` (`--gear` in `:root`) rather than an inline SVG or a
-coloured data URI, so its colour still comes from a token: a data URI cannot
-read `currentColor`, and hard-coding a hex would break "recolour by editing
-`:root` only". Its `translateX(-50%)` centring lives *inside* the keyframes,
-because animating `transform` replaces the whole property.
+**The divider ornament is a slowly turning gear, centred on the line.** It
+replaced a small rotated square at `top:-4px` which, because sections are
+`overflow:hidden`, was clipped to its bottom half and read as a notch chewed
+out of the divider rather than as an ornament.
+
+**The gear can't be pulled up onto a line at `y=0` — so the line is pushed
+down to the gear instead.** Nothing can be drawn above a section's own top
+edge while it is `overflow:hidden`, so `section::after` sits at `top:9px` and
+the 20px gear at `top:0`, putting the gear's centre and the line's centre both
+at `y=10`. Nine pixels into a section whose padding is 54–96px is visually
+indistinguishable from the boundary, and this way both elements are inside the
+clip. **This is the general move for anything that has to straddle a clipped
+edge: bring the edge to it.** The line passes behind the gear (z-index 3 vs 4)
+and shows through the tooth gaps and the hub hole, which is the point.
+
+The gear is drawn as a CSS `mask` over a `background-color` (`--gear` in
+`:root`) rather than an inline SVG or a coloured data URI, so its colour still
+comes from a token: a data URI cannot read `currentColor`, and hard-coding a
+hex would break "recolour by editing `:root` only". Its `translateX(-50%)`
+centring lives *inside* the keyframes, because animating `transform` replaces
+the whole property.
+
+**A divider will also read as "missing" if something the same colour sits just
+under it.** `#projects` is the only section with a full-bleed wave at its top,
+and at `top:-16px` that wave's first crest landed ~24px below the rule — a
+full-width blue hairline that close to a full-width blue rule merges into one
+fuzzy band, and the divider was reported missing there twice while the other
+four read fine. `.deco-waves-proj` now sits in the gap *between* the divider
+and the section head, with both its offset and height scaled by viewport so it
+stays inside the section's own clamped padding rather than running into the
+heading on narrow screens. **Before assuming a divider isn't rendering, check
+what else is drawn within ~40px of it.**
 
 **The stops are `6% / 30% / 70% / 94%`, not an even fade from the ends.** An
 even `transparent → accent → transparent` gradient looked fine in the middle
@@ -210,6 +231,18 @@ exactly this), size up by 1–1.5px, and colour moved off `--ink-3` — plus
 darkening the `--ink-2`/`--ink-3` tokens themselves. **If metadata still
 reads faint after a future change, raise weight and colour before size**;
 making it bigger alone starts to compete with the titles it sits beside.
+
+**The eyebrow above each section title is a section NAME, not fine print.**
+About / Selected / Projects / Education / Experience / Contact — the same six
+words as the progress rail's labels, one for one, so the rail and the page
+agree on what each section is called. It is therefore sized as a title
+(`clamp(14px,1.1vw,17px)`, `--accent`, with a short copper bar before it), not
+at `.label`'s 11.5px caption size. **That sizing is scoped to
+`.section-head .label` plus the one-off `.section-label`, never applied to
+`.label` globally** — `.label` is also the image placeholders, the footer
+lines and the CV strip's "The formal version" sub-label, none of which should
+grow. `#contact`'s eyebrow isn't inside a `.section-head`, which is what
+`.section-label` exists for.
 
 The two timelines' years (`.path-when`) get the strongest treatment on the
 page — 15px/600 in `--accent`, centred in their 170px column. They are the
@@ -537,11 +570,14 @@ room (`.rail-body`'s gap is still a `clamp()` that pulls the planets in
 toward the rocket); it must never cost vertical room, because the vertical
 extent is what makes the gauge legible as a progress indicator.
 
-**The readout is a mission countdown, not a percentage** — `T-100` at the top
-of the page down to `T-000` at the bottom, zero-padded to three digits and set
-in `tabular-nums` so the column never changes width as it ticks. The rail is a
-rocket riding a gauge, so counting down to zero says what the element is doing
-better than "41%" did.
+**The readout is a mission clock, not a percentage** — `T+100` at the top of
+the page down to `T+000` at the bottom, zero-padded to three digits and set in
+`tabular-nums` so the column never changes width as it ticks. The rail is a
+rocket riding a gauge, so a clock says what the element is doing better than
+"41%" did. **The prefix is `T+`, not `T-`, and that is deliberate** — Jędrzej
+changed it himself on the grounds that the rocket has already left the pad by
+the time anyone is reading, so the page measures time *since* launch. Don't
+"correct" it back.
 
 **`.rail-pct` is `position:absolute` (`bottom:100%`), not a block in flow.**
 `.rail` centres itself with `top:50%` + `translateY(-50%)`, which centres its
@@ -1153,6 +1189,21 @@ the next frame's measurement and drift steadily off.
   trigger and explicitly opts out of the generic fade-and-rise
   (`.facts.reveal{opacity:1;transform:none}`), or the container would slide
   while its own rows were individually sliding.
+- **Reverse ignition** — closing an entry plays `ignite-rev`, the mirror of
+  the opening ring: it falls in from outside and collapses into the toggle
+  instead of blowing out of it, so the two actions read as opposites rather
+  than as the same puff twice. The JS reads `open` (the state *before* the
+  click), so `open === true` means the click is a close.
+- **Hero cursor orbit** — an orbit ring trails the pointer across the hero,
+  easing toward it rather than tracking exactly, because the lag is what makes
+  it read as an object being towed instead of a cursor graphic. It runs on its
+  **own** rAF, not `onFrame()`: that loop is scroll-driven and idle whenever
+  the page isn't moving, which is precisely when this needs to run. The loop
+  starts on pointer entry and stops once the ring has caught up, so nothing
+  spins in the background. Gated on `(pointer: fine)` — on a touch screen
+  there is no cursor to follow and the ring would just strand itself wherever
+  you last tapped. It sits at `z-index:1` with `.hero-copy` at `2`, so it
+  passes *behind* the name.
 - **Envelope flap** — the mail icon's flap lifts on hover. CSS still cannot
   reach inside a `<use>` shadow tree to transform one path of a symbol, but it
   *can* transform the `<use>` element itself, so the envelope is split into
