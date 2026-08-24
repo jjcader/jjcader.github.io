@@ -29,7 +29,7 @@
   --ink:#1b1a18; --ink-2:#4c4842; --ink-3:#736d65;
   --ink-body:#38342f;      /* prose — darker than --ink-2, softer than --ink */
   --rule:#e6e0d6;          /* warm hairline — still the default for borders */
-  --accent:#0a5fd0;        /* bright royal blue */
+  --accent:#0d55bd;        /* royal blue — dialled back a notch from #0a5fd0 */
   --accent-2:#16b8c8;      /* turquoise — the bright partner, gradients + graphics */
   --accent-warm:#f07a1a;   /* bright orange — flames, icons, fills (graphics only) */
   --accent-warm-ink:#b85410; /* darker orange — anywhere copper has to be READ */
@@ -53,6 +53,9 @@
   --serif:"Instrument Serif",Georgia,serif;
   --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,monospace;
+  /* 8-tooth gear silhouette for the section-divider ornament, as a mask so it
+     can be tinted from a token. fill-rule:evenodd punches the hub hole out. */
+  --gear:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23000" fill-rule="evenodd" d="M19.42 9.00 L22.72 9.53 L22.72 14.47 L19.42 15.00 L19.36 15.13 L21.33 17.83 L17.83 21.33 L15.13 19.36 L15.00 19.42 L14.47 22.72 L9.53 22.72 L9.00 19.42 L8.87 19.36 L6.17 21.33 L2.67 17.83 L4.64 15.13 L4.58 15.00 L1.28 14.47 L1.28 9.53 L4.58 9.00 L4.64 8.87 L2.67 6.17 L6.17 2.67 L8.87 4.64 L9.00 4.58 L9.53 1.28 L14.47 1.28 L15.00 4.58 L15.13 4.64 L17.83 2.67 L21.33 6.17 L19.36 8.87 Z M15.40 12.00 A3.4 3.4 0 1 0 8.60 12.00 A3.4 3.4 0 1 0 15.40 12.00 Z"/></svg>');
   --wrap:1400px; --gutter:clamp(20px,4.5vw,86px);
   --ease:cubic-bezier(.22,.61,.36,1);
 }
@@ -89,7 +92,9 @@ a{color:var(--accent)}
   background:var(--rule-grad)}
 .header-inner{display:flex;align-items:center;gap:18px;height:78px}
 .brand{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--ink);text-decoration:none;white-space:nowrap}
+  text-transform:uppercase;color:var(--ink);text-decoration:none;white-space:nowrap;
+  transition:color .22s var(--ease)}
+.brand:hover{color:var(--accent-warm-ink)}
 /* status chips */
 .status-group{display:flex;align-items:center;gap:8px;margin-left:24px}
 .status{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;
@@ -110,11 +115,14 @@ a{color:var(--accent)}
 .site-nav a{position:relative;font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.05em;
   color:var(--ink-2);text-decoration:none;padding:11px 13px;border-radius:999px;white-space:nowrap;
   transition:color .2s var(--ease),background .2s var(--ease)}
+/* The top nav is a clickable thing, so it follows the site-wide rule: blue at
+   rest, orange once you touch it or once it's the section you're in. */
 .site-nav a::after{content:"";position:absolute;left:13px;right:13px;bottom:7px;height:2px;
-  background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease)}
-.site-nav a:hover{color:var(--accent);background:var(--accent-soft)}
+  background:var(--accent-warm);transform:scaleX(0);transform-origin:left;
+  transition:transform .3s var(--ease)}
+.site-nav a:hover{color:var(--accent-warm-ink);background:var(--warm-soft)}
 .site-nav a:hover::after,.site-nav a.is-active::after{transform:scaleX(1)}
-.site-nav a.is-active{color:var(--accent);font-weight:600}
+.site-nav a.is-active{color:var(--accent-warm-ink);font-weight:600}
 .nav-toggle{display:none;background:none;border:1px solid var(--rule);border-radius:999px;
   font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
   color:var(--ink);padding:9px 16px;cursor:pointer;margin-left:auto}
@@ -162,7 +170,7 @@ a{color:var(--accent)}
    gauge centre on the viewport, which is what you actually look at. */
 .rail-pct{position:absolute;bottom:100%;right:0;margin-bottom:18px;
   font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.1em;
-  color:var(--accent);text-align:right}
+  color:var(--accent);text-align:right;font-variant-numeric:tabular-nums}
 /* Fixed height (not "however tall the content+gaps happen to be") so the
    track is the SAME physical length in full and compact mode. align-items:
    stretch then stretches both ol and .rail-gauge to fill it, and
@@ -239,12 +247,16 @@ a{color:var(--accent)}
 .rail-rocket svg{width:100%;height:100%;stroke:currentColor;fill:var(--paper);
   stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;
   transform:rotate(var(--tilt,0deg))}
-/* transform-box:fill-box makes transform-origin resolve against the path's
-   OWN bounding box, so "50% 0" is the top of the flame where it meets the
-   engine — scaling from there lengthens the flame downward instead of
-   inflating it around its middle and detaching it from the body. */
-.rail-rocket .flame,.rail-rocket .flame-core{transform-box:fill-box;
-  transform-origin:50% 0;transform:scaleY(var(--flame,1))}
+/* The origin is the point where the flame meets the engine bell (12, 17.3 in
+   the icon's own 24x24 viewBox), so scaling lengthens the flame downward
+   instead of inflating it around its middle and detaching it from the body.
+   Given in explicit view-box units rather than as a percentage with
+   transform-box:fill-box — fill-box resolves against each path's own bounding
+   box, which differs between .flame and .flame-core, so the same "50% 0"
+   meant two different points and the core drifted out of the flame. */
+.rail-rocket .flame,.rail-rocket .flame-core{transform-box:view-box;
+  transform-origin:12px 17.3px;
+  transform:scale(calc(1 + (var(--flame,1) - 1)*.35),var(--flame,1))}
 .rail-rocket .flame{fill:var(--accent-warm);stroke:none}
 .rail-rocket .flame-core{fill:color-mix(in srgb,var(--accent-warm) 55%,var(--paper));stroke:none}
 /* During a nav-click jump the rocket has to cross the whole rail at once —
@@ -308,6 +320,21 @@ a{color:var(--accent)}
 @media (min-width:900px) and (max-width:1519px){
   .wrap{padding-right:calc(var(--gutter) + 100px)}
 }
+/* DIVIDERS UNDER THE RAIL — whenever the rail is on screen (≥900px), every
+   horizontal divider fades out before it reaches the rail's column instead of
+   running the full width. The dividers are full-bleed and the rail is fixed
+   on top of them, so at full strength they cut straight across the gauge and
+   the planets. Only the right end changes; the left end and the middle keep
+   the shared recipe, so it still reads as the same line.
+   86% is the fade-out point because the rail's own footprint is at most ~283px
+   from the right edge in full mode (≥1800px → ≤15.7% of the viewport) and
+   ~135px in compact mode (at its 900px floor → 15%), so clearing the last 14%
+   covers both without eating into the content column. */
+@media (min-width:900px){
+  :root{--rule-grad:linear-gradient(90deg,transparent 0%,var(--accent-2) 6%,
+    var(--accent) 28%,var(--accent) 60%,
+    color-mix(in srgb,var(--accent) 30%,transparent) 78%,transparent 86%)}
+}
 
 /* ============ HERO ============ */
 .hero{position:relative;height:min(84vh,760px);min-height:440px;overflow:hidden;background:var(--paper-2)}
@@ -321,8 +348,13 @@ a{color:var(--accent)}
 .hero-eyebrow{color:rgba(255,255,255,.76);margin:0 0 10px;display:flex;align-items:center;gap:9px}
 .hero-name{font-family:var(--serif);font-weight:400;color:#fff;font-size:clamp(46px,9vw,104px);
   line-height:.94;letter-spacing:-.025em;margin:0;text-shadow:0 1px 28px rgba(0,0,0,.34)}
-.hero-pronounce{font-family:var(--mono);font-size:12.5px;letter-spacing:.05em;
-  color:rgba(255,255,255,.66);margin:12px 0 0;text-shadow:0 1px 12px rgba(0,0,0,.5)}
+/* deliberately identical treatment to .hero-eyebrow (which is .label) — same
+   size, weight, tracking and caps. They sit directly above and below the name
+   and any difference between them read as a third font rather than as one
+   mono voice; only the opacity differs, because this line is the aside. */
+.hero-pronounce{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(255,255,255,.6);margin:12px 0 0;
+  text-shadow:0 1px 12px rgba(0,0,0,.5)}
 .hero-sub{color:rgba(255,255,255,.94);max-width:52ch;margin:16px 0 0;
   font-size:clamp(15px,.6vw + 13px,19px);text-shadow:0 1px 18px rgba(0,0,0,.5)}
 @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
@@ -346,23 +378,37 @@ section{position:relative;padding-block:clamp(54px,7vw,96px)}
 section::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;
   background:var(--rule-grad);z-index:1}
 section:first-of-type::after{display:none}
-/* small ornament sitting on the divider */
-section::before{content:"";position:absolute;top:-4px;left:50%;width:7px;height:7px;z-index:2;
-  transform:translateX(-50%) rotate(45deg);background:var(--paper);
-  border:1px solid var(--rule-blue);border-radius:1px}
+/* ORNAMENT ON THE DIVIDER — a slowly turning gear.
+   This replaces a small rotated square that sat at top:-4px. Because sections
+   are overflow:hidden, everything above top:0 was clipped, so only its bottom
+   half ever rendered — which read as a notch chewed out of the divider rather
+   than as an ornament. The gear is therefore positioned entirely BELOW the
+   line, where nothing clips it.
+   It is drawn as a CSS mask over a background-color rather than an inline SVG
+   or a coloured data URI, so the colour still comes from a token (a data URI
+   can't read currentColor, and hard-coding a hex here would break "recolour by
+   editing :root only"). */
+section::before{content:"";position:absolute;top:7px;left:50%;width:19px;height:19px;z-index:2;
+  background:var(--accent-2);opacity:.55;
+  -webkit-mask:var(--gear) center/contain no-repeat;mask:var(--gear) center/contain no-repeat;
+  animation:gear-turn 34s linear infinite}
 section:first-of-type::before{display:none}
+/* the translate has to live in the keyframes: an animation on `transform`
+   replaces the whole property, so a separate translateX(-50%) would be lost */
+@keyframes gear-turn{from{transform:translateX(-50%) rotate(0)}
+  to{transform:translateX(-50%) rotate(360deg)}}
 .section-head{margin-bottom:clamp(24px,4vw,44px)}
 .section-title{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4.2vw,48px);
   line-height:1.04;letter-spacing:-.02em;margin:10px 0 0}
 .section-note{color:var(--ink-2);max-width:58ch;margin:12px 0 0}
 
 
-/* the hobbies group is the water one — its rule and icon lean turquoise.
-   (This targeted .group-head's border-bottom until that became a gradient
-   ::after; it has to override the same property the base rule now sets.) */
-.g-water .group-head::after{background:linear-gradient(90deg,var(--accent-2),
-  color-mix(in srgb,var(--accent-2) 55%,transparent) 68%,transparent)}
-.g-water .group-ic{color:var(--accent-2)}
+/* The hobbies group used to be tinted turquoise to mark it as the "water" one.
+   That made it the only group with a different resting colour, which read as
+   an inconsistency rather than a motif — every group head is now identical.
+   .g-water is kept on the markup because the ignition ring still uses it to
+   pick a water-coloured ripple, which is a per-interaction accent rather than
+   a permanent recolouring. */
 
 /* ============ DECORATIVE BACKGROUND LAYER
    Subtle space + water motifs. All pointer-events:none, all low opacity.
@@ -467,10 +513,37 @@ section{overflow:hidden}
    first structured thing on the page and its lines now rhyme with the
    section dividers and the rail */
 .facts{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-blue)}
-.facts li{display:flex;gap:14px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--rule-blue)}
+.facts li{position:relative;display:flex;gap:14px;align-items:baseline;
+  padding:11px 4px 11px 0;border-bottom:1px solid var(--rule-blue);
+  transition:padding-left .28s var(--ease),background .28s var(--ease)}
+/* a spec-sheet tick on each row that grows out of the left edge on hover —
+   the table is the most document-like thing on the page, so its decoration is
+   a measuring mark rather than an orbit */
+.facts li::before{content:"";position:absolute;left:0;top:50%;width:0;height:2px;
+  background:var(--accent-warm);transform:translateY(-50%);
+  transition:width .28s var(--ease)}
+.facts li:hover{padding-left:14px;background:color-mix(in srgb,var(--warm-soft) 55%,transparent)}
+.facts li:hover::before{width:8px}
+.facts li:hover .k{color:var(--accent-warm-ink)}
 .facts .k{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--accent);flex:0 0 92px}
+  text-transform:uppercase;color:var(--accent);flex:0 0 92px;transition:color .28s var(--ease)}
 .facts .v{color:var(--ink)}
+/* rows deal themselves in one after another when the table first appears.
+   The delays are per-row so it reads as a list being filled in, not one block
+   fading; :nth-child is fine here because the table is hand-maintained and
+   short. Covered by the reduced-motion block like every other animation. */
+/* .facts uses .reveal only as a "now you're visible" trigger for the rows —
+   the container itself must NOT also do the generic fade-and-rise, or the
+   whole table slides while its rows are individually sliding. */
+.facts.reveal{opacity:1;transform:none;transition:none}
+.facts.in li{animation:fact-in .5s var(--ease) both}
+.facts.in li:nth-child(1){animation-delay:.05s}
+.facts.in li:nth-child(2){animation-delay:.12s}
+.facts.in li:nth-child(3){animation-delay:.19s}
+.facts.in li:nth-child(4){animation-delay:.26s}
+.facts.in li:nth-child(5){animation-delay:.33s}
+.facts.in li:nth-child(6){animation-delay:.40s}
+@keyframes fact-in{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
 .socials{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
 .socials a{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;
   font-weight:500;letter-spacing:.04em;text-decoration:none;color:var(--ink);
@@ -590,7 +663,11 @@ section{overflow:hidden}
    next to it. Bigger, 600, and blue — the same accent the rail uses, so the
    metadata column reads as one deliberate system down the page. */
 .entry-meta{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.06em;
-  text-transform:uppercase;color:var(--accent);text-align:right;white-space:nowrap;opacity:.9}
+  text-transform:uppercase;color:var(--accent);text-align:right;white-space:nowrap;opacity:.9;
+  transition:color .3s var(--ease)}
+/* the whole row goes warm once it's open — toggle, left bar and now the
+   date/place too, so the open entry reads as one lit-up unit */
+.entry[data-open="true"] .entry-meta{color:var(--accent-warm-ink);opacity:1}
 .entry-toggle{position:relative;font-family:var(--mono);font-size:18px;font-weight:500;
   color:var(--accent);justify-self:end;
   transition:transform .3s var(--ease),color .3s var(--ease)}
@@ -649,10 +726,21 @@ section{overflow:hidden}
    like a section, so it gets the same blue rule, not a warm hairline */
 .strip::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;
   background:var(--rule-grad);z-index:1}
-.strip::before{content:"";position:absolute;top:-4px;left:50%;width:7px;height:7px;z-index:2;
-  transform:translateX(-50%) rotate(45deg);background:var(--paper);
-  border:1px solid var(--rule-blue);border-radius:1px}
-.strip-viewport{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.strip::before{content:"";position:absolute;top:7px;left:50%;width:19px;height:19px;z-index:2;
+  background:var(--accent-2);opacity:.55;
+  -webkit-mask:var(--gear) center/contain no-repeat;mask:var(--gear) center/contain no-repeat;
+  animation:gear-turn 34s linear infinite}
+/* padding-block gives the cards room to lift on hover. Without it their
+   translateY(-4px) pushed the top border past the clip edge and the orange
+   hover outline lost its top side. This works BECAUSE overflow:hidden clips
+   at the padding edge, so the padding band is inside the visible region —
+   the same property exploited (in reverse) by the margin-right rule below. */
+/* a real subheading, sized between .section-title and a group title — the
+   strip isn't a <section> so it can't borrow .section-title's scale */
+.strip-title{font-family:var(--serif);font-weight:400;font-size:clamp(24px,2.8vw,34px);
+  line-height:1.1;letter-spacing:-.02em;margin:0}
+.strip-viewport{overflow:hidden;padding-block:7px;
+  mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
 /* Keep the marquee's cards from sliding under the fixed rail. The strip is
    deliberately full-bleed (edge to edge, no .wrap), so this can't be solved
    with padding — overflow:hidden clips at the padding edge, meaning padding
@@ -690,7 +778,11 @@ section{overflow:hidden}
 
 /* ============ TIMELINE — boxed cards ============ */
 .path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
-.path-item{position:relative;display:grid;grid-template-columns:170px 1fr;
+/* align-items:baseline sits the year's baseline on the role heading's own
+   baseline. It was previously nudged down with a padding-top guess, which
+   left it floating above the heading it labels — and any change to either
+   font size broke the guess again. Baseline alignment is self-maintaining. */
+.path-item{position:relative;display:grid;grid-template-columns:170px 1fr;align-items:baseline;
   gap:clamp(16px,3vw,44px);padding:26px clamp(20px,2.4vw,32px);
   background:var(--paper);border:1px solid var(--rule);border-radius:3px;
   transition:border-color .3s var(--ease),transform .3s var(--ease),box-shadow .3s var(--ease)}
@@ -708,7 +800,11 @@ section{overflow:hidden}
    don't leave a ragged void beside the role — but only while the column
    exists; the mobile single-column stack below puts it back to left. */
 .path-when{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--accent);
-  letter-spacing:.04em;white-space:nowrap;padding-top:6px;text-align:center}
+  letter-spacing:.04em;white-space:nowrap;text-align:center;
+  font-variant-numeric:tabular-nums;transition:color .25s var(--ease)}
+/* tabular-nums above is what stops the scramble animation (JS) from making
+   the column jitter as digits swap width */
+.path-item:hover .path-when{color:var(--accent-warm-ink)}
 .path-role{font-family:var(--serif);font-size:clamp(21px,2.1vw,28px);line-height:1.18;margin:0}
 /* --accent-warm-ink, not --accent-warm: this is resting body-adjacent text at
    11.5px, and the bright orange only clears ~3:1 against paper. The darker
@@ -855,8 +951,7 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
     <a class="brand" href="#top">Jędrzej Cader</a>
     <!-- EDIT ME #2 — status chips -->
     <div class="status-group">
-      <span class="status"><svg class="ic"><use href="#i-pin"/></svg>ETH Zürich</span>
-      <span class="status is-live"><span class="pulse"></span>Now at MIT · Cambridge</span>
+      <span class="status is-live"><span class="pulse"></span>Now at: ETH Zürich · MIT Cambridge</span>
     </div>
     <span class="head-div" aria-hidden="true"></span>
     <nav class="site-nav" id="nav" aria-label="Sections">
@@ -938,9 +1033,13 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
   </svg></div>
 
   <div class="wrap">
+    <div class="section-head reveal">
+      <p class="label">About</p>
+      <h2 class="section-title">The short version</h2>
+    </div>
     <div class="about-grid reveal">
       <div>
-        <ul class="facts">
+        <ul class="facts reveal">
           <li><span class="k">Name</span><span class="v">Jędrzej Cader</span></li>
           <li><span class="k">Based in</span><span class="v">Zürich, Switzerland</span></li>
           <li><span class="k">Currently</span><span class="v">Master's thesis at MIT</span></li>
@@ -1181,9 +1280,9 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
 
   <div class="wrap">
     <div class="section-head reveal">
-      <p class="label">Everything</p>
+      <p class="label">Projects</p>
       <h2 class="section-title">Browse by area</h2>
-      <p class="section-note">Five areas. Pick one to jump straight to it, or keep scrolling
+      <p class="section-note">Four areas. Pick one to jump straight to it, or keep scrolling
          through the lot.</p>
     </div>
 
@@ -1200,20 +1299,14 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
         <p class="cat-desc">Swarm control, mechatronics, and things that move on their own.</p>
         <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
       </button>
-      <button class="cat" data-goto="g-making">
-        <div class="cat-n">03 · <span class="count" data-n="2">02</span> entries</div>
-        <svg class="ic cat-ic"><use href="#i-tool"/></svg><h3 class="cat-name">Making</h3>
-        <p class="cat-desc">CNC, CAM, stainless steel, and time spent on a shop floor.</p>
-        <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
-      </button>
       <button class="cat" data-goto="g-people">
-        <div class="cat-n">04 · <span class="count" data-n="3">03</span> entries</div>
+        <div class="cat-n">03 · <span class="count" data-n="3">03</span> entries</div>
         <svg class="ic cat-ic"><use href="#i-users"/></svg><h3 class="cat-name">Leadership &amp; teaching</h3>
         <p class="cat-desc">POLANA, the European Youth Parliament, and nine years of teaching.</p>
         <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
       </button>
       <button class="cat" data-goto="g-hobbies">
-        <div class="cat-n">05 · <span class="count" data-n="3">03</span> entries</div>
+        <div class="cat-n">04 · <span class="count" data-n="3">03</span> entries</div>
         <svg class="ic cat-ic"><use href="#i-waves"/></svg><h3 class="cat-name">Hobbies</h3>
         <p class="cat-desc">Long rides, cold water, and puzzles that fit in one hand.</p>
         <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
@@ -1420,49 +1513,6 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
       </article>
     </div>
 
-    <div class="group reveal" id="g-making">
-      <div class="group-head"><svg class="ic group-ic"><use href="#i-tool"/></svg><h3 class="group-title">Making</h3><span class="group-count">02</span></div>
-
-      <article class="entry" data-open="false">
-        <button class="entry-head" aria-expanded="false" aria-controls="e10">
-          <span class="entry-title">Three months on a CNC shop floor</span>
-          <span class="entry-meta">2023 · KMB Grupa / SOMET</span>
-          <span class="entry-toggle" aria-hidden="true">+</span>
-        </button>
-        <div class="entry-body" id="e10"><div><div class="entry-content">
-          <div>
-            <ul class="tags"><li>CAD / CAM</li><li>Mastercam</li><li>Stainless steel</li></ul>
-            <p>Designing and manufacturing parts for manual and CNC machining, and building
-               stainless steel kitchen furniture with my hands.</p>
-            <p>Best correction to CAD habits I've ever had. You design differently once you've
-               had to make the thing.</p>
-          </div>
-          <div class="shots">
-            <div class="shot wide"><span class="label">images/cnc-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/cnc-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/cnc-3.jpg</span></div>
-          </div>
-        </div></div></div>
-      </article>
-
-      <article class="entry" data-open="false">
-        <button class="entry-head" aria-expanded="false" aria-controls="e15">
-          <span class="entry-title">Placeholder — something you built yourself</span>
-          <span class="entry-meta">Year · Placeholder</span>
-          <span class="entry-toggle" aria-hidden="true">+</span>
-        </button>
-        <div class="entry-body" id="e15"><div><div class="entry-content">
-          <div><ul class="tags"><li>Tag</li><li>Tag</li></ul>
-          <p>Swap this out or delete it.</p></div>
-          <div class="shots">
-            <div class="shot wide"><span class="label">images/placeholder-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/placeholder-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/placeholder-3.jpg</span></div>
-          </div>
-        </div></div></div>
-      </article>
-    </div>
-
     <div class="group reveal" id="g-people">
       <div class="group-head"><svg class="ic group-ic"><use href="#i-users"/></svg><h3 class="group-title">Leadership &amp; teaching</h3><span class="group-count">03</span></div>
 
@@ -1613,7 +1663,7 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
     </g>
   </svg></div>
 
-  <div class="wrap" style="margin-bottom:22px"><p class="label">Bits and pieces</p></div>
+  <div class="wrap" style="margin-bottom:26px"><h2 class="strip-title">Selected highlights</h2></div>
   <div class="strip-viewport">
     <div class="strip-track" id="stripTrack">
       <button class="strip-card" data-target="e4">
@@ -1632,9 +1682,36 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
         <div class="strip-media"><span class="label">images/strip-4.jpg</span></div>
         <div class="strip-cap"><span>HERMES build</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
       </button>
-      <button class="strip-card" data-target="e10">
-        <div class="strip-media"><span class="label">images/strip-5.jpg</span></div>
-        <div class="strip-cap"><span>Shop floor</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
+      <button class="strip-card" data-target="e12">
+        <div class="strip-media"><span class="label">images/strip-6.jpg</span></div>
+        <div class="strip-cap"><span>EYP · Sassari</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
+      </button>
+      <button class="strip-card" data-target="e11">
+        <div class="strip-media"><span class="label">images/strip-7.jpg</span></div>
+        <div class="strip-cap"><span>POLANA</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
+      </button>
+      <button class="strip-card" data-target="e1">
+        <div class="strip-media"><span class="label">images/strip-8.jpg</span></div>
+        <div class="strip-cap"><span>MIT · Cambridge</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
+      </button>
+      <!-- EXACT duplicate of the seven cards above. The marquee animates
+           translateX(0 -> -50%), so the track has to hold the set twice or the
+           second half of the loop is empty space. Keep these in sync. -->
+      <button class="strip-card" data-target="e4">
+        <div class="strip-media"><span class="label">images/strip-1.jpg</span></div>
+        <div class="strip-cap"><span>Engine test · ARIS</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
+      </button>
+      <button class="strip-card" data-target="e2">
+        <div class="strip-media"><span class="label">images/strip-2.jpg</span></div>
+        <div class="strip-cap"><span>JPL · Pasadena</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
+      </button>
+      <button class="strip-card" data-target="e14">
+        <div class="strip-media"><span class="label">images/strip-3.jpg</span></div>
+        <div class="strip-cap"><span>Balkans · 500 km</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
+      </button>
+      <button class="strip-card" data-target="e3">
+        <div class="strip-media"><span class="label">images/strip-4.jpg</span></div>
+        <div class="strip-cap"><span>HERMES build</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
       </button>
       <button class="strip-card" data-target="e12">
         <div class="strip-media"><span class="label">images/strip-6.jpg</span></div>
@@ -1820,7 +1897,7 @@ footer::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;back
   </svg></div>
 
   <div class="wrap reveal">
-    <p class="label">Say hello</p>
+    <p class="label">Contact</p>
     <p class="contact-line"><a href="mailto:jcader@ethz.ch">jcader@ethz.ch</a></p>
     <p class="section-note" style="margin-top:22px">
       Roles, collaborations, rocketry arguments, or anything about getting hardware off
@@ -1884,6 +1961,39 @@ function openEntry(id){
 }
 document.querySelectorAll('.tile, .strip-card').forEach(function(el){
   el.addEventListener('click',function(){ openEntry(el.dataset.target); });
+});
+
+/* 2b — timeline years settle like a mechanical counter on hover. Only the
+   DIGITS are scrambled; separators, spaces and words ("present") are left
+   alone, so the string keeps its exact length and the column never reflows —
+   .path-when is tabular-nums for the same reason. Deliberately short (~380ms)
+   and re-armed only once the pointer has left, so running the cursor down the
+   list doesn't turn into a slot machine. */
+document.querySelectorAll('.path-item').forEach(function(item){
+  var el=item.querySelector('.path-when');
+  if(!el) return;
+  var real=el.textContent, busy=false;
+  item.addEventListener('mouseenter',function(){
+    if(reduced || busy) return;
+    busy=true;
+    var t0=performance.now(), DUR=380;
+    (function step(now){
+      var p=Math.min(1,(now-t0)/DUR);
+      /* each digit locks in at a position-dependent threshold, so the number
+         resolves left-to-right rather than all at once */
+      var out='';
+      for(var i=0;i<real.length;i++){
+        var ch=real[i];
+        if(ch>='0'&&ch<='9' && p < 0.25+0.75*(i/real.length)){
+          out+=String(Math.floor(Math.random()*10));
+        } else out+=ch;
+      }
+      el.textContent=out;
+      if(p<1) requestAnimationFrame(step);
+      else el.textContent=real;
+    })(t0);
+  });
+  item.addEventListener('mouseleave',function(){ busy=false; el.textContent=real; });
 });
 
 /* 3 — category cards jump to their group */
@@ -2016,7 +2126,7 @@ if(!reduced){
   document.querySelectorAll('.deco').forEach(function(el){
     var c=el.className;
     if(c.indexOf('deco-waves')>-1 || c.indexOf('deco-drone')>-1) return;
-    decos.push({el:el, mid:0, depth:c.indexOf('deco-orbit')>-1 ? 0.07 : 0.12});
+    decos.push({el:el, mid:0, depth:c.indexOf('deco-orbit')>-1 ? 0.16 : 0.24});
   });
 }
 function measureDecos(){
@@ -2033,7 +2143,11 @@ function onFrame(){
   var y=window.scrollY;
   var max=document.documentElement.scrollHeight - window.innerHeight;
   var pct=max>0 ? Math.min(100,Math.max(0,(y/max)*100)) : 0;
-  if(railPct) railPct.textContent=Math.round(pct)+'%';
+  /* Mission countdown rather than a percentage: the rail is a rocket riding a
+     gauge, so the readout counts DOWN to zero as you descend the page and
+     reads T-000 at the bottom. Zero-padded to three digits so the column
+     never changes width as it ticks. */
+  if(railPct) railPct.textContent='T-'+String(Math.round(100-pct)).padStart(3,'0');
 
   /* idx/frac below are computed from a single anchor point 45% down the
      viewport, then drive BOTH the nav highlight and the rocket — the rocket
@@ -2121,14 +2235,17 @@ function onFrame(){
      and consumed by the CSS in .rail-rocket, so no layout is touched here. */
   if(railRocket && !reduced){
     var dy=y-lastY;
-    var speed=Math.min(1,Math.abs(dy)/60);
+    /* /26 not /60: a normal wheel notch moves ~15-25px per frame, so the old
+       divisor meant ordinary scrolling only ever reached ~a third of the
+       range and the effect was invisible unless you flung the page. */
+    var speed=Math.min(1,Math.abs(dy)/26);
     var dir=dy>0?1:(dy<0?-1:0);
     flameLvl+=(speed-flameLvl)*0.3;
     tiltLvl+=(dir*speed-tiltLvl)*0.18;
     if(flameLvl<0.005) flameLvl=0;
     if(Math.abs(tiltLvl)<0.005) tiltLvl=0;
-    railRocket.style.setProperty('--flame',(1+flameLvl*1.15).toFixed(3));
-    railRocket.style.setProperty('--tilt',(tiltLvl*11).toFixed(2)+'deg');
+    railRocket.style.setProperty('--flame',(1+flameLvl*2.1).toFixed(3));
+    railRocket.style.setProperty('--tilt',(tiltLvl*13).toFixed(2)+'deg');
   }
 
   /* ANIMATION 11 — decorative parallax. Decor drifts against the scroll at a
@@ -2143,7 +2260,16 @@ function onFrame(){
     for(var d=0;d<decos.length;d++){
       var deco=decos[d], dist=vpMid-deco.mid;
       if(Math.abs(dist)>limit) continue;
-      deco.el.style.transform='translate3d(0,'+(dist*deco.depth).toFixed(1)+'px,0)';
+      /* Clamped rather than unbounded. The depths are high enough now to be
+         actually visible (they were 0.07/0.12, which on a 400px ring at 24%
+         opacity was a ~3% shift over a whole section — technically working
+         and impossible to see), and without a cap that same rate would carry
+         a deco a few hundred pixels away from where it was placed and break
+         the "never overlap another deco" spacing. The cap engages just under
+         one viewport from centre, past which the deco is barely on screen. */
+      var off=dist*deco.depth;
+      if(off>120) off=120; else if(off<-120) off=-120;
+      deco.el.style.transform='translate3d(0,'+off.toFixed(1)+'px,0)';
     }
   }
 

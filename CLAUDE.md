@@ -156,6 +156,27 @@ no-op the moment `.group-head`'s rule turned into a gradient `::after`. If
 you convert a border to a gradient, grep for anything overriding that
 border's colour.
 
+**Above 900px — i.e. whenever the rail is on screen — `--rule-grad` is
+redefined to fade out by 86%** so the dividers stop before they reach the
+rail's column. They are full-bleed and the rail is fixed on top of them, so at
+full strength they cut straight across the gauge and the planets. Only the
+right end changes. 86% is derived from the rail's own footprint: ≤283px from
+the right edge in full mode (≥1800px → ≤15.7% of the viewport) and ~135px in
+compact at its 900px floor (15%). **If the rail's width or `right` offset
+changes, re-derive this the same way.**
+
+**The divider ornament is a slowly turning gear, positioned entirely below the
+line.** It replaced a small rotated square at `top:-4px` which, because
+sections are `overflow:hidden`, was clipped to its bottom half and read as a
+notch chewed out of the divider rather than as an ornament. **Anything placed
+on a section's top edge has to live at a positive `top`** — the section will
+clip whatever sits above it. The gear is drawn as a CSS `mask` over a
+`background-color` (`--gear` in `:root`) rather than an inline SVG or a
+coloured data URI, so its colour still comes from a token: a data URI cannot
+read `currentColor`, and hard-coding a hex would break "recolour by editing
+`:root` only". Its `translateX(-50%)` centring lives *inside* the keyframes,
+because animating `transform` replaces the whole property.
+
 **The stops are `6% / 30% / 70% / 94%`, not an even fade from the ends.** An
 even `transparent → accent → transparent` gradient looked fine in the middle
 of the screen and was effectively invisible across the outer third, so on a
@@ -173,7 +194,7 @@ relative to those stops before assuming the element isn't rendering.**
   Playfair Display, which is the default serif of every generated portfolio.
 - **IBM Plex Sans** — all body copy and entry titles.
 - **IBM Plex Mono** — every piece of metadata: years, tags, section eyebrows,
-  nav links, status chips, the progress percentage, captions.
+  nav links, status chips, the rail's mission countdown, captions.
 
 The mono is not decoration. It is the vernacular of engineering documents —
 part numbers, revisions, spec sheets — and it is what makes the page read as
@@ -210,7 +231,8 @@ for it to be centred in.
 
 ## 4. Page structure
 
-1. **Sticky header** — brand, two status chips, vertical divider, nav, mobile
+1. **Sticky header** — brand, one "Now at" status chip listing both current
+   institutions, vertical divider, nav, mobile
    menu button.
 2. **Hero** — full-bleed photo with parallax, gradient veil, serif name, a
    small mono pronunciation line, one-line positioning statement, bobbing
@@ -223,7 +245,7 @@ for it to be centred in.
    ("(yes, really)"), not apologetic, matching the rest of the voice.
 3. **`#about`** — facts sidebar (left), prose (right), social pills.
 4. **`#selected`** — mosaic of six featured tiles.
-5. **`#projects`** — five category cards, then five grouped lists of entries.
+5. **`#projects`** — four category cards, then four grouped lists of entries.
 6. **Photo strip** — auto-scrolling clickable photo cards (not a `<section>`).
 7. **`#education`** — three boxed timeline cards.
 8. **`#experience`** — five boxed timeline cards, then the compact CV strip.
@@ -255,20 +277,31 @@ shipping grey placeholders.
 
 ### Category cards + groups (`#projects`)
 
-Five `<button class="cat">` cards with `data-goto="g-xxx"` scrolling to the
+Four `<button class="cat">` cards with `data-goto="g-xxx"` scrolling to the
 matching `<div class="group" id="g-xxx">`:
 
 | id | Title | Icon |
 |---|---|---|
 | `g-space` | Space & rocketry | `#i-rocket` |
 | `g-robotics` | Robotics & simulation | `#i-cpu` |
-| `g-making` | Making | `#i-tool` |
 | `g-people` | Leadership & teaching | `#i-users` |
 | `g-hobbies` | Hobbies | `#i-waves` |
 
 Order encodes priority. Hobbies is last and that is correct. When adding or
-removing entries, **update the count in both the `.cat-n` line and the
-`.group-count` span** — they are hand-maintained, not computed.
+removing entries, **update three hand-maintained things, not two**: the card's
+leading number and `data-n` in the `.cat-n` line, and the `.group-count` span.
+`data-n` is what the count-up animation counts to, so a stale one animates to
+the wrong number and then sits there.
+
+There was a fifth group, **`g-making`** (Making, `#i-tool`, entries `e10` and
+`e15`), removed on request — "I didn't make enough stuff and I don't want it."
+Removing a group is not just deleting the block; the full checklist is: the
+`.group`, its `.cat` card, **renumber every remaining card's leading number**,
+any photo-strip or mosaic card whose `data-target` pointed into it (a
+strip card pointed at `e10` and had to go), and any copy that counts the
+groups (the `#projects` section note said "Five areas"). Re-check the
+`#projects` decoration spacing too — they are placed by `top:%` against a
+section that just got ~10% shorter.
 
 An earlier version used filter chips over one flat list. It read as a shopping
 list: sixteen rows of identical weight with nothing for the eye to hold onto.
@@ -320,8 +353,10 @@ resting hues.
 The triple-nested `div` inside `.entry-body` is load-bearing: the expand
 animation uses `grid-template-rows: 0fr → 1fr` with `overflow:hidden` on the
 inner wrapper, which animates to auto height without JavaScript measurement.
-**Do not flatten those divs.** Entry ids run `e1`–`e17`; new ones continue the
-sequence and must be unique, because tiles and photo cards target them.
+**Do not flatten those divs.** Entry ids run `e1`–`e17` **with `e10` and
+`e15` retired** (they belonged to the deleted Making group — see below); new
+ones continue past `e17` rather than reusing a retired number, and must be
+unique, because tiles and photo cards target them.
 
 ### Photo strip
 
@@ -329,6 +364,19 @@ A CSS marquee: `.strip-track` animates `translateX(0 → -50%)`. **The card set
 must be duplicated exactly once** for the loop to be seamless. Pauses on hover
 and on keyboard focus-within. Each card is a button with `data-target` and opens
 an entry, same as the tiles.
+
+This actually shipped broken for a while — the track held **one** set of seven,
+so `-50%` scrolled the cards off and then showed a card's width of empty track
+before snapping. If the strip ever shows a gap, count the cards: it is almost
+always that the two halves are no longer identical. Removing a card means
+removing **both** copies.
+
+`.strip-viewport` carries `padding-block` so cards have room for their
+`translateY(-4px)` hover lift. Without it the lift pushed each card's top edge
+past the clip boundary and the orange hover outline lost its top side — which
+looks like a broken border, not a clipping problem. This works *because*
+`overflow:hidden` clips at the padding edge (see the `margin-right` note below,
+which exploits the same fact in the opposite direction).
 
 The strip is deliberately full-bleed (no `.wrap`), which means it sits under
 the fixed progress rail's screen column whenever the rail is visible.
@@ -347,7 +395,7 @@ mobile pass.
 
 ### Progress rail
 
-Right-hand side, screens ≥900px. Structure: percentage readout, then a flex row
+Right-hand side, screens ≥900px. Structure: countdown readout, then a flex row
 containing the nav list and a separate `.rail-gauge` column. The gauge being its
 own column is the fix for an earlier bug where the rocket overlapped the section
 dots — **keep the rocket inside `.rail-gauge`, never in the list column.**
@@ -488,6 +536,12 @@ page instead" applies to width only. Narrowing the window costs horizontal
 room (`.rail-body`'s gap is still a `clamp()` that pulls the planets in
 toward the rocket); it must never cost vertical room, because the vertical
 extent is what makes the gauge legible as a progress indicator.
+
+**The readout is a mission countdown, not a percentage** — `T-100` at the top
+of the page down to `T-000` at the bottom, zero-padded to three digits and set
+in `tabular-nums` so the column never changes width as it ticks. The rail is a
+rocket riding a gauge, so counting down to zero says what the element is doing
+better than "41%" did.
 
 **`.rail-pct` is `position:absolute` (`bottom:100%`), not a block in flow.**
 `.rail` centres itself with `top:50%` + `translateY(-50%)`, which centres its
@@ -1022,10 +1076,22 @@ consumed entirely in CSS, so no layout is touched.
 Two details are load-bearing. The rotation goes on the **inner `<svg>`**,
 because `.rail-rocket`'s own `transform` is already spoken for by its
 `translate(-50%,-50%)` centring — the same rule as the decorative layer. And
-the flame paths use `transform-box:fill-box` with `transform-origin:50% 0`,
-so scaling happens from the flame's own top edge where it meets the engine;
-without `fill-box` the origin resolves against the whole SVG viewport and the
-flame inflates around its middle, detaching from the body.
+the flame scales about the point where it meets the engine bell, given as
+**explicit view-box units (`transform-origin:12px 17.3px`)** rather than a
+percentage under `transform-box:fill-box`. `fill-box` resolves against *each
+path's own* bounding box, and `.flame` and `.flame-core` have different
+bounding boxes — so the same `50% 0` meant two different points and the core
+crept out of the flame as it stretched. **When two sibling SVG paths must
+scale together, give them a shared origin in view-box units, not a
+percentage.**
+
+Both this and the deco parallax below were first shipped tuned so
+conservatively that they were reported as not working at all: the flame
+normalised speed against 60px/frame when a normal wheel notch moves 15–25px,
+so ordinary scrolling only reached a third of the range. **The failure mode
+for velocity-driven motion is being invisible, not being wrong** — pick the
+constants against a *normal* scroll, not a fast fling, and verify the effect
+is legible at the slow end before trusting it.
 
 **The rAF loop re-schedules itself while the flame is still easing back to
 rest.** Scroll events have stopped by then, so nothing else would keep it
@@ -1034,9 +1100,17 @@ stopped. Any future velocity-decay effect needs the same self-scheduling.
 
 ### Decorative parallax
 
-`.deco` elements drift against the scroll at 0.07× (orbit rings) or 0.12×
-(one-off glyphs) so the background sits at a real depth. Two families are
-**excluded and must stay excluded**:
+`.deco` elements drift against the scroll at 0.16× (orbit rings) or 0.24×
+(one-off glyphs) so the background sits at a real depth, with the resulting
+offset **clamped to ±120px**. The rates started at 0.07/0.12 and were reported
+as doing nothing — on a 400px ring at 24% opacity that is about a 3% shift
+across a whole section, which is technically working and impossible to see.
+The clamp exists because the higher rates would otherwise carry a deco a few
+hundred pixels from where it was placed and break the "never let two
+decorations overlap" spacing; it engages just under one viewport from centre,
+by which point the deco is barely on screen anyway.
+
+Two families are **excluded and must stay excluded**:
 
 - **the full-bleed waves**, which are anchored to a section's top or bottom
   edge — moving them vertically exposes a bare strip;
@@ -1067,6 +1141,18 @@ the next frame's measurement and drift steadily off.
   is zero-padded back to its original width. Note this means each `.cat-n`
   now holds a `<span class="count" data-n="N">` — **when updating a category's
   entry count, update `data-n` as well as the visible text.**
+- **Year scramble** — hovering a timeline card scrambles the year's digits for
+  ~380ms before they settle, each digit locking in at a position-dependent
+  threshold so the number resolves left to right. Only characters `0-9` are
+  scrambled, so separators and words ("present") survive and the string keeps
+  its exact length; `.path-when` is `tabular-nums` so the column can't jitter
+  as digits swap. It re-arms only after the pointer leaves, or running the
+  cursor down the list turns into a slot machine.
+- **Fact rows** — `#about`'s facts table deals its rows in with staggered
+  `nth-child` delays. `.facts` carries `.reveal` purely as a visibility
+  trigger and explicitly opts out of the generic fade-and-rise
+  (`.facts.reveal{opacity:1;transform:none}`), or the container would slide
+  while its own rows were individually sliding.
 - **Envelope flap** — the mail icon's flap lifts on hover. CSS still cannot
   reach inside a `<use>` shadow tree to transform one path of a symbol, but it
   *can* transform the `<use>` element itself, so the envelope is split into
