@@ -293,6 +293,21 @@ The mono is not decoration. It is the vernacular of engineering documents —
 part numbers, revisions, spec sheets — and it is what makes the page read as
 belonging to this person rather than to a template. Keep metadata in mono.
 
+**Type sizes come from tokens, not from the component.** Five of them:
+
+| Token | Used by |
+|---|---|
+| `--fs-small` | Card descriptions, entry summaries, timeline blurbs, category blurbs |
+| `--fs-meta` | Small mono metadata: hero chips, table keys, timeline years *and* orgs, card meta, form labels |
+| `--fs-nav` | Header nav, brand, status chip, rail labels, rail readout |
+| `--fs-action` | Every pill-shaped action: Jump, Open, Full CV, Send, Close, Top, social pills |
+| `--fs-card-title` | Mosaic, Life and timeline card titles |
+
+Each replaced a spread of near-identical values (the metadata alone ran from
+10px to 12.5px across six components), which reads as drift rather than
+hierarchy. **Change the token, never the component** — and if a new component
+needs a size, use the token whose job it does rather than inventing a sixth.
+
 **There is ONE size for small explanatory prose: `--fs-small`.** Card
 descriptions, entry summaries, timeline blurbs and category blurbs were five
 slightly different clamps, which reads as sloppiness rather than hierarchy.
@@ -1534,6 +1549,13 @@ measured by `offsetHeight` the rocket hit `frac=1` the instant you reached that
 heading and jumped straight to the next dot. **Any future anchor that isn't
 a full-height section depends on this.**
 
+**The inline heading's `::after` dash and the CV pill fight over flex order.**
+`.section-name` brackets its text with a dash on each side via `::before` and
+`::after`. Put a `.cv-mini` pill inside the heading and the `::after` dash lands
+after the *pill*; "fix" that with `order:-1` and it jumps to the front, giving
+`— — EXPERIENCE`. The correct fix is `.cv-mini{order:1}` — order the pill last
+and the dashes stay either side of the name where they belong.
+
 Layout: `.tl` is a flex column and each `.tl-row` is its own internal 3-column
 grid (`card | node | card`). Document order therefore *is* vertical order, and
 adding an entry is just adding an `<li>` — there are no per-row `grid-row`
@@ -1544,6 +1566,17 @@ spaced regardless of date range, because a true scale leaves a hole at
 Below 860px the spine moves to the left edge and both threads stack in one
 column — the left/right split has no meaning when there is only one side.
 
+
+### `404.html`
+
+GitHub Pages serves it for any URL that doesn't exist; without it you get
+GitHub's own generic page with no connection to this site. It is **deliberately
+self-contained** rather than sharing `index.html`'s stylesheet — it needs about
+thirty lines of CSS, and duplicating those is cheaper than the alternative.
+
+⚠ **Its `:root` tokens are copied from `index.html`. If the palette changes
+there, change it here too.** That is the one place on the site where a value is
+duplicated, and it is a deliberate trade, not an oversight.
 
 ## 8. Images
 
