@@ -313,10 +313,28 @@ descriptions, entry summaries, timeline blurbs and category blurbs were five
 slightly different clamps, which reads as sloppiness rather than hierarchy.
 Change the token, never the component.
 
-**A section head is two typefaces, not three.** Mono name, then a serif line —
-and `.section-note` now uses `.section-sub`'s exact family and size, following
-it directly, with colour as the only separation. It used to be sans at a third
-size, so three consecutive lines each had their own typeface.
+**A section head is two BLOCKS, not three, and two typefaces, not three.**
+Mono name, then one serif line. It has been walked down twice. First the note
+was sans at a third size, so three consecutive lines each had their own
+typeface; that was fixed by giving `.section-note` `.section-sub`'s exact
+family and size, leaving colour as the only separation. Then the note stopped
+being its own line at all: **it is now a `<span>` INSIDE `.section-sub`**, so
+the head reads as one sentence whose tail fades rather than as a subtitle with
+a caption stapled underneath. Only three heads have one — Highlights,
+Everything and Life — and their subtitles gained a full stop to join the two
+clauses. Heads without a note (`#about`, Education, Experience) take no
+terminal punctuation, which is why the site is inconsistent about it on
+purpose.
+
+⚠ `.section-note` still exists as a **block** rule, because `#contact`'s line
+under the email box is a real standalone `<p>` using it. The inline behaviour
+lives in `.section-sub .section-note`, which strips the block properties and
+keeps the colour. **Don't collapse the two rules into one** — that would turn
+the contact line into a run-on with the button above it.
+
+`.section-sub` was given `max-width:64ch` at the same time. It had no measure
+because it used to be a short line; now that the aside sets inside it, without
+one the merged sentence would run the full 1228px of the wrap.
 
 **Mono metadata is set at 500–600 weight, 11px and up, in `--accent` or
 `--ink-2` — never 400 weight at 10px in `--ink-3`.** That was the original
@@ -347,11 +365,11 @@ the pair reads as a deliberate mark, and it puts the whole colour system —
 blue name between two orange rules — into one small object. **Keep them
 identical; the symmetry is the point.**
 
-**The three lines of a section head are deliberately three clear steps**:
-eyebrow (mono, blue, `15→19px`) → title (serif, `clamp(34px,4.8vw,56px)`) →
-note (sans, `clamp(13.5px,…,15px)`, i.e. *smaller* than body copy). The note
-used to be full body size and competed with the title above it; the title used
-to top out at 48px and did not clearly outrank the group titles at 38px. The
+**A section head is two clear steps**: the name (mono, blue, the big element)
+then the serif subtitle, whose fainter tail is the note. It was three steps
+until the note was folded into the subtitle — and before that the note was
+full body size and competed with the title above it, while the title topped
+out at 48px and did not clearly outrank the group titles at 38px. The
 resulting ladder is hero 104 → section title 56 → group title 38 → strip title
 34. **If you resize one of these, check it against that ladder.**
 
