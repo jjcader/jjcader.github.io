@@ -369,8 +369,8 @@ for it to be centred in.
    credentials. The hero is ~68vh rather than a full screen so the chips and
    the top of `#about` are both visible on landing.
 3. **`#about`** — facts sidebar (left), prose (right), social pills.
-4. **`#selected`** — mosaic of four featured cards (image + caption).
-5. **`#projects`** — four category cards, then four grouped lists of entries.
+4. **`#selected`** — "Highlights": mosaic of four featured cards (image + caption).
+5. **`#projects`** — "Everything": four category cards, then four grouped lists of entries.
 6. **Photo strip** — auto-scrolling clickable photo cards (not a `<section>`).
 7. **`#experience`** — five boxed timeline cards, then the compact CV strip.
 8. **`#education`** — three boxed timeline cards.
@@ -412,6 +412,13 @@ makes: none of the four is a rocket, so the mosaic no longer shows the thing
 the rest of the site argues is central. HERMES or HELIOS moving into the four
 (displacing one of the two leadership cards) would fix that if the photos
 exist.
+
+**`#selected` is named "Highlights" and `#projects` is named "Everything".**
+They previously read "Selected" and "Projects", which does not tell anyone how
+the two differ — both sound like "some of his work". The pair now states the
+relationship: one is a curated four, the other is the complete list. Rail and
+nav labels follow, as always, one for one. The photo strip took the name
+"Snapshots" so it wasn't competing for "Highlights".
 
 ### Category cards + groups (`#projects`)
 
@@ -512,6 +519,25 @@ inner wrapper, which animates to auto height without JavaScript measurement.
 `e15` retired** (they belonged to the deleted Making group — see below); new
 ones continue past `e17` rather than reusing a retired number, and must be
 unique, because tiles and photo cards target them.
+
+**Group heads are `position:sticky` under the site header** (`top:78px`, the
+header's own height — change one and change the other), so you always know
+which of the four areas you are reading. This is why `section` is
+`overflow:clip` rather than `overflow:hidden`: both stop decoration bleeding
+into a horizontal scrollbar, but `hidden` creates a scroll container and
+`position:sticky` inside one resolves against *that box* instead of the
+viewport, which silently kills the stickiness. `clip` clips identically without
+becoming a scrollport. The `hidden` declaration is kept first as a fallback —
+anything that doesn't understand `clip` loses stickiness and nothing else.
+**Don't put `overflow:hidden` back on `section`.**
+
+**Every entry has an explicit `.entry-close` button at the foot of its body.**
+The only way to close an open entry used to be the toggle at the top of the
+head — which, after two paragraphs and three photographs, is off screen, and
+clicking a *title* to close something doesn't look like a control anyway. The
+toggle is now also a bordered disc rather than a bare `+` so it reads as
+pressable. The close button returns focus to the entry head, so a keyboard
+reader isn't dumped at the top of the next entry.
 
 ### Photo strip
 
@@ -1362,6 +1388,10 @@ the next frame's measurement and drift steadily off.
 ---
 
 ### The contact form (`#contact`)
+
+**Email and form sit side by side in `.contact-grid`, not stacked.** There was
+an empty column next to the address, and stacking pushed the form below the
+fold on the one screen where the reader is most likely to act.
 
 `<form class="msg" id="msgForm">` — a bordered panel, deliberately the only
 thing on the page that asks the reader to *do* something rather than read.
