@@ -864,6 +864,17 @@ section{overflow:hidden;overflow:clip}
    as hierarchy. Only the colour separates them. */
 .about-text p:first-child{font-family:var(--serif);font-size:clamp(17px,1.6vw,23px);
   line-height:1.25;letter-spacing:-.01em;color:var(--ink)}
+/* The one quotation on the page. A left rule rather than a tinted panel: the
+   CV strip and the text-only Life card are already --paper-2 boxes, and a
+   third would read as another UI object instead of as somebody else's voice.
+   Serif for the same reason — the face change is what marks the switch from
+   Jedrzej's words to Zurbuchen's, and it is why there is no attribution line
+   underneath: the sentence directly above already names him. Sized BELOW the
+   serif lede at the top of the column so the two don't read as a tie. */
+.about-quote{margin:2px 0 16px;padding:1px 0 1px clamp(14px,1.4vw,20px);
+  border-left:2px solid var(--rule-blue);
+  font-family:var(--serif);font-size:clamp(16px,1.35vw,20px);
+  line-height:1.32;letter-spacing:-.005em;color:var(--ink)}
 @media (max-width:980px){
   /* single column: the rows collapse to normal document order, and the prose
      goes back to sitting under the facts rather than beside them */
@@ -1804,22 +1815,31 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <!-- Add Instagram: <a href="..."><svg class="ic"><use href="#i-instagram"/></svg> Instagram</a> -->
         </div>
       </div>
+      <!-- EDIT ME — the lede and the quote are Jedrzej's own words and the
+           opening is deliberately unchanged; the two paragraphs after the
+           quote are the hardware half and the people half, in that order. -->
       <div class="about-text">
-        <p>I want to spend my career on space technology, and I've learned that the hard
-           part is rarely the hardware.</p>
-        <p>Most of my engineering has been on hardware that is actively trying to fail:
-           cryogenic valves, liquid rocket engines, test stands that have to survive being
-           fired. At ARIS I went from designing propellant supply systems to leading the
-           technical advisory team for HERMES. At NASA JPL I swapped hardware for signal
-           processing on the Lunar Crater Radio Telescope, which was a very different kind
-           of hard. Right now I'm at MIT writing my master's thesis.</p>
-        <p>The other half is people. Nine years of teaching and tutoring, from school
-           maths to mentoring first-year ETH students. Co-founding POLANA, now the largest
-           Polish student association in Zürich. Chairing sessions of the European Youth
-           Parliament across the continent. Most engineers I know have one of these;
-           I'd rather have both halves.</p>
-        <p>Turns out getting fifteen people to agree on a valve schedule is the same skill
-           as chairing a committee.</p>
+        <p>Pushing humanity's frontier into space is the problem I want to spend my life
+           on. The technology is the easy half.</p>
+        <p>To quote Thomas Zurbuchen, who ran NASA's science directorate for six years and
+           now leads ETH Zurich Space:</p>
+        <blockquote class="about-quote">“The hardest system to manage in NASA missions is
+           not the science system, or the engineering system. It's the people
+           system.”</blockquote>
+        <p>That has matched everything I've seen. I came to it through hardware: propellant
+           supply systems and cryogenic valves for HELIOS at ARIS, ETH Zürich's rocketry
+           team, then leading technical advisory for HERMES. At NASA JPL I swapped hardware
+           for signal processing on a radio telescope meant to sit inside a crater on the
+           far side of the Moon. Right now I'm at MIT, writing my master's thesis.
+           Propulsion, robotics, controls, simulation — I have yet to meet an aerospace
+           problem I wasn't interested in.</p>
+        <p>The other half is people, and it is usually the harder one. Nine years of
+           teaching, tutoring and mentoring, from school maths to first-year ETH students.
+           Co-founding POLANA, now the largest Polish student association in Zürich.
+           Chairing European Youth Parliament sessions of a hundred delegates who all
+           arrived certain they were right. I spend my time on this because I enjoy it, and
+           because every project I've watched stall, stalled on a conversation rather than
+           an equation.</p>
       </div>
     </div>
   </div>

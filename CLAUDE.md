@@ -413,6 +413,20 @@ re-check that the content's right edge still lands left of the rail.
    the top of `#about` are both visible on landing.
 3. **`#about`** — the section head sits inside the grid's left column above
    the facts table; prose on the right starts level with the subtitle.
+   The prose runs lede → lead-in → **quotation** → hardware half → people half.
+   `.about-quote` is the only quotation on the page and is a **left rule, not a
+   tinted panel** — `--paper-2` boxes are already the CV strip and the
+   text-only Life card, and a third would read as another piece of UI rather
+   than as someone else's voice. It is serif, because the change of face is
+   what marks the switch from Jędrzej's words to Zurbuchen's, and it is
+   deliberately set *below* the serif lede at the top of the column so the two
+   don't read as a tie. **There is no attribution line under it on purpose**:
+   the sentence directly above already names the speaker and his two jobs, so
+   a `<cite>` would say it twice. ⚠ The quote costs roughly 150px of column
+   height over the version without it, which eats most of the slack behind the
+   "`#about` fits one viewport" pairing above — if that pairing needs winning
+   back, the cheapest ~66px is folding the lead-in sentence into a `<cite>`
+   under the quote, not shortening either of the two paragraphs beneath.
 4. **`#selected`** — "Highlights": mosaic of four featured cards (image + caption).
 5. **`#projects`** — "Everything": three category cards, then three grouped lists of entries.
 6. **`#life`** — "Life": fun-stuff cards (image + caption, some text-only),
