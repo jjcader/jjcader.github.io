@@ -678,8 +678,12 @@ section{overflow:hidden;overflow:clip}
 /* right, bled almost entirely off-canvas so only a sliver shows — it sits in
    the rail's vertical band, where a full ring would compete with real UI */
 .deco-orbit-3{top:52%;right:-230px;width:min(340px,32vw);aspect-ratio:1;opacity:.22}
-/* right column, top — empty until the Experience heading at ~22% */
-.deco-orbit-4{top:2%;right:-130px;width:min(300px,28vw);aspect-ratio:1;opacity:.2}
+/* Sits IN the timeline's empty right column, above the Experience heading —
+   left:48% puts it just right of the spine. Bleeding it off the right edge
+   instead would hide it behind the rail, which is the opposite of the
+   point: this deco exists to fill a visible gap, not to hint from a
+   margin. If the row order changes and a card moves up here, move it. */
+.deco-orbit-4{top:0;left:48%;right:auto;width:min(340px,26vw);aspect-ratio:1;opacity:.2}
 /* left column's big empty band, opposite the first three work cards */
 .deco-orbit-tl{top:27%;left:-10px;width:min(360px,30vw);aspect-ratio:1;opacity:.2}
 .deco-orbit-life{top:auto;bottom:-90px;right:-120px;width:min(320px,30vw);aspect-ratio:1;opacity:.2}
@@ -1270,14 +1274,41 @@ section{overflow:hidden;overflow:clip}
 }
 
 /* ============ CV STRIP ============ */
-.cv-strip{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;
-  background:var(--paper-2);border:1px solid var(--rule-blue);padding:22px clamp(20px,3vw,32px)}
-.cv-strip .skills{color:var(--ink-2);font-size:14px;max-width:66ch;margin:6px 0 0}
-.cv-dl{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:var(--fs-action);
-  font-weight:600;letter-spacing:.05em;text-decoration:none;color:var(--accent);
-  border:1px solid var(--accent);border-radius:999px;padding:12px 21px;white-space:nowrap;
-  transition:.22s var(--ease)}
-.cv-dl:hover{background:var(--accent);color:var(--paper)}
+/* Was a grey --paper-2 panel, which made it the only neutral surface on a page
+   built out of blue and orange — it read as unfinished rather than quiet. It is
+   now the page's one solid blue block: this is the last thing before Contact
+   and the only download on the site, so it should stop the eye. */
+.cv-strip{position:relative;overflow:hidden;display:flex;flex-wrap:wrap;align-items:center;
+  justify-content:space-between;gap:clamp(18px,2.4vw,34px);border-radius:6px;
+  padding:clamp(24px,2.8vw,36px) clamp(22px,3vw,38px);
+  background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 82%,#000))}
+/* the same blueprint grid as the message form, so the two "do something" blocks
+   on the page are visibly siblings */
+.cv-strip::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(to right,rgba(255,255,255,.07) 1px,transparent 1px),
+    linear-gradient(to bottom,rgba(255,255,255,.07) 1px,transparent 1px);
+  background-size:30px 30px;
+  mask-image:radial-gradient(130% 100% at 0% 0%,#000,transparent 70%)}
+.cv-strip > *{position:relative;z-index:1}
+.cv-strip .label{color:rgba(255,255,255,.72)}
+.cv-strip .skills{color:rgba(255,255,255,.94);max-width:56ch;margin:8px 0 0;
+  font-size:var(--fs-small);line-height:1.55}
+/* Deliberately the biggest button on the page. It is the only download, and the
+   two sections above it are written as summaries that point here. */
+.cv-dl{display:inline-flex;align-items:center;gap:12px;font-family:var(--mono);
+  font-size:clamp(13px,1.05vw,15px);font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;text-decoration:none;white-space:nowrap;
+  color:var(--accent);background:var(--paper);border:2px solid var(--paper);
+  border-radius:999px;padding:17px 32px;
+  box-shadow:0 12px 28px -16px rgba(0,0,0,.55);
+  transition:.26s var(--ease)}
+.cv-dl .ic{width:19px;height:19px;transition:transform .3s var(--ease)}
+.cv-dl:hover{background:var(--accent-warm);border-color:var(--accent-warm);color:#fff;
+  transform:translateY(-3px);box-shadow:0 18px 34px -14px rgba(0,0,0,.6)}
+/* the arrow drops, like something being pulled down */
+.cv-dl:hover .ic{transform:translateY(3px)}
+@media (max-width:640px){.cv-dl{width:100%;justify-content:center}}
 
 /* ============ CONTACT + FOOTER ============ */
 /* The email is behind a reveal, so the box has to look pressable at rest and
@@ -2547,8 +2578,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     <div class="cv-strip reveal" style="margin-top:clamp(32px,4vw,52px)">
       <div>
         <p class="label">The formal version</p>
-        <p class="skills">Siemens NX · Fusion 360 · SolidWorks · Mastercam · ANSYS Mechanical &amp; CFD ·
-           Python · MATLAB · Simulink · Git · Polish &amp; English native, German fluent, French B2/C1</p>
+        <p class="skills">The full CV — every tool I actually use (Siemens NX, ANSYS, Python,
+           MATLAB), languages, detailed roles, and the parts of all this that don't fit
+           on a page.</p>
       </div>
       <a class="cv-dl" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Download CV</a>
     </div>
