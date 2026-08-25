@@ -370,10 +370,11 @@ for it to be centred in.
    the top of `#about` are both visible on landing.
 3. **`#about`** — facts sidebar (left), prose (right), social pills.
 4. **`#selected`** — "Highlights": mosaic of four featured cards (image + caption).
-5. **`#projects`** — "Everything": four category cards, then four grouped lists of entries.
-6. **Photo strip** — auto-scrolling clickable photo cards (not a `<section>`).
-7. **`#experience`** — five boxed timeline cards, then the compact CV strip.
-8. **`#education`** — three boxed timeline cards.
+5. **`#projects`** — "Everything": three category cards, then three grouped lists of entries.
+6. **`#life`** — "Life": fun-stuff cards (image + caption, some text-only),
+   with the photo strip as a band at its foot.
+7. **`#experience`** — five compact timeline cards, then the CV strip.
+8. **`#education`** — three compact timeline cards.
 9. **`#contact`** — email as a large serif line (with an envelope whose flap
    opens on hover), socials, and the message form.
 10. **Footer** — location, icon links, copyright.
@@ -688,6 +689,15 @@ both `ol` and `.rail-gauge` to fill that height regardless of mode, and
 **If the rail ever needs to look taller or shorter, change this one height** —
 not the gaps. The vertical gaps are now only a *floor*; space-between supplies
 the real spacing, so changing them no longer changes the track's length at all.
+
+**The rail carries SEVEN items** (About / Highlights / Everything / Life /
+Experience / Education / Contact). Adding `#life` broke the previous budget and
+this is the thing to re-check whenever a section is added: at
+`min(66vh,560px)` with 20px/16px gaps, seven items needed 470px and overflowed
+at every viewport under ~780px tall. The shipped values —
+`height:min(70vh,580px)`, `gap:10px` full / `8px` compact, and a 34px dot in
+compact — were picked by modelling it, not by eye, and verified to fit from
+600px viewport height upward in both modes.
 
 ⚠ **That height must be ≥ the `ol`'s natural content height, and getting this
 wrong breaks three things at once in a way that looks like three separate
@@ -1387,6 +1397,26 @@ the next frame's measurement and drift steadily off.
 
 ---
 
+### Fun stuff & life (`#life`)
+
+Sits between `#projects` and `#experience`. It exists because everything else
+on the page is artifacts — nothing showed the person. Hobbies used to be a
+fourth group inside `#projects`; it was pulled out because a list row is the
+wrong shape for "I swam for ten years", and because burying it at the bottom of
+the longest section meant nobody reached it.
+
+Cards work like the Highlights mosaic — image on top, caption under — on a
+plain auto-fit grid rather than an uneven one, because these are peers rather
+than a ranked four. **`.life-card.no-photo` drops the image block entirely**
+and gets a tinted panel instead: not everything here has a photograph, and a
+card that admits that reads better than a grey box.
+
+**The photo strip now lives at the foot of this section**, and its cards are
+`<figure>`, not buttons. It used to open project entries, which made it a
+third pass over work the mosaic and the list already covered. As photographs
+only it stops competing — and that also removed the reason it was hidden below
+700px, since a marquee nobody taps doesn't need to pause on touch.
+
 ### The contact form (`#contact`)
 
 **Email and form sit side by side in `.contact-grid`, not stacked.** There was
@@ -1419,6 +1449,18 @@ removes again after 800ms so a second message re-arms it — same
 remove/reflow/re-add pattern as the entry ignition ring.
 
 ---
+
+**Every image needs `loading="lazy"` except the hero and the first mosaic
+card.** There are roughly sixty images on the finished page, most of them
+inside collapsed entries a reader may never open, and by default the browser
+fetches all of them at load. The two exceptions are on screen immediately —
+deferring those makes them appear *later*, not sooner. Give every `<img>` real
+`width`/`height` attributes too, so the page doesn't jump as they arrive. The
+replacement recipe is in a comment above the hero in `index.html`.
+
+**`og:image` must be an absolute URL.** The scraper fetching it is not on this
+domain, so a relative `images/og-card.jpg` resolves against *its* host and
+fails. 1200×630 is the size to target.
 
 ## 8. Images
 

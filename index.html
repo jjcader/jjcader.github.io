@@ -9,6 +9,13 @@
 <meta property="og:title" content="Jędrzej Cader">
 <meta property="og:description" content="Mechanical engineer. Rocket engines at ARIS, a lunar radio telescope at NASA JPL, master's thesis at MIT.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://jjcader.github.io/">
+<!-- EDIT ME — social preview card. Must be an ABSOLUTE url (the scraper is not
+     on this domain, so "images/…" resolves to its own host and fails), ideally
+     1200x630. Until the file exists this tag points at nothing and the preview
+     falls back to plain text, which is the current behaviour anyway. -->
+<meta property="og:image" content="https://jjcader.github.io/images/og-card.jpg">
+<meta name="twitter:card" content="summary_large_image">
 
 <!-- Favicon as an inline data URI rather than a .ico/.png file: this repo has a
      no-extra-files habit and an SVG favicon scales to every size on its own.
@@ -84,7 +91,7 @@
   --gear:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23000" fill-rule="evenodd" d="M19.42 9.00 L22.72 9.53 L22.72 14.47 L19.42 15.00 L19.36 15.13 L21.33 17.83 L17.83 21.33 L15.13 19.36 L15.00 19.42 L14.47 22.72 L9.53 22.72 L9.00 19.42 L8.87 19.36 L6.17 21.33 L2.67 17.83 L4.64 15.13 L4.58 15.00 L1.28 14.47 L1.28 9.53 L4.58 9.00 L4.64 8.87 L2.67 6.17 L6.17 2.67 L8.87 4.64 L9.00 4.58 L9.53 1.28 L14.47 1.28 L15.00 4.58 L15.13 4.64 L17.83 2.67 L21.33 6.17 L19.36 8.87 Z M15.40 12.00 A3.4 3.4 0 1 0 8.60 12.00 A3.4 3.4 0 1 0 15.40 12.00 Z"/></svg>');
   --gear-size:24px;        /* divider ornament; half of it hangs below the
                               block that owns it, so it lands on the line */
-  --sec-pad:clamp(72px,7vw,96px);
+  --sec-pad:clamp(48px,4.6vw,68px);
   --wrap:1400px; --gutter:clamp(20px,4.5vw,86px);
   --ease:cubic-bezier(.22,.61,.36,1);
 }
@@ -225,9 +232,9 @@ a{color:var(--accent)}
    `ol`'s own gap is deliberately kept SMALL (a floor, not the real spacing —
    space-between supplies the rest) so that if a short viewport shrinks this
    height via the vh term, the content still fits instead of overflowing. */
-.rail-body{display:flex;align-items:stretch;gap:20px;height:min(66vh,560px)}
+.rail-body{display:flex;align-items:stretch;gap:20px;height:min(70vh,580px)}
 .rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;
-  justify-content:space-between;gap:20px}
+  justify-content:space-between;gap:10px}
 .rail a{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:16px;
   text-decoration:none;font-family:var(--mono);font-size:12px;letter-spacing:.15em;
   text-transform:uppercase;color:var(--ink-2);padding:7px 0;border-radius:8px;
@@ -338,8 +345,9 @@ a{color:var(--accent)}
      column as full mode, which is the point: narrowing the window should
      cost width, never height. */
   .rail-body{gap:clamp(6px,.8vw,10px)}
-  .rail ol{gap:16px}
-  .rail a{flex-direction:column;justify-content:center;gap:5px;padding:0}
+  .rail ol{gap:8px}
+  .rail a{flex-direction:column;justify-content:center;gap:4px;padding:0}
+  .rail .dot{width:34px;height:34px}
   .rail .rail-label{position:static;transform:none;background:none;border:0;
     box-shadow:none;min-width:0;width:72px;padding:0;opacity:.82;color:var(--ink-2);
     font-size:10px;letter-spacing:.04em;line-height:1.25}
@@ -439,8 +447,23 @@ a{color:var(--accent)}
 .hero-copy > .wrap > *:nth-child(4){animation-delay:.24s}
 .hero-copy > .wrap > *:nth-child(5){animation-delay:.32s}
 /* scroll cue */
-.scroll-cue{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
-  color:rgba(255,255,255,.6);animation:bob 2.6s var(--ease) infinite}
+/* A real call to action rather than a bare bobbing arrow: the hero is the one
+   screen where the reader has been given no instruction, and an arrow is not
+   an instruction. Still bobs, but now it says where it goes and is a proper
+   <button> so it is keyboard-reachable. */
+.hero-more{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);cursor:pointer;
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:#fff;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.34);
+  border-radius:999px;padding:11px 20px;backdrop-filter:blur(4px);
+  animation:bob 2.6s var(--ease) infinite;
+  transition:background .25s var(--ease),border-color .25s var(--ease),color .25s var(--ease)}
+.hero-more:hover{background:var(--accent-warm);border-color:var(--accent-warm);color:#fff;
+  animation-play-state:paused}
+.hero-more .ic{width:15px;height:15px}
+/* keeps translateX(-50%) inside the keyframe — an animation on `transform`
+   replaces the whole property, so the base centring would be dropped */
 @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
 
 /* ============ SECTIONS ============ */
@@ -479,7 +502,7 @@ section{position:relative;padding-top:var(--sec-pad);
    pushed the whole of #about below the fold, so landing on the page showed a
    band of empty paper and nothing else. A reader should arrive already able
    to see the first real sentence, not just a heading. */
-section:first-of-type{padding-top:clamp(30px,3vw,44px)}
+section:first-of-type{padding-top:clamp(18px,1.8vw,26px)}
 /* --rule-notch is what stops the line being drawn THROUGH the gear: it masks
    a circular hole at the centre, so the rule visibly stops, the gear sits in
    the gap, and the rule resumes. A filled disc behind the gear would not do
@@ -505,7 +528,7 @@ section::before,.strip::before{content:"";position:absolute;bottom:0;left:50%;z-
    transform the gear would otherwise have. */
 @keyframes gear-turn{from{transform:translateX(-50%) rotate(0)}
   to{transform:translateX(-50%) rotate(360deg)}}
-.section-head{margin-bottom:clamp(26px,4vw,46px)}
+.section-head{margin-bottom:clamp(20px,2.4vw,30px)}
 /* The SECTION NAME is the heading — big mono, blue, bracketed by orange
    dashes — and the serif line under it is the subtitle. That is the inverse
    of the usual eyebrow-over-title arrangement, and it is deliberate: these
@@ -579,6 +602,7 @@ section{overflow:hidden;overflow:clip}
 .deco-orbit-edu-2{top:6%;left:-70px;width:min(330px,31vw);aspect-ratio:1;opacity:.24}
 .deco-orbit-3{top:34%;right:-150px;width:min(340px,32vw);aspect-ratio:1;opacity:.22}
 .deco-orbit-4{top:6%;left:-100px;width:min(300px,28vw);aspect-ratio:1;opacity:.21}
+.deco-orbit-life{top:auto;bottom:-90px;right:-120px;width:min(320px,30vw);aspect-ratio:1;opacity:.2}
 .deco-orbit-contact{top:2%;left:-90px;width:min(280px,26vw);aspect-ratio:1;opacity:.2}
 /* dashed trajectory arcs */
 .deco-traj{top:12%;right:5%;width:min(300px,30vw);aspect-ratio:1/1.4;opacity:.28}
@@ -639,7 +663,7 @@ section{overflow:hidden;overflow:clip}
 @keyframes wave-drift{0%,100%{transform:translateX(0)}50%{transform:translateX(-34px)}}
 .deco-orbit svg,.deco-orbit-2 svg,.deco-orbit-3 svg,.deco-orbit-left svg,.deco-orbit-edu svg,
 .deco-orbit-edu-2 svg,.deco-orbit-about svg,.deco-orbit-sm svg,.deco-orbit-4 svg,
-.deco-orbit-mid svg,.deco-orbit-contact svg{
+.deco-orbit-mid svg,.deco-orbit-contact svg,.deco-orbit-life svg{
   animation:spin-slow 200s linear infinite;transform-origin:50% 50%}
 .deco-drone{animation:drift 15s ease-in-out infinite}
 .deco .wave-g{animation:wave-drift 16s ease-in-out infinite}
@@ -694,6 +718,8 @@ section{overflow:hidden;overflow:clip}
 .facts.in li:nth-child(4){animation-delay:.26s}
 .facts.in li:nth-child(5){animation-delay:.33s}
 .facts.in li:nth-child(6){animation-delay:.40s}
+.facts.in li:nth-child(7){animation-delay:.47s}
+.facts.in li:nth-child(8){animation-delay:.54s}
 @keyframes fact-in{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
 .socials{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
 .socials a{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;
@@ -723,10 +749,10 @@ section{overflow:hidden;overflow:clip}
   transition:transform .38s var(--ease)}
 .socials a:hover .mail-ic .flap,.foot-links a:hover .mail-ic .flap,
 .socials a:focus-visible .mail-ic .flap,.foot-links a:focus-visible .mail-ic .flap,
-.contact-mail:hover .mail-ic .flap,.contact-mail:focus-visible .mail-ic .flap{
+.mail-reveal:hover .mail-ic .flap,.mail-reveal:focus-visible .mail-ic .flap{
   transform:translateY(-3px) scaleY(-.5)}
 .socials a:hover .mail-ic,.foot-links a:hover .mail-ic,
-.contact-mail:hover .mail-ic{transform:rotate(-7deg)}
+.mail-reveal:hover .mail-ic{transform:rotate(-7deg)}
 .socials a:hover{background:var(--warm-soft);border-color:var(--accent-warm);color:var(--accent-warm-ink);
   transform:translateY(-2px)}
 .socials a:hover .ic{color:var(--accent-warm-ink)}
@@ -982,65 +1008,78 @@ section{overflow:hidden;overflow:clip}
   .entry-content{grid-template-columns:1fr}
 }
 
-/* ============ PHOTO STRIP — clickable cards ============ */
-/* The strip is a top-level band like a section, so it borrows the same
-   divider + gear pair (both styled with section::after / ::before above): its
-   ::after is the rule below it, its ::before the gear sitting on that rule.
-   The rule ABOVE the strip belongs to #projects, exactly as #education's
-   belongs to the strip. Below 700px the strip is display:none and #projects'
-   own divider simply becomes the projects->education one, which is correct. */
-.strip{position:relative;overflow:hidden;padding-top:clamp(40px,5vw,66px);
-  padding-bottom:calc(clamp(40px,5vw,66px) + var(--gear-size)/2)}
-/* padding-block gives the cards room to lift on hover. Without it their
-   translateY(-4px) pushed the top border past the clip edge and the orange
-   hover outline lost its top side. This works BECAUSE overflow:hidden clips
-   at the padding edge, so the padding band is inside the visible region —
-   the same property exploited (in reverse) by the margin-right rule below. */
+/* ============ FUN STUFF & LIFE (#life) ============
+   Same card idea as the Highlights mosaic — image on top, caption under — but
+   a plain auto-fit grid, because these are peers rather than a ranked four.
+   .no-photo drops the image block entirely: not everything here has a
+   photograph, and a card that admits that reads better than a grey box. */
+.life-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:clamp(12px,1.4vw,18px)}
+.life-card{position:relative;display:flex;flex-direction:column;overflow:hidden;
+  background:var(--paper);border:1px solid var(--rule);border-radius:3px;
+  transition:transform .4s var(--ease),border-color .3s var(--ease),box-shadow .4s var(--ease)}
+.life-card:hover{transform:translateY(-4px);border-color:var(--accent-warm);
+  box-shadow:0 16px 36px -22px color-mix(in srgb,var(--accent-warm) 60%,transparent)}
+.life-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;z-index:2;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent-warm));
+  transform:scaleY(0);transform-origin:top;transition:transform .38s var(--ease)}
+.life-card:hover::before{transform:scaleY(1)}
+.life-media{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--paper-2);
+  border-bottom:1px solid var(--rule)}
+.life-media img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+.life-card:hover .life-media img{transform:scale(1.05)}
+/* a text-only card gets a tinted panel instead, so the row still reads as a
+   set rather than as one card with a missing picture */
+.life-card.no-photo{background:var(--paper-2)}
+.life-body{display:flex;flex-direction:column;flex:1 1 auto;
+  padding:clamp(15px,1.5vw,20px) clamp(16px,1.6vw,22px) clamp(16px,1.6vw,21px)}
+.life-meta{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--accent)}
+.life-title{font-family:var(--serif);font-weight:400;line-height:1.14;margin:7px 0 0;
+  font-size:clamp(19px,1.6vw,24px);letter-spacing:-.015em}
+.life-desc{margin:9px 0 0;color:var(--ink-body);max-width:44ch;
+  font-size:clamp(13px,.28vw + 12px,14.5px);line-height:1.55}
+
+/* ============ PHOTO STRIP — a photo band at the foot of #life ============
+   The cards are <figure>, NOT buttons: the strip used to open project entries,
+   which made it a second navigation surface duplicating the mosaic. It is now
+   only photographs, which also fixes the mobile problem that forced it to be
+   hidden below 700px — a marquee that can't be tapped doesn't need to pause,
+   so there is nothing left to break on touch. */
+.strip{position:relative;overflow:hidden;margin-top:clamp(38px,4.5vw,60px)}
+.strip-label{color:var(--accent)}
 .strip-viewport{overflow:hidden;padding-block:7px;
   mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
 /* Keep the marquee's cards from sliding under the fixed rail. The strip is
-   deliberately full-bleed (edge to edge, no .wrap), so this can't be solved
-   with padding — overflow:hidden clips at the padding edge, meaning padding
-   sits INSIDE the visible/clipped region and content still shows through it.
-   margin-right, on a width:auto block, actually shrinks the box itself (and
-   therefore its overflow-clip boundary), so cards are hidden before they
-   reach the rail's column. Values are generous rather than exact-fit,
-   matching the rail's footprint from the rule above with a safety margin. */
+   deliberately full-bleed, so this can't be solved with padding — overflow:
+   hidden clips at the padding edge, meaning padding sits INSIDE the visible
+   region and content still shows through it. margin-right, on a width:auto
+   block, actually shrinks the box and therefore its clip boundary. */
 @media (min-width:1800px){.strip-viewport{margin-right:270px}}
 @media (min-width:900px) and (max-width:1799px){.strip-viewport{margin-right:135px}}
-/* Full mobile pass is a separate task, but this one visibly broke on touch
-   (the marquee only pauses on :hover/:focus-within, neither of which fires
-   on a touch device, so cards drift while you're trying to tap one) — cut
-   it now rather than leave a known-broken interaction live. */
-@media (max-width:700px){.strip{display:none}}
 @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .strip-track{display:flex;gap:14px;width:max-content;animation:marquee 62s linear infinite}
-.strip:hover .strip-track,.strip-track:focus-within{animation-play-state:paused}
-.strip-card{position:relative;width:clamp(200px,23vw,310px);flex:0 0 auto;overflow:hidden;
-  background:var(--paper);border:1px solid var(--rule);padding:0;font:inherit;color:inherit;
-  text-align:left;cursor:pointer;transition:.3s var(--ease)}
-.strip-card:hover{border-color:var(--accent-warm);transform:translateY(-4px);
-  box-shadow:0 14px 30px -18px color-mix(in srgb,var(--accent-warm) 60%,transparent)}
+.strip:hover .strip-track{animation-play-state:paused}
+.strip-card{position:relative;width:clamp(190px,21vw,290px);flex:0 0 auto;overflow:hidden;
+  margin:0;background:var(--paper);border:1px solid var(--rule);border-radius:3px}
 .strip-media{aspect-ratio:4/3;background:var(--paper-2);display:grid;place-items:center;
   text-align:center;padding:10px;overflow:hidden}
-.strip-media img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
-.strip-card:hover .strip-media img{transform:scale(1.06)}
-.strip-cap{display:flex;align-items:center;justify-content:space-between;gap:10px;
+.strip-media img{width:100%;height:100%;object-fit:cover}
+.strip-cap{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-2);line-height:1.4;
   padding:11px 13px;border-top:1px solid var(--rule)}
-.strip-cap span{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.06em;
-  text-transform:uppercase;color:var(--ink-2);line-height:1.4}
-.strip-cap .ic{width:14px;height:14px;color:var(--accent);opacity:.65;
-  transition:opacity .3s var(--ease),transform .3s var(--ease),color .3s var(--ease)}
-.strip-card:hover .strip-cap .ic{opacity:1;transform:translate(2px,-2px);color:var(--accent-warm-ink)}
 
 /* ============ TIMELINE — boxed cards ============ */
-.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+/* Deliberately compact. These two sections are an OVERVIEW — anyone who wants
+   the detail can download the CV from the strip below — and at full card size
+   eight timeline entries ate more vertical space than the fifteen projects. */
+.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
 /* align-items:baseline sits the year's baseline on the role heading's own
    baseline. It was previously nudged down with a padding-top guess, which
    left it floating above the heading it labels — and any change to either
    font size broke the guess again. Baseline alignment is self-maintaining. */
-.path-item{position:relative;display:grid;grid-template-columns:170px 1fr;align-items:baseline;
-  gap:clamp(16px,3vw,44px);padding:26px clamp(20px,2.4vw,32px);
+.path-item{position:relative;display:grid;grid-template-columns:140px 1fr;align-items:baseline;
+  gap:clamp(14px,2.2vw,32px);padding:16px clamp(16px,1.8vw,24px);
   background:var(--paper);border:1px solid var(--rule);border-radius:3px;
   transition:border-color .3s var(--ease),transform .3s var(--ease),box-shadow .3s var(--ease)}
 /* the accent bar that wipes down on hover runs blue into copper — the warm
@@ -1056,19 +1095,20 @@ section{overflow:hidden;overflow:clip}
    --ink-3 just evaporated. Centred in that column so short values ("2025")
    don't leave a ragged void beside the role — but only while the column
    exists; the mobile single-column stack below puts it back to left. */
-.path-when{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--accent);
+.path-when{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent);
   letter-spacing:.04em;white-space:nowrap;text-align:center;
   font-variant-numeric:tabular-nums;transition:color .25s var(--ease)}
 /* tabular-nums above is what stops the scramble animation (JS) from making
    the column jitter as digits swap width */
 .path-item:hover .path-when{color:var(--accent-warm-ink)}
-.path-role{font-family:var(--serif);font-size:clamp(21px,2.1vw,28px);line-height:1.18;margin:0}
+.path-role{font-family:var(--serif);font-size:clamp(18px,1.5vw,22px);line-height:1.18;margin:0}
 /* --accent-warm-ink, not --accent-warm: this is resting body-adjacent text at
    11.5px, and the bright orange only clears ~3:1 against paper. The darker
    variant clears 4.5:1. Bright orange stays for graphics. */
-.path-org{display:block;font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--accent-warm-ink);margin-top:8px}
-.path-item p{margin:11px 0 0;color:var(--ink-body);max-width:70ch}
+.path-org{display:block;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--accent-warm-ink);margin-top:6px}
+.path-item p{margin:8px 0 0;color:var(--ink-body);max-width:74ch;
+  font-size:clamp(13px,.28vw + 12px,14.5px);line-height:1.55}
 @media (max-width:700px){
   .path-item{grid-template-columns:1fr;gap:8px}
   .path-when{text-align:left;padding-top:0}
@@ -1085,22 +1125,22 @@ section{overflow:hidden;overflow:clip}
 .cv-dl:hover{background:var(--accent);color:var(--paper)}
 
 /* ============ CONTACT + FOOTER ============ */
-.contact-line{font-family:var(--serif);font-size:clamp(26px,3.4vw,42px);line-height:1.1;
-  letter-spacing:-.02em;margin:0;word-break:break-word}
-/* The address carries an envelope whose flap opens on hover — the one place
-   on the page where that animation is actually discoverable, since the two
-   others are 17px icons in link clusters. The underline lives on the inner
-   <span>, not on the <a>, so the rule runs under the address only and not
-   under the glyph. */
-.contact-line a{display:inline-flex;align-items:center;gap:.3em;
-  text-decoration:none;transition:color .25s var(--ease)}
-.contact-line a > span{border-bottom:2px solid var(--rule-blue);
-  transition:border-color .25s var(--ease)}
-.contact-line .mail-ic{width:.62em;height:.62em;color:var(--accent);
-  stroke-width:1.4;transition:color .25s var(--ease),transform .38s var(--ease)}
-.contact-line a:hover{color:var(--accent-warm-ink)}
-.contact-line a:hover > span{border-bottom-color:var(--accent-warm)}
-.contact-line a:hover .mail-ic{color:var(--accent-warm-ink)}
+/* The email is behind a reveal, so the box has to look pressable at rest and
+   turn into a real link once opened. Both states share the same box so the
+   layout doesn't jump when the address appears. */
+.mail-reveal{display:inline-flex;align-items:center;gap:12px;margin-top:16px;cursor:pointer;
+  font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent);text-decoration:none;
+  background:var(--accent-soft);border:1.5px solid color-mix(in srgb,var(--accent) 34%,var(--rule));
+  border-radius:999px;padding:14px 22px;transition:.24s var(--ease)}
+.mail-reveal:hover{color:var(--accent-warm-ink);background:var(--warm-soft);
+  border-color:var(--accent-warm);transform:translateY(-2px)}
+.mail-reveal .mail-ic{width:19px;height:19px;flex:0 0 auto}
+/* once revealed it is an <a>: bigger, serif, and reading as an address rather
+   than as a button label */
+.mail-reveal.revealed{font-family:var(--serif);font-size:clamp(21px,2vw,29px);
+  font-weight:400;letter-spacing:-.01em;text-transform:none;padding:12px 22px}
+.mail-reveal.revealed .mail-ic{width:.72em;height:.72em}
 /* No divider pseudo-element here — #contact draws the rule above the footer,
    the same way every block draws its own bottom divider (see SECTIONS). The
    negative top margin pulls the footer's tinted background up by exactly the
@@ -1253,6 +1293,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   <symbol id="p-banded" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M5.6 9.2h12.8M6.4 15.2h11.2"/></symbol>
   <symbol id="p-cratered" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="9.4" cy="9.6" r="1.5"/><circle cx="14.6" cy="14.2" r="2.1"/></symbol>
   <symbol id="p-saturn-2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><ellipse cx="12" cy="12" rx="10.6" ry="3" transform="rotate(26 12 12)"/></symbol>
+  <symbol id="p-satellite" viewBox="0 0 24 24"><rect x="9.6" y="9.6" width="4.8" height="4.8" rx="1"/><path d="M9.6 12H4.4M14.4 12h5.2"/><rect x="1.4" y="8.6" width="3" height="6.8" rx="1"/><rect x="19.6" y="8.6" width="3" height="6.8" rx="1"/><path d="M12 9.6V6.6"/><circle cx="12" cy="5.2" r="1.4"/></symbol>
   <symbol id="p-twin" viewBox="0 0 24 24"><circle cx="10.8" cy="13" r="6.2"/><circle cx="19.4" cy="5.6" r="2.3"/></symbol>
 
   <!-- Decoration-only variants. vector-effect="non-scaling-stroke" is baked
@@ -1304,6 +1345,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <a href="#about">About</a>
       <a href="#selected">Highlights</a>
       <a href="#projects">Everything</a>
+      <a href="#life">Life</a>
       <a href="#experience">Experience</a>
       <a href="#education">Education</a>
       <a href="#contact">Contact</a>
@@ -1320,6 +1362,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <li><a href="#about"><span class="rail-label">About</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-saturn"/></svg></span></a></li>
       <li><a href="#selected"><span class="rail-label">Highlights</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-moon"/></svg></span></a></li>
       <li><a href="#projects"><span class="rail-label">Everything</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-banded"/></svg></span></a></li>
+      <li><a href="#life"><span class="rail-label">Life</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-satellite"/></svg></span></a></li>
       <li><a href="#experience"><span class="rail-label">Experience</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-saturn-2"/></svg></span></a></li>
       <li><a href="#education"><span class="rail-label">Education</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-cratered"/></svg></span></a></li>
       <li><a href="#contact"><span class="rail-label">Contact</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-twin"/></svg></span></a></li>
@@ -1344,6 +1387,21 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
 <main id="top">
 
+<!-- ============ REPLACING PLACEHOLDERS WITH REAL IMAGES ==============
+     Every <span class="label">images/x.jpg</span> below is a placeholder.
+     Swap the SPAN for an <img>, keep the wrapper (it carries the aspect ratio):
+
+       <img src="images/x.jpg" alt="" loading="lazy" decoding="async"
+            width="1600" height="1000">
+
+     loading="lazy" on EVERYTHING except the hero photo and the first mosaic
+     card — those are on screen at load, and deferring them makes them appear
+     later, not sooner. There are ~60 images here once this is done, most of
+     them inside collapsed entries nobody may ever open; without lazy loading
+     the browser fetches all of them immediately.
+     width/height are the file's real pixel dimensions. They stop the page
+     jumping around as images arrive, and they cost nothing.
+     ================================================================= -->
 <!-- ============ EDIT ME #3 — HERO
      Replace the inner div with: <img src="images/hero.jpg" alt="">
      (keep it inside .hero-media or the parallax breaks)
@@ -1382,7 +1440,10 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       </ul>
     </div>
   </div>
-  <svg class="ic scroll-cue" width="22" height="22"><use href="#i-arrow-down"/></svg>
+  <button class="hero-more" id="heroMore" type="button">
+    <span>Learn more</span>
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow-down"/></svg>
+  </button>
 </div>
 
 <!-- ============ EDIT ME #4 — ABOUT ============ -->
@@ -1405,18 +1466,19 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     </div>
     <div class="about-grid reveal">
       <div>
-        <!-- EDIT ME — deliberately does NOT repeat the hero credential chips
-             (NASA JPL / MIT / ETH / ARIS) or the prose beside it. Those say
-             where he has worked; this says who he is. If a row could be
-             deleted without the reader losing anything they can't get two
-             inches away, delete it. -->
+        <!-- EDIT ME — some overlap with the hero chips is fine here; a facts
+             table that avoids saying where he studies to dodge duplication is
+             a worse table. Hometown and Lived in are the rows nothing else on
+             the page carries. -->
         <ul class="facts reveal">
+          <li><span class="k">Name</span><span class="v">Jędrzej Cader</span></li>
+          <li><span class="k">Hometown</span><span class="v">Wrocław, Poland</span></li>
           <li><span class="k">Lived in</span><span class="v">Poland · Ireland · Switzerland · USA</span></li>
+          <li><span class="k">Based in</span><span class="v">Zürich, Switzerland</span></li>
+          <li><span class="k">Currently</span><span class="v">Master's thesis at MIT</span></li>
+          <li><span class="k">Studying</span><span class="v">MSc Mech. Eng., ETH Zürich</span></li>
           <li><span class="k">Languages</span><span class="v">PL · EN · DE · FR</span></li>
-          <li><span class="k">Teaching</span><span class="v">9 years, school maths to ETH mentoring</span></li>
-          <li><span class="k">Also</span><span class="v">Co-founder, POLANA · Chair, EYP</span></li>
-          <li><span class="k">Swam</span><span class="v">10 years for Poland's junior team</span></li>
-          <li><span class="k">Wrench</span><span class="v">Preferably in hand</span></li>
+          <li><span class="k">Before</span><span class="v">NASA JPL, ARIS</span></li>
         </ul>
         <div class="socials">
           <a href="https://www.linkedin.com/in/jedrzejcader/"><svg class="ic"><use href="#i-linkedin"/></svg> LinkedIn</a>
@@ -1653,21 +1715,21 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     <div class="section-head reveal">
       <h2 class="section-name">Everything</h2>
       <p class="section-sub">All of it, grouped by area</p>
-      <p class="section-note">Four areas. Pick one to jump straight to it, or keep scrolling
+      <p class="section-note">Three areas. Pick one to jump straight to it, or keep scrolling
          through the lot.</p>
     </div>
 
     <div class="cats reveal">
       <button class="cat" data-goto="g-space">
-        <div class="cat-n">01 · <span class="count" data-n="6">06</span> entries</div>
-        <svg class="ic cat-ic"><use href="#i-rocket"/></svg><h3 class="cat-name">Space &amp; rocketry</h3>
+        <div class="cat-n">01 · <span class="count" data-n="5">05</span> entries</div>
+        <svg class="ic cat-ic"><use href="#i-rocket"/></svg><h3 class="cat-name">Rocketry &amp; space</h3>
         <p class="cat-desc">Engines, cryogenic valves, test stands, and a lunar telescope.</p>
         <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
       </button>
       <button class="cat" data-goto="g-robotics">
         <div class="cat-n">02 · <span class="count" data-n="3">03</span> entries</div>
         <svg class="ic cat-ic"><use href="#i-cpu"/></svg><h3 class="cat-name">Robotics &amp; simulation</h3>
-        <p class="cat-desc">Swarm control, mechatronics, and things that move on their own.</p>
+        <p class="cat-desc">Swarm control, mechatronics, and simulation — including the MIT thesis.</p>
         <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
       </button>
       <button class="cat" data-goto="g-people">
@@ -1676,43 +1738,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         <p class="cat-desc">POLANA, the European Youth Parliament, and nine years of teaching.</p>
         <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
       </button>
-      <button class="cat" data-goto="g-hobbies">
-        <div class="cat-n">04 · <span class="count" data-n="3">03</span> entries</div>
-        <svg class="ic cat-ic"><use href="#i-waves"/></svg><h3 class="cat-name">Hobbies</h3>
-        <p class="cat-desc">Long rides, cold water, and puzzles that fit in one hand.</p>
-        <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
-      </button>
     </div>
 
     <!-- ============ EDIT ME #7 — THE GROUPS ============ -->
 
     <div class="group reveal" id="g-space">
-      <div class="group-head"><svg class="ic group-ic"><use href="#i-rocket"/></svg><h3 class="group-title">Space &amp; rocketry</h3><span class="group-count">06</span></div>
-
-      <article class="entry" data-open="false">
-        <button class="entry-head" aria-expanded="false" aria-controls="e1">
-          <span class="entry-title">Master's thesis at MIT</span>
-          <span class="entry-meta">2026 · Cambridge, MA</span>
-          <span class="entry-toggle" aria-hidden="true">+</span>
-          <span class="entry-brief">
-            <span class="entry-summary">Placeholder — one line on what the thesis asks and what you are building to answer it.</span>
-            <span class="tags"><span>MIT</span><span>Research</span><span>Aerospace</span></span>
-          </span>
-        </button>
-        <div class="entry-body" id="e1"><div><div class="entry-content">
-          <div>
-            <p>Writing my ETH master's thesis at MIT. Placeholder — the topic, the lab, who
-               you're working with, and what you're trying to find out.</p>
-            <ul class="entry-links"><li><a href="#">Read more <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
-          </div>
-          <div class="shots">
-            <div class="shot wide"><span class="label">images/mit-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/mit-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/mit-3.jpg</span></div>
-          </div>
-          <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
-        </div></div></div>
-      </article>
+      <div class="group-head"><svg class="ic group-ic"><use href="#i-rocket"/></svg><h3 class="group-title">Rocketry &amp; space</h3><span class="group-count">05</span></div>
 
       <article class="entry" data-open="false">
         <button class="entry-head" aria-expanded="false" aria-controls="e2">
@@ -1850,6 +1881,31 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <div class="group-head"><svg class="ic group-ic"><use href="#i-cpu"/></svg><h3 class="group-title">Robotics &amp; simulation</h3><span class="group-count">03</span></div>
 
       <article class="entry" data-open="false">
+        <button class="entry-head" aria-expanded="false" aria-controls="e1">
+          <span class="entry-title">Master's thesis at MIT</span>
+          <span class="entry-meta">2026 · Cambridge, MA</span>
+          <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Placeholder — one line on what the thesis asks and what you are building to answer it.</span>
+            <span class="tags"><span>MIT</span><span>Research</span><span>Aerospace</span></span>
+          </span>
+        </button>
+        <div class="entry-body" id="e1"><div><div class="entry-content">
+          <div>
+            <p>Writing my ETH master's thesis at MIT. Placeholder — the topic, the lab, who
+               you're working with, and what you're trying to find out.</p>
+            <ul class="entry-links"><li><a href="#">Read more <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
+          </div>
+          <div class="shots">
+            <div class="shot wide"><span class="label">images/mit-1.jpg</span></div>
+            <div class="shot small"><span class="label">images/mit-2.jpg</span></div>
+            <div class="shot small"><span class="label">images/mit-3.jpg</span></div>
+          </div>
+          <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
+        </div></div></div>
+      </article>
+
+      <article class="entry" data-open="false">
         <button class="entry-head" aria-expanded="false" aria-controls="e7">
           <span class="entry-title">Teaching a swarm of drones to read each other's wake</span>
           <span class="entry-meta">2025 · ETH research project</span>
@@ -1898,27 +1954,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         </div></div></div>
       </article>
 
-      <article class="entry" data-open="false">
-        <button class="entry-head" aria-expanded="false" aria-controls="e9">
-          <span class="entry-title">Placeholder — another robotics or simulation project</span>
-          <span class="entry-meta">Year · Placeholder</span>
-          <span class="entry-toggle" aria-hidden="true">+</span>
-          <span class="entry-brief">
-            <span class="entry-summary">Placeholder — swap this out or delete it.</span>
-            <span class="tags"><span>Tag</span><span>Tag</span></span>
-          </span>
-        </button>
-        <div class="entry-body" id="e9"><div><div class="entry-content">
-          <div>
-          <p>Swap this out or delete it.</p></div>
-          <div class="shots">
-            <div class="shot wide"><span class="label">images/placeholder-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/placeholder-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/placeholder-3.jpg</span></div>
-          </div>
-          <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
-        </div></div></div>
-      </article>
     </div>
 
     <div class="group reveal" id="g-people">
@@ -2004,165 +2039,152 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       </article>
     </div>
 
-    <div class="group reveal g-water" id="g-hobbies">
-      <div class="group-head"><svg class="ic group-ic"><use href="#i-waves"/></svg><h3 class="group-title">Hobbies</h3><span class="group-count">03</span></div>
-
-      <article class="entry" data-open="false">
-        <button class="entry-head" aria-expanded="false" aria-controls="e14">
-          <span class="entry-title">500 km across the Balkans on a bicycle</span>
-          <span class="entry-meta">Year · Personal</span>
-          <span class="entry-toggle" aria-hidden="true">+</span>
-          <span class="entry-brief">
-            <span class="entry-summary">Placeholder — where it started, where it ended, and the one thing that went wrong.</span>
-            <span class="tags"><span>Bikepacking</span><span>500 km</span><span>Balkans</span></span>
-          </span>
-        </button>
-        <div class="entry-body" id="e14"><div><div class="entry-content">
-          <div>
-            <p>Placeholder — where you started, where you ended, how many days, and the one
-               thing that went wrong. That's the story people actually want.</p>
-          </div>
-          <div class="shots">
-            <div class="shot wide"><span class="label">images/balkans-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/balkans-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/balkans-3.jpg</span></div>
-          </div>
-          <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
-        </div></div></div>
-      </article>
-
-      <article class="entry" data-open="false">
-        <button class="entry-head" aria-expanded="false" aria-controls="e16">
-          <span class="entry-title">Ten years swimming for Poland</span>
-          <span class="entry-meta">2012–2021 · Junior National Team</span>
-          <span class="entry-toggle" aria-hidden="true">+</span>
-          <span class="entry-brief">
-            <span class="entry-summary">Ten years on the Polish junior national team, with national titles in butterfly and both relays.</span>
-            <span class="tags"><span>200m butterfly</span><span>4×100 freestyle</span><span>4×100 medley</span></span>
-          </span>
-        </button>
-        <div class="entry-body" id="e16"><div><div class="entry-content">
-          <div>
-            <p>Represented Poland on the junior national team, with national championship
-               titles in 200m butterfly and both relays.</p>
-            <p>Ten years of 5am alarms. Retired from competition in 2021.</p>
-          </div>
-          <div class="shots">
-            <div class="shot wide"><span class="label">images/swimming-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/swimming-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/swimming-3.jpg</span></div>
-          </div>
-          <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
-        </div></div></div>
-      </article>
-
-      <article class="entry" data-open="false">
-        <button class="entry-head" aria-expanded="false" aria-controls="e17">
-          <span class="entry-title">Rubik's cubes, chess, and other small puzzles</span>
-          <span class="entry-meta">Ongoing · Personal</span>
-          <span class="entry-toggle" aria-hidden="true">+</span>
-          <span class="entry-brief">
-            <span class="entry-summary">Placeholder — best solve time, chess rating, or just why you like them.</span>
-            <span class="tags"><span>Speedcubing</span><span>Chess</span></span>
-          </span>
-        </button>
-        <div class="entry-body" id="e17"><div><div class="entry-content">
-          <div>
-            <p>Placeholder — best solve time, chess rating, or just why you like them.</p>
-          </div>
-          <div class="shots">
-            <div class="shot wide"><span class="label">images/puzzles-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/puzzles-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/puzzles-3.jpg</span></div>
-          </div>
-          <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
-        </div></div></div>
-      </article>
-    </div>
-
   </div>
 </section>
 
-<!-- ============ EDIT ME #8 — PHOTO CARDS
-     Each card is clickable. data-target = the entry it opens.
-     Keep both halves of the track identical for a seamless loop.
-     ============================================================ -->
-<div class="strip" style="position:relative;overflow:hidden">
-  <div class="deco deco-waves-top" aria-hidden="true"><svg viewBox="0 0 1200 130" preserveAspectRatio="none">
-    <g class="wave-g">
-      <path d="M-240 40c120 0 120 34 240 34s120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34"/>
-      <path d="M-240 86c120 0 120 34 240 34s120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34"/>
-    </g>
+<!-- ============ EDIT ME #8 — FUN STUFF & LIFE =======================
+     Cards work like the Highlights mosaic: image on top, caption under. NOT
+     every card needs a photo — one with `.life-card.no-photo` drops the image
+     block and runs text-only, which is the point of this section: some of it
+     is a story, not a picture.
+     The scrolling strip at the bottom is for miscellaneous photos that don't
+     belong to any one card.
+     ================================================================= -->
+<section id="life">
+  <div class="deco deco-orbit-life" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="178"/><circle cx="200" cy="200" r="112"/>
+    <ellipse cx="200" cy="200" rx="178" ry="58" transform="rotate(19 200 200)"/>
+    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="72" cy="252" r="5" fill="currentColor" stroke="none"/>
+    <g class="orbiter"><use href="#d-satellite" x="183" y="71" width="34" height="34"/></g>
   </svg></div>
 
-  <div class="wrap" style="margin-bottom:26px">
-    <h2 class="section-name">Snapshots</h2>
-    <p class="section-sub">A few things, out of context</p>
-  </div>
-  <div class="strip-viewport">
-    <div class="strip-track" id="stripTrack">
-      <button class="strip-card" data-target="e4">
-        <div class="strip-media"><span class="label">images/strip-1.jpg</span></div>
-        <div class="strip-cap"><span>Engine test · ARIS</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <button class="strip-card" data-target="e2">
-        <div class="strip-media"><span class="label">images/strip-2.jpg</span></div>
-        <div class="strip-cap"><span>JPL · Pasadena</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <button class="strip-card" data-target="e14">
-        <div class="strip-media"><span class="label">images/strip-3.jpg</span></div>
-        <div class="strip-cap"><span>Balkans · 500 km</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <button class="strip-card" data-target="e3">
-        <div class="strip-media"><span class="label">images/strip-4.jpg</span></div>
-        <div class="strip-cap"><span>HERMES build</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <button class="strip-card" data-target="e12">
-        <div class="strip-media"><span class="label">images/strip-6.jpg</span></div>
-        <div class="strip-cap"><span>EYP · Sassari</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <button class="strip-card" data-target="e11">
-        <div class="strip-media"><span class="label">images/strip-7.jpg</span></div>
-        <div class="strip-cap"><span>POLANA</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <button class="strip-card" data-target="e1">
-        <div class="strip-media"><span class="label">images/strip-8.jpg</span></div>
-        <div class="strip-cap"><span>MIT · Cambridge</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <!-- EXACT duplicate of the seven cards above. The marquee animates
-           translateX(0 -> -50%), so the track has to hold the set twice or the
-           second half of the loop is empty space. Keep these in sync. -->
-      <button class="strip-card" data-target="e4">
-        <div class="strip-media"><span class="label">images/strip-1.jpg</span></div>
-        <div class="strip-cap"><span>Engine test · ARIS</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <button class="strip-card" data-target="e2">
-        <div class="strip-media"><span class="label">images/strip-2.jpg</span></div>
-        <div class="strip-cap"><span>JPL · Pasadena</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <button class="strip-card" data-target="e14">
-        <div class="strip-media"><span class="label">images/strip-3.jpg</span></div>
-        <div class="strip-cap"><span>Balkans · 500 km</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <button class="strip-card" data-target="e3">
-        <div class="strip-media"><span class="label">images/strip-4.jpg</span></div>
-        <div class="strip-cap"><span>HERMES build</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <button class="strip-card" data-target="e12">
-        <div class="strip-media"><span class="label">images/strip-6.jpg</span></div>
-        <div class="strip-cap"><span>EYP · Sassari</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <button class="strip-card" data-target="e11">
-        <div class="strip-media"><span class="label">images/strip-7.jpg</span></div>
-        <div class="strip-cap"><span>POLANA</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
-      <button class="strip-card" data-target="e1">
-        <div class="strip-media"><span class="label">images/strip-8.jpg</span></div>
-        <div class="strip-cap"><span>MIT · Cambridge</span><svg class="ic"><use href="#i-arrow-right"/></svg></div>
-      </button>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 class="section-name">Life</h2>
+      <p class="section-sub">Fun stuff — the parts that aren't work</p>
+    </div>
+
+    <div class="life-grid reveal">
+      <article class="life-card">
+        <div class="life-media"><div class="tile-ph"><span class="label">images/swimming-1.jpg</span></div></div>
+        <div class="life-body">
+          <div class="life-meta">2012–2021 · Junior national team</div>
+          <h3 class="life-title">Ten years swimming for Poland</h3>
+          <p class="life-desc">National championship titles in 200m butterfly and both relays.
+             Ten years of 5am alarms. Retired from competition in 2021.</p>
+        </div>
+      </article>
+      <article class="life-card">
+        <div class="life-media"><div class="tile-ph"><span class="label">images/balkans-1.jpg</span></div></div>
+        <div class="life-body">
+          <div class="life-meta">Bikepacking · 500 km</div>
+          <h3 class="life-title">500 km across the Balkans on a bicycle</h3>
+          <p class="life-desc">Placeholder — where it started, where it ended, how many days,
+             and the one thing that went wrong. That's the story people want.</p>
+        </div>
+      </article>
+      <article class="life-card">
+        <div class="life-media"><div class="tile-ph"><span class="label">images/surf-1.jpg</span></div></div>
+        <div class="life-body">
+          <div class="life-meta">Cold water · Ongoing</div>
+          <h3 class="life-title">Surfing, badly, in the wrong ocean</h3>
+          <p class="life-desc">Placeholder — where you surf, how often, and how honest you're
+             willing to be about your ability.</p>
+        </div>
+      </article>
+      <!-- a text-only card: no .life-media block, add .no-photo -->
+      <article class="life-card no-photo">
+        <div class="life-body">
+          <div class="life-meta">Speedcubing · Chess</div>
+          <h3 class="life-title">Rubik's cubes, chess, and other small puzzles</h3>
+          <p class="life-desc">Placeholder — best solve time, chess rating, or just why you
+             like them. Not everything here needs a photograph.</p>
+        </div>
+      </article>
     </div>
   </div>
-</div>
+
+  <!-- ============ EDIT ME #8 — PHOTO CARDS
+       Each card is clickable. data-target = the entry it opens.
+       Keep both halves of the track identical for a seamless loop.
+       ============================================================ -->
+  <div class="strip" style="position:relative;overflow:hidden">
+    <div class="deco deco-waves-top" aria-hidden="true"><svg viewBox="0 0 1200 130" preserveAspectRatio="none">
+      <g class="wave-g">
+        <path d="M-240 40c120 0 120 34 240 34s120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34"/>
+        <path d="M-240 86c120 0 120 34 240 34s120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34"/>
+      </g>
+    </svg></div>
+
+    <div class="wrap" style="margin-bottom:22px">
+      <p class="label strip-label">Snapshots</p>
+    </div>
+    <div class="strip-viewport">
+      <div class="strip-track" id="stripTrack">
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-1.jpg</span></div>
+        <figcaption class="strip-cap">Engine test · ARIS</figcaption>
+      </figure>
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-2.jpg</span></div>
+        <figcaption class="strip-cap">JPL · Pasadena</figcaption>
+      </figure>
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-3.jpg</span></div>
+        <figcaption class="strip-cap">Balkans · 500 km</figcaption>
+      </figure>
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-4.jpg</span></div>
+        <figcaption class="strip-cap">HERMES build</figcaption>
+      </figure>
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-5.jpg</span></div>
+        <figcaption class="strip-cap">EYP · Sassari</figcaption>
+      </figure>
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-6.jpg</span></div>
+        <figcaption class="strip-cap">POLANA</figcaption>
+      </figure>
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-7.jpg</span></div>
+        <figcaption class="strip-cap">MIT · Cambridge</figcaption>
+      </figure>
+      <!-- EXACT duplicate of the seven above. The marquee animates
+           translateX(0 -> -50%), so the track must hold the set twice or the
+           second half of the loop is empty. Keep these in sync. -->
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-1.jpg</span></div>
+        <figcaption class="strip-cap">Engine test · ARIS</figcaption>
+      </figure>
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-2.jpg</span></div>
+        <figcaption class="strip-cap">JPL · Pasadena</figcaption>
+      </figure>
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-3.jpg</span></div>
+        <figcaption class="strip-cap">Balkans · 500 km</figcaption>
+      </figure>
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-4.jpg</span></div>
+        <figcaption class="strip-cap">HERMES build</figcaption>
+      </figure>
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-5.jpg</span></div>
+        <figcaption class="strip-cap">EYP · Sassari</figcaption>
+      </figure>
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-6.jpg</span></div>
+        <figcaption class="strip-cap">POLANA</figcaption>
+      </figure>
+      <figure class="strip-card">
+        <div class="strip-media"><span class="label">images/strip-7.jpg</span></div>
+        <figcaption class="strip-cap">MIT · Cambridge</figcaption>
+      </figure>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ============ EDIT ME #9 — EXPERIENCE ============ -->
 <section id="experience">
@@ -2332,21 +2354,29 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   </svg></div>
 
   <div class="wrap reveal">
-    <h2 class="section-name">Contact</h2>
     <div class="contact-grid">
       <div class="contact-direct">
-      <p class="contact-line"><a class="contact-mail" href="mailto:jcader@ethz.ch"><svg
-          class="ic mail-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-mail-box"/><use
-          class="flap" href="#i-mail-flap"/></svg><span>jcader@ethz.ch</span></a></p>
-      <p class="section-note" style="margin-top:22px">
-        Roles, collaborations, rocketry arguments, or anything about getting hardware off
-        this planet.
-      </p>
-      <div class="socials" style="margin-top:24px">
-        <a href="https://www.linkedin.com/in/jedrzejcader/"><svg class="ic"><use href="#i-linkedin"/></svg> LinkedIn</a>
-        <a href="https://github.com/jjcader"><svg class="ic"><use href="#i-github"/></svg> GitHub</a>
-        <a href="https://polana.ch"><svg class="ic"><use href="#i-globe"/></svg> POLANA</a>
-      </div>
+        <!-- The heading lives INSIDE the grid's left column so its top edge is
+             flush with the form's, rather than sitting above both. -->
+        <h2 class="section-name">Contact</h2>
+        <!-- The address is assembled in JS from its parts and only written into
+             the page once someone asks for it, so it isn't sitting in the
+             markup for address harvesters to scrape. Without JS the button
+             simply falls back to a working mailto link (see the JS below). -->
+        <button class="mail-reveal" id="mailReveal" type="button">
+          <svg class="ic mail-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-mail-box"/><use
+            class="flap" href="#i-mail-flap"/></svg>
+          <span class="mail-reveal-text">Click to reveal email</span>
+        </button>
+        <p class="section-note" style="margin-top:18px">
+          Roles, collaborations, rocketry arguments, or anything about getting hardware off
+          this planet.
+        </p>
+        <div class="socials" style="margin-top:20px">
+          <a href="https://www.linkedin.com/in/jedrzejcader/"><svg class="ic"><use href="#i-linkedin"/></svg> LinkedIn</a>
+          <a href="https://github.com/jjcader"><svg class="ic"><use href="#i-github"/></svg> GitHub</a>
+          <a href="https://polana.ch"><svg class="ic"><use href="#i-globe"/></svg> POLANA</a>
+        </div>
       </div>
       <!-- ============ EDIT ME #12 — THE MESSAGE FORM =====================
            RIGHT NOW this works with zero setup: it composes a pre-filled email
@@ -2463,7 +2493,10 @@ function openEntry(id){
   entry.classList.add('flash');
   setTimeout(function(){ entry.classList.remove('flash'); },1300);
 }
-document.querySelectorAll('.tile, .strip-card').forEach(function(el){
+/* only the mosaic tiles open entries now — the photo strip's cards became
+   plain <figure>s when it moved into #life, so it is no longer a second
+   navigation surface duplicating the mosaic */
+document.querySelectorAll('.tile').forEach(function(el){
   el.addEventListener('click',function(){ openEntry(el.dataset.target); });
 });
 
@@ -2642,7 +2675,7 @@ var railRocket=document.getElementById('railRocket');
 var railTrack=document.querySelector('.rail-track');
 var railDots=Array.prototype.slice.call(document.querySelectorAll('.rail ol .dot'));
 /* same order as the rail's <ol> */
-var railSections=['about','selected','projects','experience','education','contact']
+var railSections=['about','selected','projects','life','experience','education','contact']
   .map(function(id){ return document.getElementById(id); });
 var heroMedia=document.getElementById('heroMedia');
 var toTop=document.getElementById('toTop');
@@ -2906,6 +2939,44 @@ toTop.addEventListener('click',function(){
         say('Didn\'t send. Email jcader@ethz.ch instead.',true);
       })
       .then(function(){ btn.disabled=false; });
+  });
+})();
+
+/* 6c — reveal-on-click email.
+   The address is never written in the markup; it's assembled here from parts
+   so it isn't sitting in the page source for harvesters. The button becomes a
+   real <a href="mailto:"> in place, keeping the same box so nothing shifts.
+   Without JS the button does nothing visible, so the form below and the
+   footer's mail icon remain the working fallbacks. */
+(function(){
+  var btn=document.getElementById('mailReveal');
+  if(!btn) return;
+  var user='jcader', host='ethz.ch';
+  btn.addEventListener('click',function(){
+    if(btn.classList.contains('revealed')) return;
+    var addr=user+'@'+host;
+    var a=document.createElement('a');
+    a.className=btn.className+' revealed';
+    a.href='mailto:'+addr;
+    a.innerHTML=btn.querySelector('.mail-ic').outerHTML+'<span>'+addr+'</span>';
+    btn.replaceWith(a);
+    a.focus({preventScroll:true});
+  });
+})();
+
+/* 6d — the hero's "Learn more" button.
+   Scrolls so #about's top sits just under the sticky header, which puts the
+   About head at the top of the screen and Highlights at the bottom. It does
+   NOT reuse the nav links' 45%-anchor scroll: that lands mid-section, which is
+   right for "which section am I in" but wrong for "show me the start of this".
+   The rail's own idx logic picks the section up normally afterwards. */
+(function(){
+  var btn=document.getElementById('heroMore'), about=document.getElementById('about');
+  if(!btn || !about) return;
+  btn.addEventListener('click',function(){
+    var y=about.getBoundingClientRect().top+window.scrollY-78;
+    var maxY=document.documentElement.scrollHeight-window.innerHeight;
+    window.scrollTo({top:Math.max(0,Math.min(maxY,y)),behavior:reduced?'auto':'smooth'});
   });
 })();
 
