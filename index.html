@@ -386,13 +386,7 @@ a{color:var(--accent)}
    fade out at its ends and the whole point of the recipe is that it emerges
    from and recedes into the page instead of switching on at a hard edge. */
 section{position:relative;padding-block:clamp(54px,7vw,96px)}
-/* The line sits at top:9px rather than top:0 so the gear below can straddle
-   it. Sections are overflow:hidden, so nothing can be drawn above the
-   section's own top edge — the gear therefore can't be pulled up onto a line
-   at y=0, and the line is moved down to the gear's centre instead. Nine
-   pixels into a section whose padding is 54-96px is visually indistinguishable
-   from the boundary itself, and this way both elements are inside the clip. */
-section::after{content:"";position:absolute;top:9px;left:0;right:0;height:2px;
+section::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;
   background:var(--rule-grad);z-index:3}
 section:first-of-type::after{display:none}
 /* ORNAMENT ON THE DIVIDER — a slowly turning gear.
@@ -405,11 +399,23 @@ section:first-of-type::after{display:none}
    or a coloured data URI, so the colour still comes from a token (a data URI
    can't read currentColor, and hard-coding a hex here would break "recolour by
    editing :root only"). */
-section::before{content:"";position:absolute;top:0;left:50%;width:20px;height:20px;z-index:4;
+/* ORNAMENT — a gear RESTING ON the divider, touching it but never crossing it.
+   The trick is that it belongs to the element ABOVE the divider, not below:
+   sections are overflow:hidden, so anything drawn above a section's own top
+   edge is clipped, and a gear sitting on that section's divider would have to
+   be. Anchoring it to the PRECEDING block's `bottom:0` puts it at exactly the
+   same y — the two boxes are adjacent, with no margin between them — while
+   keeping it comfortably inside that block's own clip.
+   So: every block that is followed by a divider carries the gear for it.
+   about→selected, selected→projects, projects→strip, strip→education,
+   education→experience, experience→contact, contact→footer. Seven dividers,
+   seven gears, one each. Add a section and it gets its gear for free; the
+   only rule to preserve is that `::after` draws the line at a block's TOP and
+   `::before` draws the gear at a block's BOTTOM. */
+section::before{content:"";position:absolute;bottom:0;left:50%;width:20px;height:20px;z-index:4;
   background:var(--accent);opacity:.72;
   -webkit-mask:var(--gear) center/contain no-repeat;mask:var(--gear) center/contain no-repeat;
   animation:gear-turn 34s linear infinite}
-section:first-of-type::before{display:none}
 /* the translate has to live in the keyframes: an animation on `transform`
    replaces the whole property, so a separate translateX(-50%) would be lost */
 @keyframes gear-turn{from{transform:translateX(-50%) rotate(0)}
@@ -768,9 +774,10 @@ section{overflow:hidden}
 .strip{position:relative;overflow:hidden;padding-block:clamp(40px,5vw,66px)}
 /* matches the section divider recipe above — the strip is a top-level band
    like a section, so it gets the same blue rule, not a warm hairline */
-.strip::after{content:"";position:absolute;top:9px;left:0;right:0;height:2px;
+.strip::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;
   background:var(--rule-grad);z-index:3}
-.strip::before{content:"";position:absolute;top:0;left:50%;width:20px;height:20px;z-index:4;
+/* the strip's own gear serves the divider at the top of #education below it */
+.strip::before{content:"";position:absolute;bottom:0;left:50%;width:20px;height:20px;z-index:4;
   background:var(--accent);opacity:.72;
   -webkit-mask:var(--gear) center/contain no-repeat;mask:var(--gear) center/contain no-repeat;
   animation:gear-turn 34s linear infinite}

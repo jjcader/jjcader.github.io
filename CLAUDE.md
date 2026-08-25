@@ -170,15 +170,24 @@ replaced a small rotated square at `top:-4px` which, because sections are
 `overflow:hidden`, was clipped to its bottom half and read as a notch chewed
 out of the divider rather than as an ornament.
 
-**The gear can't be pulled up onto a line at `y=0` — so the line is pushed
-down to the gear instead.** Nothing can be drawn above a section's own top
-edge while it is `overflow:hidden`, so `section::after` sits at `top:9px` and
-the 20px gear at `top:0`, putting the gear's centre and the line's centre both
-at `y=10`. Nine pixels into a section whose padding is 54–96px is visually
-indistinguishable from the boundary, and this way both elements are inside the
-clip. **This is the general move for anything that has to straddle a clipped
-edge: bring the edge to it.** The line passes behind the gear (z-index 3 vs 4)
-and shows through the tooth gaps and the hub hole, which is the point.
+**The gear belongs to the block ABOVE the divider, not the one below it** —
+that is the whole trick, and it is worth understanding before moving either.
+A gear resting on a section's own top divider would have to be drawn above
+that section's top edge, which `overflow:hidden` clips. But the preceding
+block's `bottom:0` is *the same y coordinate* (adjacent boxes, no margin
+between them) while being comfortably inside that block's own clip. So the
+line is `::after` at a block's TOP and the gear is `::before` at a block's
+BOTTOM, and the gear ends up sitting on the line, touching it, never crossing
+it.
+
+Every block that is followed by a divider therefore carries the gear for it:
+about→selected, selected→projects, projects→strip, strip→education,
+education→experience, experience→contact, contact→footer. Seven dividers,
+seven gears, one each — and a new section gets its gear for free. Two earlier
+versions got this wrong in opposite directions: the ornament sat *below* the
+line (clipped in half, read as a notch), then *centred on* it (the line cut
+straight through the gear). **If it needs moving again, move which block owns
+it, not its `top`.**
 
 The gear is drawn as a CSS `mask` over a `background-color` (`--gear` in
 `:root`) rather than an inline SVG or a coloured data URI, so its colour still
