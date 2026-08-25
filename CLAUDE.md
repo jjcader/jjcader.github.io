@@ -293,6 +293,16 @@ The mono is not decoration. It is the vernacular of engineering documents —
 part numbers, revisions, spec sheets — and it is what makes the page read as
 belonging to this person rather than to a template. Keep metadata in mono.
 
+**There is ONE size for small explanatory prose: `--fs-small`.** Card
+descriptions, entry summaries, timeline blurbs and category blurbs were five
+slightly different clamps, which reads as sloppiness rather than hierarchy.
+Change the token, never the component.
+
+**A section head is two typefaces, not three.** Mono name, then a serif line —
+and `.section-note` now uses `.section-sub`'s exact family and size, following
+it directly, with colour as the only separation. It used to be sans at a third
+size, so three consecutive lines each had their own typeface.
+
 **Mono metadata is set at 500–600 weight, 11px and up, in `--accent` or
 `--ink-2` — never 400 weight at 10px in `--ink-3`.** That was the original
 setting throughout and it consistently read as faint to the point of
@@ -1508,21 +1518,23 @@ fails. 1200×630 is the size to target.
 
 ### The timeline (`#experience` + `#education`)
 
-**One spine, two threads.** Work hangs off the left, study off the right, and
-the whole thing runs in reverse-chronological order. That ordering is the whole
+**One spine, two threads.** Study hangs off the RIGHT, work off the left, and
+the whole thing runs in reverse-chronological order — which is why **Education
+leads**: the MIT thesis is the most recent thing on the page. That ordering is the whole
 point: it shows ARIS and ETH overlapping, which two separate lists could never
 say. They used to be two sections; merging them removed a divider, a heading
 block and a screenful of height.
 
-**`#education` is an `<li>` inside `#experience`, not a section.** Its heading
-sits in the right-hand column partway down the spine, and the rail's Education
-item scrolls to it — two headings pointing into one object.
+**`#experience` is an `<li>` inside `#education`, not a section.** Its heading
+sits in the left-hand column partway down the spine, and the rail's Experience
+item scrolls to it — two headings pointing into one object. Whichever thread
+leads owns the `<section>`; the other is an anchor inside it.
 
 ⚠ **That change required a fix in the rail's `frac` maths.** A section now runs
 until the NEXT one starts rather than for its own `offsetHeight`. Those are the
-same thing for real sections, but `#education`'s own height is a single row —
+same thing for real sections, but the inner anchor's own height is a single row —
 measured by `offsetHeight` the rocket hit `frac=1` the instant you reached that
-heading and jumped straight to the Contact dot. **Any future anchor that isn't
+heading and jumped straight to the next dot. **Any future anchor that isn't
 a full-height section depends on this.**
 
 Layout: `.tl` is a flex column and each `.tl-row` is its own internal 3-column

@@ -83,6 +83,11 @@
      the gear's own, so a little paper shows between the teeth and the cut. */
   --rule-notch:radial-gradient(circle 15px at 50% 50%,transparent 0 94%,#000 100%);
 
+  /* ONE size for every small explanatory line on the page — card
+     descriptions, entry summaries, timeline blurbs, category blurbs. They used
+     to be five slightly different clamps, which reads as sloppiness rather
+     than hierarchy. Change it here, not per component. */
+  --fs-small:clamp(13px,.26vw + 12.1px,14.5px);
   --serif:"Instrument Serif",Georgia,serif;
   --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,monospace;
@@ -102,6 +107,15 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
 img{max-width:100%;display:block}
 a{color:var(--accent)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+/* Off-screen until focused, then it lands under the header where it is
+   obviously the thing you just reached. */
+.skip-link{position:fixed;top:0;left:50%;transform:translate(-50%,-140%);z-index:100;
+  font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;text-decoration:none;color:var(--paper);
+  background:var(--accent);border-radius:0 0 6px 6px;padding:12px 22px;
+  transition:transform .2s var(--ease)}
+.skip-link:focus-visible{transform:translate(-50%,0);outline:2px solid var(--accent-warm);
+  outline-offset:2px}
 .wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:var(--gutter)}
 /* Once the fixed rail owns the right margin, a dead-centred column reads as
    sitting too far right — the eye measures the gap to the visible rail, not to
@@ -569,32 +583,30 @@ section::before{content:"";position:absolute;bottom:0;left:50%;z-index:4;
    competing title. It carried the display scale until the hierarchy was
    inverted; keeping the typeface is what stops the change reading as a
    demotion rather than a re-ranking. */
-/* Experience and Education put the CV link beside the heading rather than only
-   at the foot of the page: these two sections are deliberately a summary, so
-   the way out to the full document belongs where the reader forms that
-   expectation. The name and sub stay stacked in column one; the link sits on
-   the right and drops under them on narrow screens. */
-.section-head-row{display:grid;grid-template-columns:1fr auto;align-items:end;
-  column-gap:20px;row-gap:12px}
-.section-head-row .section-name{grid-column:1}
-.section-head-row .section-sub{grid-column:1}
-.cv-mini{grid-column:2;grid-row:1/3;align-self:end;justify-self:end;
-  display:inline-flex;align-items:center;gap:9px;white-space:nowrap;
-  font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.12em;
+/* The CV link sits INSIDE the <h2>, immediately after the section name — it
+   used to be pushed to the far edge of the wrap, where a link a thousand pixels
+   from its heading reads as unrelated page chrome rather than as "the long
+   version of this section". `.section-name` is already a flex row, so it needs
+   no extra wrapper. */
+.cv-mini{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+  margin-left:clamp(6px,1vw,16px);align-self:center;
+  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.12em;
   text-transform:uppercase;text-decoration:none;color:var(--accent);
   border:1.5px solid color-mix(in srgb,var(--accent) 34%,var(--rule));
-  border-radius:999px;padding:10px 18px;transition:.22s var(--ease)}
-.cv-mini .ic{width:15px;height:15px}
+  border-radius:999px;padding:7px 14px;transition:.22s var(--ease)}
+.cv-mini .ic{width:14px;height:14px}
 .cv-mini:hover{color:var(--accent-warm-ink);border-color:var(--accent-warm);
   background:var(--warm-soft);transform:translateY(-2px)}
-@media (max-width:640px){
-  .section-head-row{grid-template-columns:1fr}
-  .cv-mini{grid-column:1;grid-row:auto;justify-self:start}
-}
+/* the dash-bracket on .section-name must not also bracket the CV pill */
+.section-name:has(.cv-mini)::after{order:-1}
 .section-sub{font-family:var(--serif);font-weight:400;font-size:clamp(17px,1.6vw,23px);
   line-height:1.25;letter-spacing:-.01em;color:var(--ink-2);margin:13px 0 0}
-.section-note{color:var(--ink-2);max-width:56ch;margin:14px 0 0;
-  font-size:clamp(13.5px,.28vw + 12.4px,15px);line-height:1.62}
+/* Same family and size as .section-sub, sitting directly under it — a section
+   head was mono name / serif subtitle / sans note, i.e. three typefaces for
+   three consecutive lines. Now it is two: the name, then a serif line that
+   simply continues. Colour is the only thing separating sub from note. */
+.section-note{font-family:var(--serif);font-size:clamp(17px,1.6vw,23px);
+  line-height:1.25;letter-spacing:-.01em;color:var(--ink-3);max-width:52ch;margin:4px 0 0}
 
 
 /* The hobbies group used to be tinted turquoise to mark it as the "water" one.
@@ -843,7 +855,7 @@ section{overflow:hidden;overflow:clip}
 .tile-title{font-family:var(--serif);font-weight:400;line-height:1.14;margin-top:6px;
   font-size:clamp(19px,1.55vw,24px);letter-spacing:-.015em;color:var(--ink)}
 .tile-desc{margin:10px 0 0;color:var(--ink-body);max-width:46ch;
-  font-size:clamp(13.5px,.3vw + 12.3px,15px);line-height:1.55}
+  font-size:var(--fs-small);line-height:1.55}
 /* pushed to the bottom of the card by margin-top:auto so the "Open" line sits
    on the same baseline across cards of different text length */
 .tile-go{display:flex;align-items:center;gap:7px;margin-top:auto;padding-top:11px;
@@ -888,7 +900,7 @@ section{overflow:hidden;overflow:clip}
 .cat:hover .cat-ic{color:var(--accent-warm-ink);background:var(--warm-soft);transform:scale(1.08)}
 .cat-name{font-family:var(--serif);font-size:clamp(22px,2.1vw,29px);line-height:1.12;
   letter-spacing:-.015em;margin:14px 0 0}
-.cat-desc{font-size:13.5px;color:var(--ink-2);margin:9px 0 0;line-height:1.5}
+.cat-desc{font-size:var(--fs-small);color:var(--ink-2);margin:9px 0 0;line-height:1.5}
 /* margin-top:auto pins it to the card's bottom edge, so the four "Jump" lines
    sit on one baseline regardless of how long each description runs */
 .cat-go{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:18px;
@@ -954,7 +966,7 @@ section{overflow:hidden;overflow:clip}
    the same words, at full length, immediately below. One copy on screen at a
    time, never two. */
 .entry-summary{display:block;color:var(--ink-2);max-width:74ch;
-  font-size:clamp(13.5px,.3vw + 12.4px,15px);line-height:1.55}
+  font-size:var(--fs-small);line-height:1.55}
 .entry[data-open="true"] .entry-summary{display:none}
 /* The tag chips that used to sit here are gone. Across fifteen rows they were
    noise — the summary line already says what the work involved, and the tags
@@ -1081,7 +1093,7 @@ section{overflow:hidden;overflow:clip}
 .life-title{font-family:var(--serif);font-weight:400;line-height:1.14;margin:7px 0 0;
   font-size:clamp(19px,1.6vw,24px);letter-spacing:-.015em}
 .life-desc{margin:9px 0 0;color:var(--ink-body);max-width:44ch;
-  font-size:clamp(13px,.28vw + 12px,14.5px);line-height:1.55}
+  font-size:var(--fs-small);line-height:1.55}
 
 /* ============ PHOTO STRIP — a photo band at the foot of #life ============
    The cards are <figure>, NOT buttons: the strip used to open project entries,
@@ -1123,7 +1135,15 @@ section{overflow:hidden;overflow:clip}
    Rows are evenly spaced rather than scaled to their date range; a true scale
    would leave a hole at 2016-2020 and squash everything recent. */
 .tl{position:relative;list-style:none;margin:0;padding:0;
-  display:flex;flex-direction:column;gap:clamp(8px,1vw,14px)}
+  display:flex;flex-direction:column;gap:clamp(5px,.6vw,9px)}
+/* Consecutive rows on OPPOSITE sides of the spine are pulled up so they
+   interlock by roughly a third of a card. They can never collide — they are in
+   different grid columns — and it removes the band of dead space a strict
+   zigzag leaves down the middle. The selector is deliberately side-aware:
+   same-side neighbours (there are five work rows in a row) keep the full gap,
+   because those WOULD overlap. */
+.tl-row.work + .tl-row.edu,
+.tl-row.edu + .tl-row.work{margin-top:calc(-1 * clamp(22px,2.4vw,38px))}
 /* the spine, fading out at both ends like every other rule on the page */
 .tl::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;
   transform:translateX(-50%);
@@ -1162,8 +1182,11 @@ section{overflow:hidden;overflow:clip}
   line-height:1.16;letter-spacing:-.01em;margin:3px 0 0}
 .tl-org{display:block;font-family:var(--mono);font-size:10px;font-weight:600;
   letter-spacing:.08em;text-transform:uppercase;color:var(--accent-warm-ink);margin-top:4px}
-.tl-card p{margin:6px 0 0;color:var(--ink-body);
-  font-size:clamp(13px,.26vw + 12.1px,14px);line-height:1.5}
+/* capped in ch: the cards are already half-width, so this only bites on very
+   wide monitors — but there it stops a one-line summary running to 900px */
+.tl-card p{margin:6px 0 0;color:var(--ink-body);max-width:62ch;
+  font-size:var(--fs-small);line-height:1.5}
+.tl-row.work .tl-card p{margin-left:auto}
 /* the Education heading occupies a whole row on the right-hand side */
 .tl-mark{margin:clamp(10px,1.4vw,20px) 0}
 .tl-node-mark{width:17px;height:17px;border-width:3px}
@@ -1348,6 +1371,10 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 </head>
 <body>
 
+<!-- First focusable element on the page. With a sticky header and seven
+     sections, a keyboard reader otherwise tabs the whole nav on every load. -->
+<a class="skip-link" href="#about">Skip to content</a>
+
 <!-- ============ ICON SPRITE — add more <symbol>s as needed ============ -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></symbol>
@@ -1445,8 +1472,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <a href="#selected">Highlights</a>
       <a href="#projects">Everything</a>
       <a href="#life">Life</a>
-      <a href="#experience">Experience</a>
       <a href="#education">Education</a>
+      <a href="#experience">Experience</a>
       <a href="#contact">Contact</a>
     </nav>
     <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="nav">Menu</button>
@@ -1462,8 +1489,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <li><a href="#selected"><span class="rail-label">Highlights</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-moon"/></svg></span></a></li>
       <li><a href="#projects"><span class="rail-label">Everything</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-banded"/></svg></span></a></li>
       <li><a href="#life"><span class="rail-label">Life</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-satellite"/></svg></span></a></li>
-      <li><a href="#experience"><span class="rail-label">Experience</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-saturn-2"/></svg></span></a></li>
       <li><a href="#education"><span class="rail-label">Education</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-cratered"/></svg></span></a></li>
+      <li><a href="#experience"><span class="rail-label">Experience</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-saturn-2"/></svg></span></a></li>
       <li><a href="#contact"><span class="rail-label">Contact</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-twin"/></svg></span></a></li>
     </ol>
     <div class="rail-gauge">
@@ -1589,8 +1616,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         </div>
       </div>
       <div class="about-text">
-        <p>I want to push the frontier of space technology, and I'd quite like to be holding
-           a wrench while it happens.</p>
+        <p>I want to spend my career on space technology, and I've learned that the hard
+           part is rarely the hardware.</p>
         <p>Most of my engineering has been on hardware that is actively trying to fail:
            cryogenic valves, liquid rocket engines, test stands that have to survive being
            fired. At ARIS I went from designing propellant supply systems to leading the
@@ -1844,7 +1871,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2025 · NASA JPL</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Co-founded the Polish Academic Network Abroad and run external relations …</span>
+            <span class="entry-summary">Visiting Student Researcher in the Robotics Group at JPL …</span>
           </span>
         </button>
         <div class="entry-body" id="e2"><div><div class="entry-content">
@@ -1897,7 +1924,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2023–2024 · ARIS</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Propellant supply engineer on a liquid rocket engine test stand, and lead on the cryogenic valve system …</span>
+            <span class="entry-summary">Propellant supply engineer on a liquid rocket engine test stand …</span>
           </span>
         </button>
         <div class="entry-body" id="e4"><div><div class="entry-content">
@@ -1922,7 +1949,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2024 · Bachelor's thesis</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Additively manufactured cryogenic ball valves — can you print a valve that survives liquid oxygen, and should you …</span>
+            <span class="entry-summary">Additively manufactured cryogenic ball valves — can you print a valve that survives liquid oxygen …</span>
           </span>
         </button>
         <div class="entry-body" id="e5"><div><div class="entry-content">
@@ -1945,7 +1972,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2025 · Semester thesis</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Built the testbed that lays the foundation for aerospace pump research at ARIS and ETH …</span>
+            <span class="entry-summary">Built the testbed that lays the foundation for aerospace pump research …</span>
           </span>
         </button>
         <div class="entry-body" id="e6"><div><div class="entry-content">
@@ -1996,7 +2023,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2025 · ETH research project</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Wake-based analysis and distributed control of a drone swarm — using the aerodynamic mess each drone leaves behind as information the others can act on …</span>
+            <span class="entry-summary">Wake-based analysis and distributed control of a drone swarm …</span>
           </span>
         </button>
         <div class="entry-body" id="e7"><div><div class="entry-content">
@@ -2048,7 +2075,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2023–present · Co-founder</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Co-founded the Polish Academic Network Abroad and run external relations — outreach, partner acquisition, sponsors, and events for up to 100 people …</span>
+            <span class="entry-summary">Co-founded the Polish Academic Network Abroad and run external relations …</span>
           </span>
         </button>
         <div class="entry-body" id="e11"><div><div class="entry-content">
@@ -2143,6 +2170,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     <div class="section-head reveal">
       <h2 class="section-name">Life</h2>
       <p class="section-sub">Fun stuff — the parts that aren't work</p>
+      <p class="section-note">Ten years in a pool, a bicycle in the Balkans, and a
+         drawer of puzzles.</p>
     </div>
 
     <div class="life-grid reveal">
@@ -2266,7 +2295,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   </div>
 </section>
 
-<!-- ============ EDIT ME #9 — EXPERIENCE + EDUCATION ================
+<!-- ============ EDIT ME #9 — EDUCATION + EXPERIENCE ================
      ONE timeline, two threads. Work hangs off the left of the spine, study off
      the right, and the whole thing runs in reverse-chronological order — which
      is the point: it shows ARIS and ETH overlapping, which two separate lists
@@ -2277,7 +2306,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
      To add an entry: copy an <li class="tl-row work"> or ".. edu"> and drop it
      in at the right chronological position. Nothing is indexed by position.
      ================================================================= -->
-<section id="experience">
+<section id="education">
   <div class="deco deco-orbit-4" aria-hidden="true"><svg viewBox="0 0 400 400">
     <circle cx="200" cy="200" r="170"/><circle cx="200" cy="200" r="104"/>
     <ellipse cx="200" cy="200" rx="170" ry="54" transform="rotate(-30 200 200)"/>
@@ -2292,33 +2321,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   </svg></div>
 
   <div class="wrap">
-    <div class="section-head section-head-row">
-      <h2 class="section-name">Experience</h2>
-      <p class="section-sub">Where I've worked</p>
-      <a class="cv-mini" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Full CV</a>
+    <div class="section-head">
+      <h2 class="section-name">Education<a class="cv-mini" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
+      <p class="section-sub">Where I studied</p>
     </div>
 
     <ol class="tl">
-      <li class="tl-row work">
-        <span class="tl-node" aria-hidden="true"></span>
-        <div class="tl-card">
-          <span class="tl-when">2025</span>
-          <h3 class="tl-role">Visiting Student Researcher</h3>
-          <span class="tl-org">NASA JPL · Pasadena</span>
-          <p>Nine months in the Robotics Group, building the signal processing, orbital simulation and foreground extraction pipelines.</p>
-        </div>
-      </li>
-      <!-- The Education heading lives INSIDE the timeline, in the right-hand
-           column. It is the scroll target for the rail's Education item: both
-           headings point into one object rather than labelling two. -->
-      <li class="tl-row edu tl-mark" id="education">
-        <span class="tl-node tl-node-mark" aria-hidden="true"></span>
-        <div class="tl-headbox">
-          <h2 class="section-name">Education</h2>
-          <p class="section-sub">Where I studied</p>
-          <a class="cv-mini" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Full CV</a>
-        </div>
-      </li>
       <li class="tl-row edu">
         <span class="tl-node" aria-hidden="true"></span>
         <div class="tl-card">
@@ -2328,15 +2336,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <p>Placeholder — the lab, the topic, and who you're working with.</p>
         </div>
       </li>
-      <li class="tl-row work">
-        <span class="tl-node" aria-hidden="true"></span>
-        <div class="tl-card">
-          <span class="tl-when">2024 — present</span>
-          <h3 class="tl-role">Head Coach &amp; Technical Advisor</h3>
-          <span class="tl-org">ARIS · Swiss Academic Spaceflight Initiative</span>
-          <p>Leading the coaching and technical advisory team for HERMES, the flagship bi-liquid rocket project.</p>
-        </div>
-      </li>
       <li class="tl-row edu">
         <span class="tl-node" aria-hidden="true"></span>
         <div class="tl-card">
@@ -2344,6 +2343,34 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <h3 class="tl-role">MSc Mechanical Engineering</h3>
           <span class="tl-org">ETH Zürich</span>
           <p>Robotics, design and aerospace — distributed drone control and an aerospace micropump testbed.</p>
+        </div>
+      </li>
+      <!-- The Experience heading lives INSIDE the timeline, on the left. It is
+           the scroll target for the rail's Experience item: both headings point
+           into one object rather than labelling two separate sections. -->
+      <li class="tl-row work tl-mark" id="experience">
+        <span class="tl-node tl-node-mark" aria-hidden="true"></span>
+        <div class="tl-headbox">
+          <h2 class="section-name">Experience<a class="cv-mini" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
+          <p class="section-sub">Where I've worked</p>
+        </div>
+      </li>
+      <li class="tl-row work">
+        <span class="tl-node" aria-hidden="true"></span>
+        <div class="tl-card">
+          <span class="tl-when">2025</span>
+          <h3 class="tl-role">Researcher</h3>
+          <span class="tl-org">NASA JPL · Pasadena</span>
+          <p>Visiting Student Researcher, nine months in the Robotics Group, building the signal processing, orbital simulation and foreground extraction pipelines.</p>
+        </div>
+      </li>
+      <li class="tl-row work">
+        <span class="tl-node" aria-hidden="true"></span>
+        <div class="tl-card">
+          <span class="tl-when">2024 — present</span>
+          <h3 class="tl-role">Head Coach &amp; Technical Advisor</h3>
+          <span class="tl-org">ARIS · Swiss Academic Spaceflight Initiative</span>
+          <p>Leading the coaching and technical advisory team for HERMES, the flagship bi-liquid rocket project.</p>
         </div>
       </li>
       <li class="tl-row work">
@@ -2747,7 +2774,7 @@ var railRocket=document.getElementById('railRocket');
 var railTrack=document.querySelector('.rail-track');
 var railDots=Array.prototype.slice.call(document.querySelectorAll('.rail ol .dot'));
 /* same order as the rail's <ol> */
-var railSections=['about','selected','projects','life','experience','education','contact']
+var railSections=['about','selected','projects','life','education','experience','contact']
   .map(function(id){ return document.getElementById(id); });
 var heroMedia=document.getElementById('heroMedia');
 var toTop=document.getElementById('toTop');
