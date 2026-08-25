@@ -1506,18 +1506,35 @@ replacement recipe is in a comment above the hero in `index.html`.
 domain, so a relative `images/og-card.jpg` resolves against *its* host and
 fails. 1200×630 is the size to target.
 
-### Experience and Education
+### The timeline (`#experience` + `#education`)
 
-Deliberately the most compact sections on the page: single-line descriptions,
-tight boxes, and a **Full CV** link in the section head rather than only at the
-foot. They are a summary — the argument is that anyone wanting detail opens the
-PDF, so any change that makes a timeline card taller is working against the
-point of the section. `.path-item p` has **no `max-width`**: these are
-one-liners, and capping them left the right half of every card empty while the
-text wrapped anyway.
+**One spine, two threads.** Work hangs off the left, study off the right, and
+the whole thing runs in reverse-chronological order. That ordering is the whole
+point: it shows ARIS and ETH overlapping, which two separate lists could never
+say. They used to be two sections; merging them removed a divider, a heading
+block and a screenful of height.
 
-`.section-head-row` is the two-column head (name+sub left, CV link right) used
-by both; it collapses to one column under 640px.
+**`#education` is an `<li>` inside `#experience`, not a section.** Its heading
+sits in the right-hand column partway down the spine, and the rail's Education
+item scrolls to it — two headings pointing into one object.
+
+⚠ **That change required a fix in the rail's `frac` maths.** A section now runs
+until the NEXT one starts rather than for its own `offsetHeight`. Those are the
+same thing for real sections, but `#education`'s own height is a single row —
+measured by `offsetHeight` the rocket hit `frac=1` the instant you reached that
+heading and jumped straight to the Contact dot. **Any future anchor that isn't
+a full-height section depends on this.**
+
+Layout: `.tl` is a flex column and each `.tl-row` is its own internal 3-column
+grid (`card | node | card`). Document order therefore *is* vertical order, and
+adding an entry is just adding an `<li>` — there are no per-row `grid-row`
+assignments to keep in sync. **Spacing is not to scale**: rows are evenly
+spaced regardless of date range, because a true scale leaves a hole at
+2016–2020 and squashes everything recent together.
+
+Below 860px the spine moves to the left edge and both threads stack in one
+column — the left/right split has no meaning when there is only one side.
+
 
 ## 8. Images
 
@@ -1594,6 +1611,13 @@ Preview locally with the Live Server VS Code extension or
 file opens in a browser directly.
 
 ---
+
+**GitHub is deliberately not linked anywhere.** The `#i-github` symbol is kept
+in the sprite, but every link was removed: a GitHub link is a claim that there
+is code worth reading, and a thin commit history makes that claim fail on the
+click. None of the work this site is about — valve design, a test campaign,
+chairing a hundred people — lives in a repo. Put the links back when two or
+three repos would survive being read.
 
 ## 12. Common tasks
 
