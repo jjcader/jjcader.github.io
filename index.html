@@ -1155,12 +1155,29 @@ section{overflow:hidden;overflow:clip}
 .tags li{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.06em;
   text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
   border:1px solid color-mix(in srgb,var(--accent) 20%,var(--rule));border-radius:3px;padding:3px 8px}
-.entry-links{display:flex;flex-wrap:wrap;gap:18px;padding:0;margin:0;list-style:none}
-.entry-links a{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:var(--fs-action);
-  font-weight:500;text-decoration:none;border-bottom:1px solid var(--accent);padding-bottom:2px;
+/* The links were a bare row of 12px mono at the foot of the prose, which read
+   as a footnote rather than as the one thing in an entry you are meant to
+   click. They are now a labelled block behind its own rule: an entry says what
+   the work was, and this is where it hands you the proof. */
+.links-block{margin-top:24px;padding-top:15px;border-top:1px solid var(--rule-blue)}
+.links-label{font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2);margin:0 0 11px}
+.entry-links{display:flex;flex-wrap:wrap;gap:10px 22px;padding:0;margin:0;list-style:none}
+/* --fs-small, not --fs-action: these stopped being pills the moment they got a
+   label and a rule of their own, so they take the readable-text token rather
+   than the button one. */
+.entry-links a{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);
+  font-size:var(--fs-small);font-weight:600;letter-spacing:.03em;
+  text-decoration:none;color:var(--accent);
+  border-bottom:1.5px solid var(--accent);padding-bottom:3px;
   transition:color .22s var(--ease),border-color .22s var(--ease),background .22s var(--ease)}
+.entry-links a .ic{width:15px;height:15px}
 .entry-links a:hover{background:var(--warm-soft);color:var(--accent-warm-ink);
   border-bottom-color:var(--accent-warm-ink)}
+/* A link still pointing at "#" is unfinished. Dashing it makes that visible
+   while editing and un-dashes itself the moment a real URL goes in, so there
+   is no cleanup step to forget. */
+.entry-links a[href="#"]{border-bottom-style:dashed;opacity:.65}
 /* An explicit way out at the bottom of a long open entry. Without it the only
    close control was the toggle back up at the top — which, after reading two
    paragraphs and three photos, is off screen. Spans both columns of
@@ -2088,15 +2105,14 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     <div class="section-head reveal">
       <h2 class="section-name">Everything</h2>
       <p class="section-sub">Everything I've done, made or organised.
-         <span class="section-note">Three areas. Pick one to jump straight to it, or keep
-         scrolling through the lot.</span></p>
+         <span class="section-note"> Click on an area to jump to it, or keep scrolling through all. </span></p>
     </div>
 
     <div class="cats reveal">
       <button class="cat" data-goto="g-space">
         <div class="cat-n">01 · <span class="count" data-n="5">05</span> entries</div>
         <svg class="ic cat-ic"><use href="#i-rocket"/></svg><h3 class="cat-name">Rocketry &amp; space</h3>
-        <p class="cat-desc">Engines, cryogenic valves, test stands, and a lunar telescope.</p>
+        <p class="cat-desc">Rocket engines, cryogenic valves, micropumps, and a lunar telescope.</p>
         <div class="cat-go">Jump <svg class="ic"><use href="#i-arrow-down"/></svg></div>
       </button>
       <button class="cat" data-goto="g-robotics">
@@ -2134,7 +2150,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
                shielded from every radio transmitter on Earth.</p>
             <p>Built the signal processing pipeline, an orbital simulations toolkit, and an
                antenna/foreground convolved signal extraction pipeline.</p>
-            <ul class="entry-links"><li><a href="#">About LCRT <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
+            <div class="links-block">
+            <p class="links-label">Links</p>
+            <ul class="entry-links">
+              <li><a href="#">About LCRT <svg class="ic"><use href="#i-external"/></svg></a></li>
+            </ul>
+          </div>
           </div>
           <div class="shots">
             <div class="shot wide"><span class="label">images/jpl-1.jpg</span></div>
@@ -2160,7 +2181,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
                ARIS. I lead the coaching and advisory team supporting the students building it.</p>
             <p>Mostly this is asking the right awkward question three weeks before anyone
                wanted to hear it.</p>
-            <ul class="entry-links"><li><a href="#">ARIS <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
+            <div class="links-block">
+            <p class="links-label">Links</p>
+            <ul class="entry-links">
+              <li><a href="https://aris-space.ch">ARIS <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="#">Project HERMES <svg class="ic"><use href="#i-external"/></svg></a></li>
+            </ul>
+          </div>
           </div>
           <div class="shots">
             <div class="shot wide"><span class="label">images/hermes-1.jpg</span></div>
@@ -2185,7 +2212,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p>Propellant supply engineer on a liquid rocket engine test stand, and lead on the cryogenic valve system.</p>
             <p>Led and executed the engine test campaigns. Loud, cold, and genuinely the most
                fun I've had with a clipboard.</p>
-            <ul class="entry-links"><li><a href="#">Project HELIOS <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
+            <div class="links-block">
+            <p class="links-label">Links</p>
+            <ul class="entry-links">
+              <li><a href="https://aris-space.ch">ARIS <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="#">Project HELIOS <svg class="ic"><use href="#i-external"/></svg></a></li>
+            </ul>
+          </div>
           </div>
           <div class="shots">
             <div class="shot wide"><span class="label">images/helios-1.jpg</span></div>
@@ -2209,6 +2242,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div>
             <p>Additively manufactured cryogenic ball valves — can you print a valve that
                survives liquid oxygen, and should you?</p>
+          <div class="links-block">
+            <p class="links-label">Links</p>
+            <ul class="entry-links">
+              <li><a href="#">Advanced Manufacturing Lab, ETH Zürich <svg class="ic"><use href="#i-external"/></svg></a></li>
+            </ul>
+          </div>
           </div>
           <div class="shots">
             <div class="shot wide"><span class="label">images/valves-1.jpg</span></div>
@@ -2232,6 +2271,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div>
             <p>Built the testbed that lays the foundation for aerospace pump research at ARIS
                and ETH. Infrastructure work — the sort nobody cites but everybody uses.</p>
+          <div class="links-block">
+            <p class="links-label">Links</p>
+            <ul class="entry-links">
+              <li><a href="#">pd|z, ETH Zürich <svg class="ic"><use href="#i-external"/></svg></a></li>
+            </ul>
+          </div>
           </div>
           <div class="shots">
             <div class="shot wide"><span class="label">images/micropump-1.jpg</span></div>
@@ -2259,7 +2304,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div>
             <p>Writing my ETH master's thesis at MIT. Placeholder — the topic, the lab, who
                you're working with, and what you're trying to find out.</p>
-            <ul class="entry-links"><li><a href="#">Read more <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
+            <div class="links-block">
+            <p class="links-label">Links</p>
+            <ul class="entry-links">
+              <li><a href="#">MIT STAR Lab <svg class="ic"><use href="#i-external"/></svg></a></li>
+            </ul>
+          </div>
           </div>
           <div class="shots">
             <div class="shot wide"><span class="label">images/mit-1.jpg</span></div>
@@ -2283,7 +2333,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div>
             <p>Wake-based analysis and distributed control of a drone swarm — using the
                aerodynamic mess each drone leaves behind as information the others can act on.</p>
-            <ul class="entry-links"><li><a href="#">Repository <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
+            <div class="links-block">
+            <p class="links-label">Links</p>
+            <ul class="entry-links">
+              <li><a href="#">Read the paper <svg class="ic"><use href="#i-external"/></svg></a></li>
+            </ul>
+          </div>
           </div>
           <div class="shots">
             <div class="shot wide"><span class="label">images/swarm-1.jpg</span></div>
@@ -2312,7 +2367,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p>EDIT ME — which hackathon, how long, how many people on the team, what you
                personally built, and whether it placed. If the demo still runs anywhere,
                link it below.</p>
-            <ul class="entry-links"><li><a href="#">Placeholder link <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
+            <div class="links-block">
+            <p class="links-label">Links</p>
+            <ul class="entry-links">
+              <li><a href="https://www.treehacks.com">TreeHacks <svg class="ic"><use href="#i-external"/></svg></a></li>
+            </ul>
+          </div>
           </div>
           <div class="shots">
             <div class="shot wide"><span class="label">images/hackathon-1.jpg</span></div>
@@ -2365,7 +2425,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p>Co-founded the Polish Academic Network Abroad and run external relations —
                outreach, partner acquisition, sponsors, and events for up to 100 people.</p>
             <p>Started as a handful of us who missed home cooking. Now it's 200+ members.</p>
-            <ul class="entry-links"><li><a href="https://polana.ch">polana.ch <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
+            <div class="links-block">
+            <p class="links-label">Links</p>
+            <ul class="entry-links">
+              <li><a href="https://polana.ch">polana.ch <svg class="ic"><use href="#i-external"/></svg></a></li>
+            </ul>
+          </div>
           </div>
           <div class="shots">
             <div class="shot wide"><span class="label">images/polana-1.jpg</span></div>
@@ -2392,6 +2457,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
                in Tessin.</p>
             <p>Nothing teaches you to think on your feet like moderating a room where everyone
                is nineteen and completely certain.</p>
+          <div class="links-block">
+            <p class="links-label">Links</p>
+            <ul class="entry-links">
+              <li><a href="https://eyp.org">About the EYP <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="#">Placeholder — second link <svg class="ic"><use href="#i-external"/></svg></a></li>
+            </ul>
+          </div>
           </div>
           <div class="shots">
             <div class="shot wide"><span class="label">images/eyp-1.jpg</span></div>
