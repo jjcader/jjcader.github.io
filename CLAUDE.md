@@ -632,6 +632,30 @@ repeated it in a second typeface.
 </article>
 ```
 
+**An entry is not obliged to fill a screen, and the photo count is the dial.**
+Three shots (`wide` spanning the top, then two `small` side by side) is the
+full-size entry; two `small` side by side, or one `wide` on its own, are the
+short ones. Use the short forms wherever there genuinely isn't the material —
+a thin entry padded out to match a rich one reads worse than a short entry
+that knows it is short. Currently: three on JPL, HERMES, HELIOS, valves,
+swarm, POLANA and EYP; two on micropump, the MIT thesis, the hackathon and
+the snack robot; one on teaching. **Dropping to two photos leaves the `-3.jpg`
+of that set unreferenced** — no error, just a file you no longer need.
+
+**Every entry with photos ends its prose with caption lines named for grid
+position**, `<p class="shot-cap"><span>Top:</span> …</p>` and so on — Top /
+Bottom left / Bottom right for three, Left / Right for two, Photo for one.
+They are mono at `--fs-meta` like every other caption on the site, and the
+`<span>` carries the accent colour so the label reads as a label. They sit in
+the TEXT column, not under `.shots`, so they run down the left of the photo
+grid rather than beneath it.
+
+⚠ `.shot-cap` and `.links-label` are both scoped as `.entry-content .shot-cap`
+rather than as bare classes. `.entry-content p` is a class **plus** an element
+selector, so it out-specifies a single class and silently takes back `color`
+and `margin` — which it had already quietly done to `.links-label`. **Anything
+styling a `<p>` inside an open entry has to clear that same bar.**
+
 **The summary and the tags live in the HEAD, not the body, and are visible
 while the entry is collapsed.** They used to sit inside `.entry-content`, which
 meant a reader scanning `#projects` saw fifteen bare titles and had to click

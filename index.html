@@ -1160,8 +1160,20 @@ section{overflow:hidden;overflow:clip}
    click. They are now a labelled block behind its own rule: an entry says what
    the work was, and this is where it hands you the proof. */
 .links-block{margin-top:24px;padding-top:15px;border-top:1px solid var(--rule-blue)}
-.links-label{font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;
+/* Scoped through .entry-content deliberately. `.entry-content p` is a class
+   PLUS an element, so it out-specifies a bare `.links-label` and was quietly
+   handing this line back --ink-body and a 14px margin. Anything styling a <p>
+   inside an open entry has to clear that same bar. */
+.entry-content .links-label{font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;
   letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2);margin:0 0 11px}
+/* Photo captions, named for where the shot sits in the grid. Mono like every
+   other caption on the site, and quiet because they label something else on
+   screen rather than being prose — as plain <p> they read as one more
+   paragraph of the entry. The 14px above the first one is the previous
+   paragraph's own bottom margin; they need no top margin of their own. */
+.entry-content .shot-cap{font-family:var(--mono);font-size:var(--fs-meta);font-weight:500;
+  line-height:1.5;color:var(--ink-2);margin:0 0 5px;max-width:54ch}
+.shot-cap span{color:var(--accent);font-weight:600;letter-spacing:.05em}
 .entry-links{display:flex;flex-wrap:wrap;gap:10px 22px;padding:0;margin:0;list-style:none}
 /* --fs-small, not --fs-action: these stopped being pills the moment they got a
    label and a rule of their own, so they take the readable-text token rather
@@ -2136,7 +2148,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
       <article class="entry" data-open="false">
         <button class="entry-head" aria-expanded="false" aria-controls="e2">
-          <span class="entry-title">A radio telescope on the far side of the Moon</span>
+          <span class="entry-title">A radio telescope on the far side of the Moon at NASA</span>
           <span class="entry-meta">2025 · NASA JPL</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
@@ -2145,11 +2157,19 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         </button>
         <div class="entry-body" id="e2"><div><div class="entry-content">
           <div>
-            <p>Visiting Student Researcher in the Robotics Group at JPL, on the Lunar Crater
-               Radio Telescope — a wire mesh strung inside a crater on the lunar far side,
-               shielded from every radio transmitter on Earth.</p>
+            <p>Visiting Student Researcher in the Robotics Group at JPL, working on the Lunar Crater
+               Radio Telescope — a 350m diameter telescope to be placed in a crater on the moon. The goal 
+              of this telescope is to measure the Dark Ages signal - an as yet unmeasured signal from the Universe's 
+            infancy.</p>
             <p>Built the signal processing pipeline, an orbital simulations toolkit, and an
-               antenna/foreground convolved signal extraction pipeline.</p>
+               antenna/foreground convolved signal extraction pipeline using machine learning and
+              analytical methods such as convolved singular value decomposition. The main challenge is 
+            separating the signal we indend to measure, which has a strength of 10^-3 Kelvin, from the noisy
+           foreground such as galaxies, which can have a strenght of up to 10^5 Kelvin. This discrepancy in orders of magnitude
+           discrepancy is like trying to find one specific sand grain on the beach, with the wind blowing.</p>
+            <p class="shot-cap"><span>Top:</span> </p>
+            <p class="shot-cap"><span>Bottom left:</span> </p>
+            <p class="shot-cap"><span>Bottom right:</span> </p>
             <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
@@ -2168,7 +2188,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
       <article class="entry" data-open="false">
         <button class="entry-head" aria-expanded="false" aria-controls="e3">
-          <span class="entry-title">HERMES — leading the team building a bi-liquid rocket</span>
+          <span class="entry-title">Technical advisory and coaching of a bi-liquid rocket</span>
           <span class="entry-meta">2024–present · ARIS</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
@@ -2179,8 +2199,16 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div>
             <p>Head Coach and Technical Advisor for HERMES, the flagship rocketry project at
                ARIS. I lead the coaching and advisory team supporting the students building it.</p>
-            <p>Mostly this is asking the right awkward question three weeks before anyone
-               wanted to hear it.</p>
+            <p>ARIS, or the Academic Swiss Spaceflight Initiative, is the ETH's space and rocketry
+              organisation. Every year, we build rocket and every year we innovate it. HERMES' goal 
+              was to be one of the worlds first student-built bi-liquid rockets with an in house
+              built and designed engine. This was no easy task.</p>
+            <p>I lead the coaching and advising team for this project, making sure that each subteam is getting 
+            the best advice and guidance that they can. Assembling the team of advisors and coaches, as 
+          well as attending subsystem reviews to make sure nothing got past the team was a large responsibility.</p>
+            <p class="shot-cap"><span>Top:</span> the HERMES rocket</p>
+            <p class="shot-cap"><span>Bottom left:</span> the engine</p>
+            <p class="shot-cap"><span>Bottom right:</span> </p>
             <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
@@ -2200,7 +2228,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
       <article class="entry" data-open="false">
         <button class="entry-head" aria-expanded="false" aria-controls="e4">
-          <span class="entry-title">HELIOS — cryogenic valves and a rocket engine test stand</span>
+          <span class="entry-title">Bi-liquid rocket engine test stand at HELIOS</span>
           <span class="entry-meta">2023–2024 · ARIS</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
@@ -2210,8 +2238,18 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         <div class="entry-body" id="e4"><div><div class="entry-content">
           <div>
             <p>Propellant supply engineer on a liquid rocket engine test stand, and lead on the cryogenic valve system.</p>
-            <p>Led and executed the engine test campaigns. Loud, cold, and genuinely the most
-               fun I've had with a clipboard.</p>
+            <p>ARIS is the the Academic Swiss Spaceflight Initiative, and HELIOS was our second 
+              generation bi-liquid rocket engine test stand. The ultimate goal of student rocketry is to 
+            launch a bi-liquid rocket, and project HELIOS was a stepping stone towards this. </p>
+            <p>Building, developing and operating the rocket engine was honestly some of the most 
+              fun I have ever had while engineering. Sure, it was terrifying when one wrong move meant that 
+              liquid oxygen at -184degC will explode in your face, but it was incredibly rewarding when the engine finally 
+              fired. I was responsible for propellant supply, which means designing and maintaining the fuel and 
+              oxidiser supply lines. 
+            </p>
+            <p class="shot-cap"><span>Top:</span> </p>
+            <p class="shot-cap"><span>Bottom left:</span> </p>
+            <p class="shot-cap"><span>Bottom right:</span> </p>
             <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
@@ -2229,6 +2267,39 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         </div></div></div>
       </article>
 
+
+      <article class="entry" data-open="false">
+        <button class="entry-head" aria-expanded="false" aria-controls="e6">
+          <span class="entry-title">A testbed for aerospace micropumps</span>
+          <span class="entry-meta">2025 · Semester thesis</span>
+          <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Built the testbed that lays the foundation for aerospace pump research …</span>
+          </span>
+        </button>
+        <div class="entry-body" id="e6"><div><div class="entry-content">
+          <div>
+            <p>Built the testbed that lays the foundation for aerospace pump research at ARIS
+               and ETH. Infrastructure work — the sort nobody cites but everybody uses.</p>
+            <p class="shot-cap"><span>Left:</span> </p>
+            <p class="shot-cap"><span>Right:</span> </p>
+          <div class="links-block">
+            <p class="links-label">Links</p>
+            <ul class="entry-links">
+              <li><a href="#">pd|z, ETH Zürich <svg class="ic"><use href="#i-external"/></svg></a></li>
+            </ul>
+          </div>
+          </div>
+          <div class="shots">
+            <div class="shot small"><span class="label">images/micropump-1.jpg</span></div>
+            <div class="shot small"><span class="label">images/micropump-2.jpg</span></div>
+          </div>
+          <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
+        </div></div></div>
+      </article>
+    </div>
+
+
       <article class="entry" data-open="false">
         <button class="entry-head" aria-expanded="false" aria-controls="e5">
           <span class="entry-title">3D-printed cryogenic ball valves for rocket engines</span>
@@ -2242,6 +2313,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div>
             <p>Additively manufactured cryogenic ball valves — can you print a valve that
                survives liquid oxygen, and should you?</p>
+            <p class="shot-cap"><span>Top:</span> </p>
+            <p class="shot-cap"><span>Bottom left:</span> </p>
+            <p class="shot-cap"><span>Bottom right:</span> </p>
           <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
@@ -2258,35 +2332,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         </div></div></div>
       </article>
 
-      <article class="entry" data-open="false">
-        <button class="entry-head" aria-expanded="false" aria-controls="e6">
-          <span class="entry-title">A testbed for aerospace micropumps</span>
-          <span class="entry-meta">2025 · Semester thesis</span>
-          <span class="entry-toggle" aria-hidden="true">+</span>
-          <span class="entry-brief">
-            <span class="entry-summary">Built the testbed that lays the foundation for aerospace pump research …</span>
-          </span>
-        </button>
-        <div class="entry-body" id="e6"><div><div class="entry-content">
-          <div>
-            <p>Built the testbed that lays the foundation for aerospace pump research at ARIS
-               and ETH. Infrastructure work — the sort nobody cites but everybody uses.</p>
-          <div class="links-block">
-            <p class="links-label">Links</p>
-            <ul class="entry-links">
-              <li><a href="#">pd|z, ETH Zürich <svg class="ic"><use href="#i-external"/></svg></a></li>
-            </ul>
-          </div>
-          </div>
-          <div class="shots">
-            <div class="shot wide"><span class="label">images/micropump-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/micropump-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/micropump-3.jpg</span></div>
-          </div>
-          <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
-        </div></div></div>
-      </article>
-    </div>
 
     <div class="group reveal" id="g-robotics">
       <div class="group-head"><svg class="ic group-ic"><use href="#i-cpu"/></svg><h3 class="group-title">Robotics &amp; software</h3><span class="group-count">04</span></div>
@@ -2304,6 +2349,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div>
             <p>Writing my ETH master's thesis at MIT. Placeholder — the topic, the lab, who
                you're working with, and what you're trying to find out.</p>
+            <p class="shot-cap"><span>Left:</span> </p>
+            <p class="shot-cap"><span>Right:</span> </p>
             <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
@@ -2312,9 +2359,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot wide"><span class="label">images/mit-1.jpg</span></div>
+            <div class="shot small"><span class="label">images/mit-1.jpg</span></div>
             <div class="shot small"><span class="label">images/mit-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/mit-3.jpg</span></div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2333,6 +2379,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div>
             <p>Wake-based analysis and distributed control of a drone swarm — using the
                aerodynamic mess each drone leaves behind as information the others can act on.</p>
+            <p class="shot-cap"><span>Top:</span> </p>
+            <p class="shot-cap"><span>Bottom left:</span> </p>
+            <p class="shot-cap"><span>Bottom right:</span> </p>
             <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
@@ -2364,9 +2413,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
                who else in the room they should meet. Conferences are supposed to be where
                research collaborations start, and mostly they are a lot of people standing
                near each other not doing that.</p>
-            <p>EDIT ME — which hackathon, how long, how many people on the team, what you
-               personally built, and whether it placed. If the demo still runs anywhere,
-               link it below.</p>
+            <p>EDIT ME — team size, what you built, whether it placed.</p>
+            <p class="shot-cap"><span>Left:</span> </p>
+            <p class="shot-cap"><span>Right:</span> </p>
             <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
@@ -2375,9 +2424,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot wide"><span class="label">images/hackathon-1.jpg</span></div>
+            <div class="shot small"><span class="label">images/hackathon-1.jpg</span></div>
             <div class="shot small"><span class="label">images/hackathon-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/hackathon-3.jpg</span></div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2396,11 +2444,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div>
             <p>A desktop snack dispenser robot, built in a team of four. Deeply unserious
                problem, entirely serious engineering.</p>
+            <p class="shot-cap"><span>Left:</span> </p>
+            <p class="shot-cap"><span>Right:</span> </p>
           </div>
           <div class="shots">
-            <div class="shot wide"><span class="label">images/snackbot-1.jpg</span></div>
+            <div class="shot small"><span class="label">images/snackbot-1.jpg</span></div>
             <div class="shot small"><span class="label">images/snackbot-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/snackbot-3.jpg</span></div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2425,6 +2474,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p>Co-founded the Polish Academic Network Abroad and run external relations —
                outreach, partner acquisition, sponsors, and events for up to 100 people.</p>
             <p>Started as a handful of us who missed home cooking. Now it's 200+ members.</p>
+            <p class="shot-cap"><span>Top:</span> </p>
+            <p class="shot-cap"><span>Bottom left:</span> </p>
+            <p class="shot-cap"><span>Bottom right:</span> </p>
             <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
@@ -2457,6 +2509,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
                in Tessin.</p>
             <p>Nothing teaches you to think on your feet like moderating a room where everyone
                is nineteen and completely certain.</p>
+            <p class="shot-cap"><span>Top:</span> </p>
+            <p class="shot-cap"><span>Bottom left:</span> </p>
+            <p class="shot-cap"><span>Bottom right:</span> </p>
           <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
@@ -2489,11 +2544,10 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
                ETH's Mentorship Programme for first-years. Eight years tutoring maths, physics
                and economics on the side.</p>
             <p>Explaining something well is the only reliable proof you actually understand it.</p>
+            <p class="shot-cap"><span>Photo:</span> </p>
           </div>
           <div class="shots">
             <div class="shot wide"><span class="label">images/teaching-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/teaching-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/teaching-3.jpg</span></div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
