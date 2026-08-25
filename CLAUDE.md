@@ -362,6 +362,12 @@ for it to be centred in.
    between the name and the positioning statement) exists specifically
    because "Jędrzej" trips up an English-speaking reader — keep it dry
    ("(yes, really)"), not apologetic, matching the rest of the voice.
+   The **Learn more** button carries `z-index:3` — `.hero-copy` is `z-index:2`
+   and stretches across the bottom of the hero, so without it the button
+   rendered correctly and silently swallowed every click. It scrolls `#about`'s
+   top to just under the header; `#about` is sized to fit one viewport from
+   there so the top of Highlights comes into view at the bottom. **If `#about`
+   grows, that pairing breaks** — trim it rather than changing the offset.
    A `.hero-creds` row of four chips (NASA JPL · MIT · ETH Zürich · ARIS) sits
    under the positioning statement. **These are load-bearing, not decoration**:
    the page deliberately puts Education and Experience near the bottom, and
@@ -1399,6 +1405,13 @@ the next frame's measurement and drift steadily off.
 
 ### Fun stuff & life (`#life`)
 
+**The divider + gear pair belongs to `<section>` only.** When the strip was a
+top-level band it shared those selectors (`section::after,.strip::after`);
+once it moved inside `#life` that produced TWO rules before Experience — one
+across the middle of the snapshots strip and one at the section's real bottom.
+If another block is ever nested inside a section, check it isn't inheriting
+the divider rules.
+
 Sits between `#projects` and `#experience`. It exists because everything else
 on the page is artifacts — nothing showed the person. Hobbies used to be a
 fourth group inside `#projects`; it was pulled out because a list row is the
@@ -1461,6 +1474,19 @@ replacement recipe is in a comment above the hero in `index.html`.
 **`og:image` must be an absolute URL.** The scraper fetching it is not on this
 domain, so a relative `images/og-card.jpg` resolves against *its* host and
 fails. 1200×630 is the size to target.
+
+### Experience and Education
+
+Deliberately the most compact sections on the page: single-line descriptions,
+tight boxes, and a **Full CV** link in the section head rather than only at the
+foot. They are a summary — the argument is that anyone wanting detail opens the
+PDF, so any change that makes a timeline card taller is working against the
+point of the section. `.path-item p` has **no `max-width`**: these are
+one-liners, and capping them left the right half of every card empty while the
+text wrapped anyway.
+
+`.section-head-row` is the two-column head (name+sub left, CV link right) used
+by both; it collapses to one column under 640px.
 
 ## 8. Images
 

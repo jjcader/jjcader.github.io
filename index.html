@@ -451,7 +451,10 @@ a{color:var(--accent)}
    screen where the reader has been given no instruction, and an arrow is not
    an instruction. Still bobs, but now it says where it goes and is a proper
    <button> so it is keyboard-reachable. */
-.hero-more{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);cursor:pointer;
+/* z-index:3 is load-bearing: .hero-copy is z-index:2 and stretches across the
+   bottom of the hero, so without this it covers the button and swallows the
+   click — the button rendered fine and simply did nothing. */
+.hero-more{position:absolute;left:50%;bottom:20px;z-index:3;transform:translateX(-50%);cursor:pointer;
   display:inline-flex;align-items:center;gap:10px;
   font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.16em;
   text-transform:uppercase;color:#fff;
@@ -508,7 +511,7 @@ section:first-of-type{padding-top:clamp(18px,1.8vw,26px)}
    the gap, and the rule resumes. A filled disc behind the gear would not do
    the job — the gear is a mask with a hollow hub and open tooth gaps, so the
    line would still show through it in half a dozen places. */
-section::after,.strip::after{content:"";position:absolute;left:0;right:0;height:2px;
+section::after{content:"";position:absolute;left:0;right:0;height:2px;
   bottom:calc(var(--gear-size)/2);background:var(--rule-grad);z-index:3;
   -webkit-mask:var(--rule-notch);mask:var(--rule-notch)}
 /* ORNAMENT — a slowly turning gear, centred ON the divider.
@@ -516,7 +519,7 @@ section::after,.strip::after{content:"";position:absolute;left:0;right:0;height:
    or a coloured data URI, so the colour still comes from a token (a data URI
    can't read currentColor, and hard-coding a hex here would break "recolour by
    editing :root only"). */
-section::before,.strip::before{content:"";position:absolute;bottom:0;left:50%;z-index:4;
+section::before{content:"";position:absolute;bottom:0;left:50%;z-index:4;
   width:var(--gear-size);height:var(--gear-size);
   background:var(--accent);opacity:.8;transform:translateX(-50%);
   -webkit-mask:var(--gear) center/contain no-repeat;mask:var(--gear) center/contain no-repeat;
@@ -549,6 +552,28 @@ section::before,.strip::before{content:"";position:absolute;bottom:0;left:50%;z-
    competing title. It carried the display scale until the hierarchy was
    inverted; keeping the typeface is what stops the change reading as a
    demotion rather than a re-ranking. */
+/* Experience and Education put the CV link beside the heading rather than only
+   at the foot of the page: these two sections are deliberately a summary, so
+   the way out to the full document belongs where the reader forms that
+   expectation. The name and sub stay stacked in column one; the link sits on
+   the right and drops under them on narrow screens. */
+.section-head-row{display:grid;grid-template-columns:1fr auto;align-items:end;
+  column-gap:20px;row-gap:12px}
+.section-head-row .section-name{grid-column:1}
+.section-head-row .section-sub{grid-column:1}
+.cv-mini{grid-column:2;grid-row:1/3;align-self:end;justify-self:end;
+  display:inline-flex;align-items:center;gap:9px;white-space:nowrap;
+  font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;text-decoration:none;color:var(--accent);
+  border:1.5px solid color-mix(in srgb,var(--accent) 34%,var(--rule));
+  border-radius:999px;padding:10px 18px;transition:.22s var(--ease)}
+.cv-mini .ic{width:15px;height:15px}
+.cv-mini:hover{color:var(--accent-warm-ink);border-color:var(--accent-warm);
+  background:var(--warm-soft);transform:translateY(-2px)}
+@media (max-width:640px){
+  .section-head-row{grid-template-columns:1fr}
+  .cv-mini{grid-column:1;grid-row:auto;justify-self:start}
+}
 .section-sub{font-family:var(--serif);font-weight:400;font-size:clamp(17px,1.6vw,23px);
   line-height:1.25;letter-spacing:-.01em;color:var(--ink-2);margin:13px 0 0}
 .section-note{color:var(--ink-2);max-width:56ch;margin:14px 0 0;
@@ -621,7 +646,7 @@ section{overflow:hidden;overflow:clip}
 .deco-rocket-b svg{transform:rotate(16deg)}
 /* full-bleed wave crests — never two of these near each other on the page */
 .deco-waves{left:0;right:0;bottom:-10px;width:100%;height:170px;opacity:.27}
-.deco-waves-top{left:0;right:0;top:-20px;width:100%;height:130px;opacity:.22}
+.deco-waves-top{left:0;right:0;top:-14px;width:100%;height:104px;opacity:.2}
 /* THE ONE DIVIDER WITH A WAVE UNDER IT — and the reason that divider kept
    being reported as missing. A full-bleed blue hairline drawn within ~40px of
    a full-bleed blue rule merges with it into one fuzzy band; the eye reads a
@@ -637,7 +662,10 @@ section{overflow:hidden;overflow:clip}
        the empty band to itself.
    If this ever has to move again: measure the gap first. Anything closer than
    ~40px to the rule will be reported as a missing divider, every time. */
-.deco-waves-proj{display:none;left:0;right:0;top:46px;width:100%;height:42px;opacity:.2}
+/* nudged up and shortened again after --sec-pad came down; they must clear
+   the section head below them, and the divider is at the PREVIOUS block's
+   bottom so there is nothing directly above them to collide with */
+.deco-waves-proj{display:none;left:0;right:0;top:14px;width:100%;height:34px;opacity:.2}
 @media (min-width:1360px){.deco-waves-proj{display:block}}
 /* hand-drawn one-offs, each parked beside the content it belongs to: a
    telescope + moon by the JPL tile, a quadcopter by the swarm tile, a robot
@@ -683,13 +711,15 @@ section{overflow:hidden;overflow:clip}
 .deco .orbiter.rev{animation-direction:reverse}
 
 /* ============ ABOUT ============ */
-.about-grid{display:grid;grid-template-columns:300px 1fr;gap:clamp(26px,5vw,70px);align-items:start}
+/* the left column is wide enough that no fact value wraps to a second line,
+   and the socials fit on one row — both were costing ~50px of height each */
+.about-grid{display:grid;grid-template-columns:352px 1fr;gap:clamp(24px,3.4vw,52px);align-items:start}
 /* blue-tinted rules rather than the warm --rule: this little table is the
    first structured thing on the page and its lines now rhyme with the
    section dividers and the rail */
 .facts{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-blue)}
-.facts li{position:relative;display:flex;gap:14px;align-items:baseline;
-  padding:11px 4px 11px 0;border-bottom:1px solid var(--rule-blue);
+.facts li{position:relative;display:flex;gap:12px;align-items:baseline;
+  padding:7px 4px 7px 0;border-bottom:1px solid var(--rule-blue);
   transition:padding-left .28s var(--ease),background .28s var(--ease)}
 /* a spec-sheet tick on each row that grows out of the left edge on hover —
    the table is the most document-like thing on the page, so its decoration is
@@ -700,9 +730,9 @@ section{overflow:hidden;overflow:clip}
 .facts li:hover{padding-left:14px;background:color-mix(in srgb,var(--warm-soft) 55%,transparent)}
 .facts li:hover::before{width:8px}
 .facts li:hover .k{color:var(--accent-warm-ink)}
-.facts .k{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--accent);flex:0 0 92px;transition:color .28s var(--ease)}
-.facts .v{color:var(--ink)}
+.facts .k{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--accent);flex:0 0 86px;transition:color .28s var(--ease)}
+.facts .v{color:var(--ink);font-size:14.5px;line-height:1.45}
 /* rows deal themselves in one after another when the table first appears.
    The delays are per-row so it reads as a list being filled in, not one block
    fading; :nth-child is fine here because the table is hand-maintained and
@@ -721,7 +751,7 @@ section{overflow:hidden;overflow:clip}
 .facts.in li:nth-child(7){animation-delay:.47s}
 .facts.in li:nth-child(8){animation-delay:.54s}
 @keyframes fact-in{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
-.socials{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.socials{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
 .socials a{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;
   font-weight:500;letter-spacing:.04em;text-decoration:none;color:var(--ink);
   border:1px solid var(--rule-blue);border-radius:999px;padding:9px 15px;transition:.22s var(--ease)}
@@ -756,8 +786,8 @@ section{overflow:hidden;overflow:clip}
 .socials a:hover{background:var(--warm-soft);border-color:var(--accent-warm);color:var(--accent-warm-ink);
   transform:translateY(-2px)}
 .socials a:hover .ic{color:var(--accent-warm-ink)}
-.about-text p{margin:0 0 18px;color:var(--ink-body)}
-.about-text p:first-child{font-family:var(--serif);font-size:clamp(22px,2.3vw,30px);
+.about-text p{margin:0 0 14px;color:var(--ink-body)}
+.about-text p:first-child{font-family:var(--serif);font-size:clamp(21px,2vw,27px);
   line-height:1.36;color:var(--ink)}
 @media (max-width:980px){.about-grid{grid-template-columns:1fr}}
 
@@ -1046,7 +1076,9 @@ section{overflow:hidden;overflow:clip}
    only photographs, which also fixes the mobile problem that forced it to be
    hidden below 700px — a marquee that can't be tapped doesn't need to pause,
    so there is nothing left to break on touch. */
-.strip{position:relative;overflow:hidden;margin-top:clamp(38px,4.5vw,60px)}
+/* the wave deco inside the strip is anchored to the strip's own top edge, so
+   it travels with this margin rather than needing its own adjustment */
+.strip{position:relative;overflow:hidden;margin-top:clamp(18px,2vw,28px)}
 .strip-label{color:var(--accent)}
 .strip-viewport{overflow:hidden;padding-block:7px;
   mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
@@ -1073,13 +1105,13 @@ section{overflow:hidden;overflow:clip}
 /* Deliberately compact. These two sections are an OVERVIEW — anyone who wants
    the detail can download the CV from the strip below — and at full card size
    eight timeline entries ate more vertical space than the fifteen projects. */
-.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 /* align-items:baseline sits the year's baseline on the role heading's own
    baseline. It was previously nudged down with a padding-top guess, which
    left it floating above the heading it labels — and any change to either
    font size broke the guess again. Baseline alignment is self-maintaining. */
-.path-item{position:relative;display:grid;grid-template-columns:140px 1fr;align-items:baseline;
-  gap:clamp(14px,2.2vw,32px);padding:16px clamp(16px,1.8vw,24px);
+.path-item{position:relative;display:grid;grid-template-columns:128px 1fr;align-items:baseline;
+  gap:clamp(14px,2vw,28px);padding:11px clamp(14px,1.5vw,20px);
   background:var(--paper);border:1px solid var(--rule);border-radius:3px;
   transition:border-color .3s var(--ease),transform .3s var(--ease),box-shadow .3s var(--ease)}
 /* the accent bar that wipes down on hover runs blue into copper — the warm
@@ -1095,20 +1127,22 @@ section{overflow:hidden;overflow:clip}
    --ink-3 just evaporated. Centred in that column so short values ("2025")
    don't leave a ragged void beside the role — but only while the column
    exists; the mobile single-column stack below puts it back to left. */
-.path-when{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent);
+.path-when{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--accent);
   letter-spacing:.04em;white-space:nowrap;text-align:center;
   font-variant-numeric:tabular-nums;transition:color .25s var(--ease)}
 /* tabular-nums above is what stops the scramble animation (JS) from making
    the column jitter as digits swap width */
 .path-item:hover .path-when{color:var(--accent-warm-ink)}
-.path-role{font-family:var(--serif);font-size:clamp(18px,1.5vw,22px);line-height:1.18;margin:0}
+.path-role{font-family:var(--serif);font-size:clamp(17px,1.35vw,20px);line-height:1.16;margin:0}
 /* --accent-warm-ink, not --accent-warm: this is resting body-adjacent text at
    11.5px, and the bright orange only clears ~3:1 against paper. The darker
    variant clears 4.5:1. Bright orange stays for graphics. */
-.path-org{display:block;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--accent-warm-ink);margin-top:6px}
-.path-item p{margin:8px 0 0;color:var(--ink-body);max-width:74ch;
-  font-size:clamp(13px,.28vw + 12px,14.5px);line-height:1.55}
+.path-org{display:block;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--accent-warm-ink);margin-top:4px}
+/* no max-width here: these are single-line summaries and capping them at 74ch
+   left the right half of every card empty while the text wrapped anyway */
+.path-item p{margin:5px 0 0;color:var(--ink-body);
+  font-size:clamp(13px,.26vw + 12.1px,14px);line-height:1.5}
 @media (max-width:700px){
   .path-item{grid-template-columns:1fr;gap:8px}
   .path-when{text-align:left;padding-top:0}
@@ -1128,7 +1162,11 @@ section{overflow:hidden;overflow:clip}
 /* The email is behind a reveal, so the box has to look pressable at rest and
    turn into a real link once opened. Both states share the same box so the
    layout doesn't jump when the address appears. */
-.mail-reveal{display:inline-flex;align-items:center;gap:12px;margin-top:16px;cursor:pointer;
+/* Full width of its column so it sits squarely under the CONTACT heading, and
+   the revealed <a> inherits the same box — the address swaps in without the
+   panel changing size or the layout below it shifting. */
+.mail-reveal{display:flex;width:100%;justify-content:center;align-items:center;gap:12px;
+  margin-top:18px;cursor:pointer;
   font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.1em;
   text-transform:uppercase;color:var(--accent);text-decoration:none;
   background:var(--accent-soft);border:1.5px solid color-mix(in srgb,var(--accent) 34%,var(--rule));
@@ -1138,8 +1176,8 @@ section{overflow:hidden;overflow:clip}
 .mail-reveal .mail-ic{width:19px;height:19px;flex:0 0 auto}
 /* once revealed it is an <a>: bigger, serif, and reading as an address rather
    than as a button label */
-.mail-reveal.revealed{font-family:var(--serif);font-size:clamp(21px,2vw,29px);
-  font-weight:400;letter-spacing:-.01em;text-transform:none;padding:12px 22px}
+.mail-reveal.revealed{font-family:var(--serif);font-size:clamp(20px,1.8vw,27px);
+  font-weight:400;letter-spacing:-.01em;text-transform:none;padding:13px 22px}
 .mail-reveal.revealed .mail-ic{width:.72em;height:.72em}
 /* No divider pseudo-element here — #contact draws the rule above the footer,
    the same way every block draws its own bottom divider (see SECTIONS). The
@@ -1153,8 +1191,8 @@ section{overflow:hidden;overflow:clip}
    column next to the address, and stacking them pushed the form below the
    fold on the one screen where the reader is most likely to act. minmax(0,1fr)
    on both columns stops the long email address forcing an overflow. */
-.contact-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:clamp(28px,4vw,64px);align-items:start;margin-top:clamp(20px,2.5vw,30px)}
+.contact-grid{display:grid;grid-template-columns:minmax(0,0.85fr) minmax(0,1.15fr);
+  gap:clamp(28px,4vw,64px);align-items:start;margin-top:clamp(14px,1.6vw,20px)}
 @media (max-width:900px){.contact-grid{grid-template-columns:1fr;gap:34px}}
 
 /* ============ CONTACT FORM ============
@@ -1162,41 +1200,41 @@ section{overflow:hidden;overflow:clip}
    otherwise all reading. Runs the site's blue-at-rest / orange-on-interaction
    rule at every level: blue label and border at rest, orange on focus, orange
    fill on the send button, and the rocket lifting off on submit. */
-.msg{position:relative;max-width:560px;
-  background:var(--paper);border:1px solid var(--rule-blue);border-radius:4px;
-  padding:clamp(22px,2.6vw,32px);
-  box-shadow:0 18px 44px -34px color-mix(in srgb,var(--accent) 55%,transparent)}
+.msg{position:relative;max-width:none;
+  background:var(--paper);border:1.5px solid var(--rule-blue);border-radius:6px;
+  padding:clamp(26px,3vw,40px);
+  box-shadow:0 26px 60px -38px color-mix(in srgb,var(--accent) 60%,transparent)}
 /* the same left-edge wipe every other panel on the page has, but permanently
    lit rather than hover-triggered — this one is a call to action, not a card */
-.msg::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:4px 0 0 4px;
+.msg::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:6px 0 0 6px;
   background:linear-gradient(180deg,var(--accent-2),var(--accent) 55%,var(--accent-warm))}
 .msg-head{margin-bottom:clamp(16px,1.8vw,22px)}
 .msg-eyebrow{display:block;font-family:var(--mono);font-size:11px;font-weight:600;
   letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
-.msg-title{font-family:var(--serif);font-weight:400;font-size:clamp(21px,2vw,27px);
+.msg-title{font-family:var(--serif);font-weight:400;font-size:clamp(24px,2.4vw,34px);
   line-height:1.15;letter-spacing:-.015em;margin:6px 0 0}
-.msg-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.msg-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
 @media (max-width:560px){.msg-grid{grid-template-columns:1fr}}
-.msg-field{margin:0 0 14px;display:flex;flex-direction:column;gap:6px}
+.msg-field{margin:0 0 18px;display:flex;flex-direction:column;gap:7px}
 .msg-grid .msg-field{margin:0}
 .msg-field label{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.13em;
   text-transform:uppercase;color:var(--ink-3);transition:color .22s var(--ease)}
-.msg-field input,.msg-field textarea{font:inherit;font-size:15px;color:var(--ink);
-  background:var(--paper-2);border:1px solid var(--rule-blue);border-radius:3px;
-  padding:11px 13px;width:100%;resize:vertical;
+.msg-field input,.msg-field textarea{font:inherit;font-size:15.5px;color:var(--ink);
+  background:var(--paper-2);border:1px solid var(--rule-blue);border-radius:4px;
+  padding:13px 15px;width:100%;resize:vertical;
   transition:border-color .22s var(--ease),background .22s var(--ease),box-shadow .22s var(--ease)}
-.msg-field textarea{min-height:104px;line-height:1.55}
+.msg-field textarea{min-height:168px;line-height:1.6}
 .msg-field input::placeholder,.msg-field textarea::placeholder{color:var(--ink-3)}
 .msg-field:focus-within label{color:var(--accent-warm-ink)}
 .msg-field input:focus,.msg-field textarea:focus{outline:none;background:var(--paper);
   border-color:var(--accent-warm);
   box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-warm) 16%,transparent)}
 .msg-foot{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:4px}
-.msg-send{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:11px;
-  font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.13em;
+.msg-send{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:12px;
+  font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;cursor:pointer;color:var(--paper);
-  background:var(--accent);border:1px solid var(--accent);border-radius:999px;
-  padding:13px 24px;transition:.24s var(--ease)}
+  background:var(--accent);border:1.5px solid var(--accent);border-radius:999px;
+  padding:15px 30px;transition:.24s var(--ease)}
 .msg-send:hover{background:var(--accent-warm-ink);border-color:var(--accent-warm-ink);
   transform:translateY(-2px)}
 .msg-send .ic{width:17px;height:17px;transition:transform .3s var(--ease)}
@@ -1812,9 +1850,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         </button>
         <div class="entry-body" id="e4"><div><div class="entry-content">
           <div>
-            <p>Propellant supply engineer on a liquid rocket engine test stand. Co-designed and
-               implemented a throttling control mechanism and the cryogenic liquid oxygen
-               valve systems.</p>
+            <p>Propellant supply engineer on a liquid rocket engine test stand, and lead on the cryogenic valve system.</p>
             <p>Led and executed the engine test campaigns. Loud, cold, and genuinely the most
                fun I've had with a clipboard.</p>
             <ul class="entry-links"><li><a href="#">Project HELIOS <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
@@ -2216,51 +2252,45 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   </svg></div>
 
   <div class="wrap">
-    <div class="section-head reveal">
+    <div class="section-head section-head-row reveal">
       <h2 class="section-name">Experience</h2>
       <p class="section-sub">Where I've worked</p>
+      <a class="cv-mini" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Full CV</a>
     </div>
     <ul class="path reveal">
       <li class="path-item">
         <span class="path-when">2025</span>
         <div>
           <p class="path-role">Visiting Student Researcher<span class="path-org">NASA JPL · Pasadena</span></p>
-          <p>Nine months in the Robotics Group on the Lunar Crater Radio Telescope. Built the
-             signal processing pipeline, an orbital simulations toolkit, and a foreground
-             signal extraction pipeline.</p>
+          <p>Nine months in the Robotics Group, building the signal processing, orbital simulation and foreground extraction pipelines.</p>
         </div>
       </li>
       <li class="path-item">
         <span class="path-when">2024 — present</span>
         <div>
           <p class="path-role">Head Coach &amp; Technical Advisor<span class="path-org">ARIS · Swiss Academic Spaceflight Initiative</span></p>
-          <p>Leading the coaching and technical advisory team for HERMES, the flagship
-             bi-liquid rocket project.</p>
+          <p>Leading the coaching and technical advisory team for HERMES, the flagship bi-liquid rocket project.</p>
         </div>
       </li>
       <li class="path-item">
         <span class="path-when">2023 — 2024</span>
         <div>
           <p class="path-role">Mechanical Engineer<span class="path-org">ARIS · Project HELIOS</span></p>
-          <p>Propellant supply engineer on a liquid rocket engine test stand. Co-designed a
-             throttling control mechanism and the cryogenic liquid oxygen valve systems, and
-             led the engine test campaigns.</p>
+          <p>Propellant supply engineer on a liquid rocket engine test stand. Co-designed a throttling control mechanism and the cryogenic liquid oxygen valve systems, and led the engine test campaigns.</p>
         </div>
       </li>
       <li class="path-item">
         <span class="path-when">2021 — 2024</span>
         <div>
           <p class="path-role">Teaching Assistant<span class="path-org">ETH Zürich · Innovation Project</span></p>
-          <p>Led and mentored six teams of five students through a full product development
-             cycle, giving technical, strategic and social guidance.</p>
+          <p>Led six teams of five through a full product development cycle.</p>
         </div>
       </li>
       <li class="path-item">
         <span class="path-when">2023</span>
         <div>
           <p class="path-role">Engineering &amp; Workshop Intern<span class="path-org">KMB Grupa · SOMET</span></p>
-          <p>CAD and CAM for manual and CNC manufacturing, plus hands-on stainless steel
-             workshop fabrication.</p>
+          <p>CAD and CAM for manual and CNC manufacturing, plus hands-on stainless steel workshop fabrication.</p>
         </div>
       </li>
     </ul>
@@ -2301,34 +2331,31 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   </svg></div>
 
   <div class="wrap">
-    <div class="section-head reveal">
+    <div class="section-head section-head-row reveal">
       <h2 class="section-name">Education</h2>
       <p class="section-sub">Where I studied</p>
+      <a class="cv-mini" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Full CV</a>
     </div>
     <ul class="path reveal">
       <li class="path-item">
         <span class="path-when">2024 — present</span>
         <div>
           <p class="path-role">MSc Mechanical Engineering<span class="path-org">ETH Zürich · thesis at MIT</span></p>
-          <p>Specialising in robotics, design and aerospace. Research project on distributed
-             drone swarm control, semester thesis building an aerospace micropump testbed, and
-             currently writing the master's thesis at MIT.</p>
+          <p>Robotics, design and aerospace — distributed drone control, an aerospace micropump testbed, and the MIT thesis.</p>
         </div>
       </li>
       <li class="path-item">
         <span class="path-when">2020 — 2024</span>
         <div>
           <p class="path-role">BSc Mechanical Engineering<span class="path-org">ETH Zürich</span></p>
-          <p>Focus on robotics, design and control. Bachelor's thesis on additively
-             manufactured cryogenic ball valves for rocket engines.</p>
+          <p>Focus on robotics, design and control. Bachelor's thesis on additively manufactured cryogenic ball valves for rocket engines.</p>
         </div>
       </li>
       <li class="path-item">
         <span class="path-when">2016 — 2020</span>
         <div>
           <p class="path-role">Hull's School<span class="path-org">Zürich · English College</span></p>
-          <p>Straight A* in maths, physics, economics and French. Founded the Debate Society.
-             Finalist in the Swiss Mathematics and Physics Olympiads.</p>
+          <p>Straight A* in maths, physics, economics and French; founded the Debate Society.</p>
         </div>
       </li>
     </ul>
@@ -2974,6 +3001,11 @@ toTop.addEventListener('click',function(){
   var btn=document.getElementById('heroMore'), about=document.getElementById('about');
   if(!btn || !about) return;
   btn.addEventListener('click',function(){
+    /* -78 clears the sticky header exactly, so #about's own heading lands at
+       the top of the screen. #about is sized to fit in one viewport from
+       there, which puts the top of Highlights just into view at the bottom —
+       that pairing is the whole point of the button, so if #about grows,
+       either trim it or this lands short. */
     var y=about.getBoundingClientRect().top+window.scrollY-78;
     var maxY=document.documentElement.scrollHeight-window.innerHeight;
     window.scrollTo({top:Math.max(0,Math.min(maxY,y)),behavior:reduced?'auto':'smooth'});
