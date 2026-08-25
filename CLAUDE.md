@@ -412,7 +412,13 @@ re-check that the content's right edge still lands left of the rail.
    credentials. The hero is ~68vh rather than a full screen so the chips and
    the top of `#about` are both visible on landing.
 3. **`#about`** — the section head sits inside the grid's left column above
-   the facts table; prose on the right starts level with the subtitle.
+   the facts table; prose on the right spans all three of the left column's
+   rows, so its first line starts level with **the section name itself**, not
+   with the subtitle one row lower. `align-self:start`, not `baseline`:
+   `.section-name` is a flex row whose first flex item is a 3px dash, so the
+   baseline it hands the grid is that bar's, not the word's. Aligning the two
+   line-box tops is predictable and lands the cap heights within a pixel
+   anyway, because the mono's half-leading is larger than the serif's.
    The prose runs lede → lead-in → **quotation** → hardware half → people half.
    `.about-quote` is the only quotation on the page and is a **left rule, not a
    tinted panel** — `--paper-2` boxes are already the CV strip and the

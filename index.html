@@ -785,19 +785,23 @@ section{overflow:hidden;overflow:clip}
 /* the left column is wide enough that no fact value wraps to a second line,
    and the socials fit on one row — both were costing ~50px of height each */
 /* Three explicit rows in the left column (name / subtitle / facts) with the
-   prose spanning rows 2-3 in the right column. Both the subtitle and the
-   prose's first line therefore sit in ROW 2, and `align-items:baseline` on that
-   row lines their baselines up exactly. This replaces a hand-tuned margin-top
-   on .about-text, which only ever approximated it and drifted whenever either
-   type scale was retuned — and both are now the same size, so the match is
-   perfect rather than close. */
+   prose spanning ALL THREE in the right column, so its first line starts level
+   with "ABOUT" itself rather than one row lower beside the subtitle. That is
+   worth another ~48px off the top of the column, which matters because #about
+   is meant to fit one viewport after the hero's Learn more jump.
+   `align-self:start` rather than `baseline` on purpose: .section-name is a
+   flex row (dash / word / dash) with align-items:center, so the baseline it
+   exposes to the grid is whatever its FIRST flex item is — a 3px bar. Aligning
+   the two line-box TOPS is both predictable and, as it happens, near-exact:
+   the mono's larger half-leading and the serif's smaller one land the two cap
+   heights within about a pixel of each other. */
 .about-grid{display:grid;grid-template-columns:352px 1fr;
   column-gap:clamp(24px,3.4vw,52px);row-gap:0;
   grid-template-rows:auto auto 1fr;align-items:baseline}
 .about-grid .section-name{grid-column:1;grid-row:1}
 .about-grid .section-sub{grid-column:1;grid-row:2}
 .about-side{grid-column:1;grid-row:3;align-self:start;margin-top:clamp(16px,1.8vw,24px)}
-.about-text{grid-column:2;grid-row:2/4;align-self:baseline}
+.about-text{grid-column:2;grid-row:1/4;align-self:start}
 /* blue-tinted rules rather than the warm --rule: this little table is the
    first structured thing on the page and its lines now rhyme with the
    section dividers and the rail */
@@ -858,10 +862,11 @@ section{overflow:hidden;overflow:clip}
   transform:translateY(-2px)}
 .socials a:hover .ic{color:var(--accent-warm-ink)}
 .about-text p{margin:0 0 14px;color:var(--ink-body)}
-/* Deliberately identical to .section-sub — same family, same clamp, same
-   line-height. They sit side by side at the top of #about, and two serif
-   lines at almost-but-not-quite the same size read as a mistake rather than
-   as hierarchy. Only the colour separates them. */
+/* Same family, clamp and line-height as .section-sub. They no longer sit in
+   the same grid row — the lede was raised to sit beside the name instead —
+   but they are still the two serif lines at the top of this section, and two
+   serif lines at almost-but-not-quite the same size read as a mistake rather
+   than as hierarchy. Only the colour separates them. */
 .about-text p:first-child{font-family:var(--serif);font-size:clamp(17px,1.6vw,23px);
   line-height:1.25;letter-spacing:-.01em;color:var(--ink)}
 /* The one quotation on the page. A left rule rather than a tinted panel: the
@@ -871,10 +876,14 @@ section{overflow:hidden;overflow:clip}
    Jedrzej's words to Zurbuchen's, and it is why there is no attribution line
    underneath: the sentence directly above already names him. Sized BELOW the
    serif lede at the top of the column so the two don't read as a tie. */
-.about-quote{margin:2px 0 16px;padding:1px 0 1px clamp(14px,1.4vw,20px);
+.about-quote{margin:0 0 13px;padding:0 0 0 clamp(14px,1.4vw,20px);
   border-left:2px solid var(--rule-blue);
-  font-family:var(--serif);font-size:clamp(16px,1.35vw,20px);
-  line-height:1.32;letter-spacing:-.005em;color:var(--ink)}
+  font-family:var(--serif);font-size:clamp(15.5px,1.3vw,19px);
+  line-height:1.2;letter-spacing:-.005em;color:var(--ink)}
+/* The lead-in ends on a colon, so the quote has to sit closer to the line
+   above it than to the paragraph below, or it reads as floating between the
+   two rather than belonging to the sentence that introduces it. */
+.about-text p:has(+ .about-quote){margin-bottom:8px}
 @media (max-width:980px){
   /* single column: the rows collapse to normal document order, and the prose
      goes back to sitting under the facts rather than beside them */
@@ -1826,19 +1835,18 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         <blockquote class="about-quote">“The hardest system to manage in NASA missions is
            not the science system, or the engineering system. It's the people
            system.”</blockquote>
-        <p>That has matched everything I've seen. I came to it through hardware: propellant
-           supply systems and cryogenic valves for HELIOS at ARIS, ETH Zürich's rocketry
-           team, then leading technical advisory for HERMES. At NASA JPL I swapped hardware
-           for signal processing on a radio telescope meant to sit inside a crater on the
-           far side of the Moon. Right now I'm at MIT, writing my master's thesis.
+        <p>That has matched everything I've seen. My journey through the technology side has taken me from rocket engines and 
+           cryogenic valves at ARIS, ETH Zürich's rocketry
+           team, to then leading technical advisory for the next generation rocket at ARIS. Later, at NASA JPL I worked on signal processing on a radio telescope meant to sit inside a crater on the
+           far side of the Moon. Right now I'm at MIT, writing my master's thesis on satellite trajectory optimisation and space weather modelling. 
            Propulsion, robotics, controls, simulation — I have yet to meet an aerospace
            problem I wasn't interested in.</p>
-        <p>The other half is people, and it is usually the harder one. Nine years of
+        <p>But the other half of the system is people, and it can be the harder one. Nine years of
            teaching, tutoring and mentoring, from school maths to first-year ETH students.
            Co-founding POLANA, now the largest Polish student association in Switzerland.
            Chairing European Youth Parliament sessions of a hundred delegates who all
            arrived certain they were right. I spend my time on this because I enjoy it, and
-           because every project I've watched stall, did so mainly because of organisation
+           because every project I've watched stall did so mainly because of organisation
            or communication, rather than equations and engineering.</p>
       </div>
     </div>
@@ -1957,8 +1965,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         <div class="tile-body">
           <div class="tile-meta">2026 · MIT · Cambridge, MA</div>
           <div class="tile-title">Master's thesis at MIT — work in progress</div>
-          <p class="tile-desc">Placeholder — one line on what the thesis actually asks, and
-             what you are building to answer it.</p>
+          <p class="tile-desc">Building a space-weather aware satellite trajectory optims</p>
           <div class="tile-go">Learn more <svg class="ic"><use href="#i-arrow-right"/></svg></div>
         </div>
       </button>
