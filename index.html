@@ -103,13 +103,30 @@ img{max-width:100%;display:block}
 a{color:var(--accent)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
 .wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:var(--gutter)}
+/* Once the fixed rail owns the right margin, a dead-centred column reads as
+   sitting too far right — the eye measures the gap to the visible rail, not to
+   the viewport edge. Above 1500px the column is nudged left by a fixed amount
+   instead of being re-centred: the box does NOT widen, so the right edge moves
+   left too and clearance from the rail improves rather than shrinking.
+   margin-right:auto is what absorbs the shift. */
+@media (min-width:1500px){
+  .wrap{margin-left:max(0px,calc((100% - var(--wrap))/2 - clamp(34px,3.4vw,68px)));
+    margin-right:auto}
+}
 .label{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-3)}
 .ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7;
   stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 
-.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
-.reveal.in{opacity:1;transform:none}
+/* .reveal NO LONGER HIDES ANYTHING. It was opacity:0 until an
+   IntersectionObserver added .in, and that is reverted deliberately: content
+   which is invisible until you scroll past it fails the reader who lands on
+   the page and simply looks — #about in particular sat blank on load and only
+   appeared after a nudge of the wheel. The class is kept purely as a "this
+   became visible" hook for the entry-count roll-up (see the observer in the
+   JS). **Don't reintroduce a fade-in here.** If something must animate on
+   entry, animate it from a visible resting state, never from nothing. */
+.reveal{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *{animation:none!important;transition:none!important}
@@ -678,8 +695,6 @@ section{overflow:hidden;overflow:clip}
 .deco-drone svg{transform:rotate(-24deg)}
 .deco-robot{top:46%;left:-45px;width:min(280px,26vw);aspect-ratio:1;opacity:.2}
 .deco-robot svg{transform:rotate(-8deg)}
-.deco-cube{top:76%;left:-30px;width:min(230px,22vw);aspect-ratio:1;opacity:.21}
-.deco-cube svg{transform:rotate(6deg)}
 
 /* slow drift, disabled under reduced motion */
 @keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
@@ -733,24 +748,11 @@ section{overflow:hidden;overflow:clip}
 .facts .k{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.11em;
   text-transform:uppercase;color:var(--accent);flex:0 0 86px;transition:color .28s var(--ease)}
 .facts .v{color:var(--ink);font-size:14.5px;line-height:1.45}
-/* rows deal themselves in one after another when the table first appears.
-   The delays are per-row so it reads as a list being filled in, not one block
-   fading; :nth-child is fine here because the table is hand-maintained and
-   short. Covered by the reduced-motion block like every other animation. */
-/* .facts uses .reveal only as a "now you're visible" trigger for the rows —
-   the container itself must NOT also do the generic fade-and-rise, or the
-   whole table slides while its rows are individually sliding. */
-.facts.reveal{opacity:1;transform:none;transition:none}
-.facts.in li{animation:fact-in .5s var(--ease) both}
-.facts.in li:nth-child(1){animation-delay:.05s}
-.facts.in li:nth-child(2){animation-delay:.12s}
-.facts.in li:nth-child(3){animation-delay:.19s}
-.facts.in li:nth-child(4){animation-delay:.26s}
-.facts.in li:nth-child(5){animation-delay:.33s}
-.facts.in li:nth-child(6){animation-delay:.40s}
-.facts.in li:nth-child(7){animation-delay:.47s}
-.facts.in li:nth-child(8){animation-delay:.54s}
-@keyframes fact-in{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+/* The staggered row animation was removed along with the rest of the reveal
+   fades: it hid each row until the observer fired, which is the same failure
+   the generic .reveal fade had. The table's hover treatment — the tick that
+   grows from the left edge, the key going warm — carries the interest now,
+   and it costs nothing on load. */
 .socials{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
 .socials a{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;
   font-weight:500;letter-spacing:.04em;text-decoration:none;color:var(--ink);
@@ -786,6 +788,13 @@ section{overflow:hidden;overflow:clip}
 .socials a:hover{background:var(--warm-soft);border-color:var(--accent-warm);color:var(--accent-warm-ink);
   transform:translateY(-2px)}
 .socials a:hover .ic{color:var(--accent-warm-ink)}
+/* Pushes the prose down so its first line lands beside "The short version"
+   rather than beside "ABOUT". Derived from the name's own type scale so it
+   tracks the heading if that clamp is ever retuned — the +11px is the sub's
+   own top margin. */
+.about-text{margin-top:calc(clamp(26px,3.4vw,44px) + 11px)}
+@media (max-width:980px){.about-text{margin-top:0}}
+.about-grid > div:first-child .section-head{margin-bottom:clamp(14px,1.6vw,20px)}
 .about-text p{margin:0 0 14px;color:var(--ink-body)}
 .about-text p:first-child{font-family:var(--serif);font-size:clamp(21px,2vw,27px);
   line-height:1.36;color:var(--ink)}
@@ -813,22 +822,26 @@ section{overflow:hidden;overflow:clip}
   background:linear-gradient(180deg,var(--accent-2),var(--accent-warm));
   transform:scaleY(0);transform-origin:top;transition:transform .38s var(--ease)}
 .tile:hover::before{transform:scaleY(1)}
-.tile-media{position:relative;aspect-ratio:16/10;overflow:hidden;background:var(--paper-2);
-  border-bottom:1px solid var(--rule)}
+/* A HEIGHT, not an aspect-ratio. With 16/10 the 7-column card was ~740px wide
+   and therefore ~460px tall, so two rows of cards could never share a screen.
+   A clamped height keeps every card the same size regardless of span and lets
+   all four land in roughly one viewport. */
+.tile-media{position:relative;height:clamp(132px,13.5vw,196px);overflow:hidden;
+  background:var(--paper-2);border-bottom:1px solid var(--rule)}
 .tile-media img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
 .tile:hover .tile-media img{transform:scale(1.05)}
 .tile-ph{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:12px}
 .tile-body{display:flex;flex-direction:column;flex:1 1 auto;
-  padding:clamp(15px,1.5vw,21px) clamp(16px,1.6vw,23px) clamp(15px,1.5vw,20px)}
+  padding:clamp(13px,1.2vw,17px) clamp(15px,1.4vw,20px) clamp(13px,1.2vw,16px)}
 .tile-meta{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.11em;
   text-transform:uppercase;color:var(--accent)}
-.tile-title{font-family:var(--serif);font-weight:400;line-height:1.14;margin-top:7px;
-  font-size:clamp(20px,1.8vw,28px);letter-spacing:-.015em;color:var(--ink)}
+.tile-title{font-family:var(--serif);font-weight:400;line-height:1.14;margin-top:6px;
+  font-size:clamp(19px,1.55vw,24px);letter-spacing:-.015em;color:var(--ink)}
 .tile-desc{margin:10px 0 0;color:var(--ink-body);max-width:46ch;
   font-size:clamp(13.5px,.3vw + 12.3px,15px);line-height:1.55}
 /* pushed to the bottom of the card by margin-top:auto so the "Open" line sits
    on the same baseline across cards of different text length */
-.tile-go{display:flex;align-items:center;gap:7px;margin-top:auto;padding-top:14px;
+.tile-go{display:flex;align-items:center;gap:7px;margin-top:auto;padding-top:11px;
   font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.11em;
   text-transform:uppercase;color:var(--accent);
   transition:color .3s var(--ease),gap .3s var(--ease)}
@@ -836,7 +849,7 @@ section{overflow:hidden;overflow:clip}
 .tile:hover .tile-go{color:var(--accent-warm-ink);gap:12px}
 @media (max-width:900px){
   .t-wide,.t-narrow{grid-column:span 12}
-  .tile-media{aspect-ratio:16/9}
+  .tile-media{height:clamp(150px,34vw,210px)}
 }
 
 /* ============ CATEGORY OVERVIEW ============ */
@@ -929,24 +942,19 @@ section{overflow:hidden;overflow:clip}
 .entry-head:hover{background:var(--paper-2);padding-left:14px}
 .entry-title{grid-area:title;font-family:var(--serif);font-weight:400;
   font-size:clamp(20px,1.75vw,27px);line-height:1.16;letter-spacing:-.015em}
-.entry-brief{grid-area:brief;display:flex;flex-wrap:wrap;align-items:center;
-  gap:9px 14px;max-width:92ch}
-.entry-summary{color:var(--ink-2);font-size:clamp(13.5px,.3vw + 12.4px,15px);line-height:1.55;
-  max-width:68ch}
-/* Plain dotted text, not filled chips. They were chips first and fifteen rows
-   of them read as clutter — especially next to the mosaic, which already
-   states the same thing for the four featured projects. The information is
-   worth keeping (it is the only place eleven of the entries say what the work
-   involved); the visual weight is not.
-   <span>, not <ul>/<li>: a list is not valid inside a <button>, and the whole
-   row has to stay one hit target. */
-.entry-brief .tags{display:flex;flex-wrap:wrap;gap:4px 10px}
-.entry-brief .tags span{position:relative;font-family:var(--mono);font-size:10.5px;
-  font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
-  white-space:nowrap;transition:color .25s var(--ease)}
-.entry-brief .tags span + span::before{content:"·";position:absolute;left:-7px;opacity:.6}
-.entry[data-open="true"] .entry-brief .tags span{color:var(--accent-warm-ink)}
-@media (max-width:820px){.entry-brief{gap:8px 10px}}
+.entry-brief{grid-area:brief;max-width:96ch}
+/* The collapsed line is the OPENING of the entry's own first paragraph, cut
+   off with an ellipsis — so clicking continues the sentence rather than
+   restating it. It is therefore hidden once the entry is open: the body says
+   the same words, at full length, immediately below. One copy on screen at a
+   time, never two. */
+.entry-summary{display:block;color:var(--ink-2);max-width:74ch;
+  font-size:clamp(13.5px,.3vw + 12.4px,15px);line-height:1.55}
+.entry[data-open="true"] .entry-summary{display:none}
+/* The tag chips that used to sit here are gone. Across fifteen rows they were
+   noise — the summary line already says what the work involved, and the tags
+   repeated it in a second typeface. Removing them is the single biggest
+   declutter available in this section. */
 /* the dates column: was 10.5px --ink-3 and near-invisible against the title
    next to it. Bigger, 600, and blue — the same accent the rail uses, so the
    metadata column reads as one deliberate system down the page. */
@@ -1498,25 +1506,28 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   </svg></div>
 
   <div class="wrap">
-    <div class="section-head reveal">
-      <h2 class="section-name">About</h2>
-      <p class="section-sub">The short version</p>
-    </div>
+    <!-- #about's head sits INSIDE the grid's left column rather than above both,
+         so the prose starts level with "The short version" instead of below the
+         whole head. That is worth ~60px at the top of the page, which is the
+         difference between the top of Highlights being visible after the hero's
+         Learn more jump and not. -->
     <div class="about-grid reveal">
       <div>
+        <div class="section-head">
+          <h2 class="section-name">About</h2>
+          <p class="section-sub">The short version</p>
+        </div>
         <!-- EDIT ME — some overlap with the hero chips is fine here; a facts
              table that avoids saying where he studies to dodge duplication is
              a worse table. Hometown and Lived in are the rows nothing else on
              the page carries. -->
         <ul class="facts reveal">
           <li><span class="k">Name</span><span class="v">Jędrzej Cader</span></li>
+          <li><span class="k">Age</span><span class="v">24</span></li>
           <li><span class="k">Hometown</span><span class="v">Wrocław, Poland</span></li>
-          <li><span class="k">Lived in</span><span class="v">Poland · Ireland · Switzerland · USA</span></li>
           <li><span class="k">Based in</span><span class="v">Zürich, Switzerland</span></li>
-          <li><span class="k">Currently</span><span class="v">Master's thesis at MIT</span></li>
-          <li><span class="k">Studying</span><span class="v">MSc Mech. Eng., ETH Zürich</span></li>
+          <li><span class="k">Lived in</span><span class="v">Poland · Ireland · Switzerland · USA</span></li>
           <li><span class="k">Languages</span><span class="v">PL · EN · DE · FR</span></li>
-          <li><span class="k">Before</span><span class="v">NASA JPL, ARIS</span></li>
         </ul>
         <div class="socials">
           <a href="https://www.linkedin.com/in/jedrzejcader/"><svg class="ic"><use href="#i-linkedin"/></svg> LinkedIn</a>
@@ -1733,14 +1744,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     <circle cx="16" cy="82" r="4"/><circle cx="84" cy="82" r="4"/>
     <path d="M38 86v8M62 86v8M32 94h12M56 94h12"/>
   </svg></div>
-  <!-- a Rubik's cube down by the hobbies group, where the puzzles entry lives -->
-  <div class="deco deco-cube warm" aria-hidden="true"><svg viewBox="0 0 100 100">
-    <path d="M50 14 84 34 84 66 50 86 16 66 16 34z"/>
-    <path d="M50 54 84 34M50 54 16 34M50 54v32"/>
-    <path d="M27.3 27.3 61.3 47.3M38.7 20.7 72.7 40.7M61.3 20.7 27.3 40.7M72.7 27.3 38.7 47.3"/>
-    <path d="M16 44.7 50 64.7M16 55.3 50 75.3M27.3 40.7v32M38.7 47.3v32"/>
-    <path d="M84 44.7 50 64.7M84 55.3 50 75.3M61.3 47.3v32M72.7 40.7v32"/>
-  </svg></div>
   <!-- one wavy set above "Browse by area" -->
   <div class="deco deco-waves-proj" aria-hidden="true"><svg viewBox="0 0 1200 120" preserveAspectRatio="none">
     <g class="wave-g">
@@ -1789,8 +1792,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2025 · NASA JPL</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Signal processing, orbital simulation and foreground extraction for a telescope on the lunar far side.</span>
-            <span class="tags"><span>MATLAB</span><span>Python</span><span>Signal processing</span></span>
+            <span class="entry-summary">Co-founded the Polish Academic Network Abroad and run external relations …</span>
           </span>
         </button>
         <div class="entry-body" id="e2"><div><div class="entry-content">
@@ -1817,8 +1819,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2024–present · ARIS</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Head Coach of the team designing and building a bi-liquid rocket, from concept through test campaign.</span>
-            <span class="tags"><span>Leadership</span><span>Bi-liquid</span><span>Project management</span></span>
+            <span class="entry-summary">Head Coach and Technical Advisor for HERMES, the flagship rocketry project at ARIS …</span>
           </span>
         </button>
         <div class="entry-body" id="e3"><div><div class="entry-content">
@@ -1844,8 +1845,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2023–2024 · ARIS</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Designed the cryogenic valve system and led the engine test stand campaign.</span>
-            <span class="tags"><span>Fluid dynamics</span><span>Cryogenics</span><span>Test campaigns</span></span>
+            <span class="entry-summary">Propellant supply engineer on a liquid rocket engine test stand, and lead on the cryogenic valve system …</span>
           </span>
         </button>
         <div class="entry-body" id="e4"><div><div class="entry-content">
@@ -1870,8 +1870,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2024 · Bachelor's thesis</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Bachelor’s thesis: additively manufactured ball valves that still seal at cryogenic temperature.</span>
-            <span class="tags"><span>Additive manufacturing</span><span>CFD</span><span>ANSYS</span></span>
+            <span class="entry-summary">Additively manufactured cryogenic ball valves — can you print a valve that survives liquid oxygen, and should you …</span>
           </span>
         </button>
         <div class="entry-body" id="e5"><div><div class="entry-content">
@@ -1894,8 +1893,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2025 · Semester thesis</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Built a test rig for characterising micropumps intended for spacecraft fluid systems.</span>
-            <span class="tags"><span>Test rig</span><span>Fluid systems</span><span>ETH × ARIS</span></span>
+            <span class="entry-summary">Built the testbed that lays the foundation for aerospace pump research at ARIS and ETH …</span>
           </span>
         </button>
         <div class="entry-body" id="e6"><div><div class="entry-content">
@@ -1922,8 +1920,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2026 · Cambridge, MA</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Placeholder — one line on what the thesis asks and what you are building to answer it.</span>
-            <span class="tags"><span>MIT</span><span>Research</span><span>Aerospace</span></span>
+            <span class="entry-summary">Writing my ETH master's thesis at MIT …</span>
           </span>
         </button>
         <div class="entry-body" id="e1"><div><div class="entry-content">
@@ -1947,8 +1944,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2025 · ETH research project</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Distributed control research on quadcopters flying close enough to disturb each other’s air.</span>
-            <span class="tags"><span>Distributed control</span><span>CFD</span><span>Python</span></span>
+            <span class="entry-summary">Wake-based analysis and distributed control of a drone swarm — using the aerodynamic mess each drone leaves behind as information the others can act on …</span>
           </span>
         </button>
         <div class="entry-body" id="e7"><div><div class="entry-content">
@@ -1972,8 +1968,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2021–2022 · ETH Innovation Project</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">A full product development cycle in a team of four, from requirements to a working mechatronic prototype.</span>
-            <span class="tags"><span>Mechatronics</span><span>Agile</span><span>Team of 4</span></span>
+            <span class="entry-summary">A desktop snack dispenser robot, built in a team of four …</span>
           </span>
         </button>
         <div class="entry-body" id="e8"><div><div class="entry-content">
@@ -2001,8 +1996,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2023–present · Co-founder</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Co-founded and grew the largest Polish student association in Zürich to 200+ members.</span>
-            <span class="tags"><span>Co-founder</span><span>External relations</span><span>200+ members</span></span>
+            <span class="entry-summary">Co-founded the Polish Academic Network Abroad and run external relations — outreach, partner acquisition, sponsors, and events for up to 100 people …</span>
           </span>
         </button>
         <div class="entry-body" id="e11"><div><div class="entry-content">
@@ -2027,8 +2021,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2018–present · European Youth Parliament</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Chaired a 100+ delegate session in Sassari and ran seven committees through debate and drafting.</span>
-            <span class="tags"><span>Public speaking</span><span>Chairing</span><span>Sassari 2023</span></span>
+            <span class="entry-summary">Presided over a 100+ person session in Sassari, Italy …</span>
           </span>
         </button>
         <div class="entry-body" id="e12"><div><div class="entry-content">
@@ -2054,8 +2047,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2017–present · ETH &amp; freelance</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Nine years teaching and tutoring, from school maths to mentoring first-year ETH students.</span>
-            <span class="tags"><span>Teaching assistant</span><span>Mentorship</span><span>Maths &amp; physics</span></span>
+            <span class="entry-summary">TA at ETH, mentoring six teams of five through the Innovation Project …</span>
           </span>
         </button>
         <div class="entry-body" id="e13"><div><div class="entry-content">
@@ -2338,10 +2330,17 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     </div>
     <ul class="path reveal">
       <li class="path-item">
+        <span class="path-when">2025 — 2026</span>
+        <div>
+          <p class="path-role">Master's thesis<span class="path-org">MIT · Cambridge, MA</span></p>
+          <p>Placeholder — the lab, the topic, and who you're working with.</p>
+        </div>
+      </li>
+      <li class="path-item">
         <span class="path-when">2024 — present</span>
         <div>
-          <p class="path-role">MSc Mechanical Engineering<span class="path-org">ETH Zürich · thesis at MIT</span></p>
-          <p>Robotics, design and aerospace — distributed drone control, an aerospace micropump testbed, and the MIT thesis.</p>
+          <p class="path-role">MSc Mechanical Engineering<span class="path-org">ETH Zürich</span></p>
+          <p>Robotics, design and aerospace — distributed drone control and an aerospace micropump testbed.</p>
         </div>
       </li>
       <li class="path-item">
@@ -2355,7 +2354,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         <span class="path-when">2016 — 2020</span>
         <div>
           <p class="path-role">Hull's School<span class="path-org">Zürich · English College</span></p>
-          <p>Straight A* in maths, physics, economics and French; founded the Debate Society.</p>
+          <p>Founded the Debate Society; finalist in the Swiss Mathematics and Physics Olympiads.</p>
         </div>
       </li>
     </ul>

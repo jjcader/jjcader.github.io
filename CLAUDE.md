@@ -339,6 +339,15 @@ for it to be centred in.
 
 ### Layout
 
+**Above 1500px the content column is nudged LEFT, not re-centred.** Once the
+fixed rail owns the right margin, a dead-centred column reads as sitting too
+far right, because the eye measures the gap to the visible rail rather than to
+the viewport edge. `.wrap` gets an explicit `margin-left` and `margin-right:auto`
+so the box **shifts without widening** — the right edge moves left too, which
+*improves* clearance from the rail rather than eating into it. Verified clear
+from 1500px to 3440px. If `--wrap`, the gutter or the rail's footprint change,
+re-check that the content's right edge still lands left of the rail.
+
 - `--wrap: 1400px`, gutters `clamp(20px, 4.5vw, 86px)`. Widened from 1140px on
   request; the reference sites Jędrzej liked all use wide layouts.
 - Body prose inside entries and timeline cards is capped at ~54–70 characters
@@ -479,6 +488,18 @@ rather than from per-component hues. Do not give other components their own
 resting hues.
 
 ### Entries
+
+**The collapsed summary is the literal opening of the entry's own first
+paragraph, cut off with an ellipsis** — so clicking continues the sentence
+rather than restating it. `.entry-summary` is therefore hidden once the entry
+is open (`.entry[data-open="true"] .entry-summary{display:none}`): the body
+says the same words at full length immediately below, and only one copy is ever
+on screen. **When editing an entry's prose, re-cut its summary from the new
+first sentence**, or the two will disagree.
+
+The tag chips that used to sit beside it are gone. Across fifteen rows they
+were noise — the summary already says what the work involved, and the tags
+repeated it in a second typeface.
 
 ```html
 <article class="entry" data-open="false">
@@ -1249,6 +1270,16 @@ motif actually overlap content people are trying to read or click.
 ---
 
 ## 7. Motion
+
+**Nothing on this page is hidden waiting to be scrolled into view.** `.reveal`
+used to be `opacity:0` until an `IntersectionObserver` added `.in`, and that
+was removed on purpose: a reader who lands on the page and simply *looks* saw
+`#about` blank until they nudged the wheel. The class survives only as a
+"this became visible" hook for the entry-count roll-up. The same reasoning
+killed the staggered `.facts` row animation. **Don't reintroduce a fade-in.**
+If something must animate on entry, animate it from a visible resting state —
+never from nothing.
+
 
 - Scroll reveal: `IntersectionObserver` adds `.in` to `.reveal` elements.
 - Hero parallax: the image translates at 0.28× scroll speed. It lives inside
