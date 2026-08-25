@@ -156,58 +156,109 @@ no-op the moment `.group-head`'s rule turned into a gradient `::after`. If
 you convert a border to a gradient, grep for anything overriding that
 border's colour.
 
-**Above 900px — i.e. whenever the rail is on screen — `--rule-grad` is
-redefined to fade out by 86%** so the dividers stop before they reach the
-rail's column. They are full-bleed and the rail is fixed on top of them, so at
-full strength they cut straight across the gauge and the planets. Only the
-right end changes. 86% is derived from the rail's own footprint: ≤283px from
-the right edge in full mode (≥1800px → ≤15.7% of the viewport) and ~135px in
-compact at its 900px floor (15%). **If the rail's width or `right` offset
-changes, re-derive this the same way.**
+**Above 900px — i.e. whenever the rail is on screen — the dividers stop
+before they reach the rail's column.** They are full-bleed and the rail is
+fixed on top of them, so at full strength they cut straight across the gauge
+and the planets. This used to be a round `86%` fade-out; it is now
+**`--rule-inset`, the exact pixel distance from the viewport's right edge to
+the rail's own vertical separator**, so the horizontal rule ends precisely
+where the vertical one begins instead of guessing at it. Two values:
 
-**The divider ornament is a slowly turning gear, centred on the line.** It
-replaced a small rotated square at `top:-4px` which, because sections are
-`overflow:hidden`, was clipped to its bottom half and read as a notch chewed
-out of the divider rather than as an ornament.
+| Mode | `--rule-inset` | Derivation |
+|---|---|---|
+| full (≥1800px) | `257px` | 24 `right` + 150 pill reserve + 36 planet column + 20 body gap + 11 gauge + 16 separator margin |
+| compact (900–1799px) | `calc(123px + clamp(6px,.8vw,10px))` | 16 `right` + 88 label column + 11 gauge + 8 separator margin, plus the one `.rail-body` gap that scales |
+| <900px | `0px` | no rail, so the line runs the full width |
 
-**The gear belongs to the block ABOVE the divider, not the one below it** —
-that is the whole trick, and it is worth understanding before moving either.
-A gear resting on a section's own top divider would have to be drawn above
-that section's top edge, which `overflow:hidden` clips. But the preceding
-block's `bottom:0` is *the same y coordinate* (adjacent boxes, no margin
-between them) while being comfortably inside that block's own clip. So the
-line is `::after` at a block's TOP and the gear is `::before` at a block's
-BOTTOM, and the gear ends up sitting on the line, touching it, never crossing
-it.
+**Re-derive both the same way if the rail's width, its `right` offset or
+`.rail::before`'s margin change** — measure `.rail`'s box, since its width is
+content-driven rather than declared.
 
-Every block that is followed by a divider therefore carries the gear for it:
-about→selected, selected→projects, projects→strip, strip→education,
+**Both ends of a divider fade over the same fraction of the line's real
+span.** Every stop is written as a fraction of `100% - var(--rule-inset)`
+rather than of the viewport, so the left end fades in over exactly the
+distance the right end fades out over. The previous version had a 6% fade-in
+on the left and a 26% dissolve on the right, which read as a line that gave up
+before it got to the rail. **If you touch the gradient, keep the stops
+expressed against the span, not against `100%`.**
+
+**The divider ornament is a slowly turning gear, centred ON the line, with the
+line cut away underneath it.**
+
+**Every block draws the divider BELOW itself — line and gear both.** This is
+the third architecture for this and the only one that actually puts the gear
+on the line, so it is worth understanding before moving anything. The gear has
+to straddle the rule, half above and half below. Every top-level block is
+`overflow:hidden` (sections so decor can bleed, the strip for its marquee), so
+*nothing can be painted across the boundary between two blocks*: the upper one
+clips at that y and so does the lower one. The two earlier versions both
+dodged that by keeping the gear wholly on one side, and both read wrong — the
+first sat below the line (clipped in half, read as a notch chewed out of the
+rule), the second rested on top of it (which is what prompted "I want them
+physically on the line, overlayed").
+
+The fix is to stop drawing on the boundary at all. A block now owns both
+halves of its own bottom divider: **`::after` is the line, floated half a gear
+*above* the block's bottom edge, and `::before` is the gear at `bottom:0`.**
+The gear's centre lands exactly on the line with 12px of it either side, all
+of it comfortably inside that one block's clip. The block's `padding-bottom`
+is grown by the same half-gear (`calc(var(--sec-pad) + var(--gear-size)/2)`)
+so the rule ends up at exactly the y it always sat at and nothing else on the
+page moves.
+
+So: about→selected, selected→projects, projects→strip, strip→education,
 education→experience, experience→contact, contact→footer. Seven dividers,
-seven gears, one each — and a new section gets its gear for free. Two earlier
-versions got this wrong in opposite directions: the ornament sat *below* the
-line (clipped in half, read as a notch), then *centred on* it (the line cut
-straight through the gear). **If it needs moving again, move which block owns
-it, not its `top`.**
+seven gears, one each — and a new section gets both for free. **The rule to
+preserve: never anchor either pseudo-element to a block's TOP.** `footer` has
+no divider of its own (`#contact` draws it) and `section:first-of-type` needs
+no exception any more, because the hero→about boundary is simply nobody's
+bottom edge.
+
+**The line is cut away where the gear sits, rather than drawn behind it** —
+`--rule-notch`, a radial-gradient `mask` on the `::after`, punches a 30px hole
+at the centre. A filled disc behind the gear would *not* work: the gear is a
+mask with a hollow hub and open tooth gaps, so a rule behind it still shows
+through in half a dozen places. The notch radius is 3px larger than the gear's
+so a little paper shows between the teeth and the cut.
+
+`footer` also carries `margin-top:calc(var(--gear-size)/-2)` with the same
+amount added back as `padding-top`, so its tinted background starts *at* the
+rule rather than leaving a paper-coloured sliver above it. The gear and the
+rule both have a positive `z-index`, so they still paint over that background.
 
 The gear is drawn as a CSS `mask` over a `background-color` (`--gear` in
 `:root`) rather than an inline SVG or a coloured data URI, so its colour still
 comes from a token: a data URI cannot read `currentColor`, and hard-coding a
 hex would break "recolour by editing `:root` only". Its `translateX(-50%)`
-centring lives *inside* the keyframes, because animating `transform` replaces
-the whole property.
+centring is declared **both** in the base rule and inside the keyframes:
+animating `transform` replaces the whole property while the animation runs,
+and the reduced-motion block kills the animation entirely — so either one
+alone leaves the gear half a gear off-centre in one of the two states.
 
 **A divider will also read as "missing" if something the same colour sits just
-under it.** `#projects` is the only section with a full-bleed wave at its top,
-and at `top:-16px` that wave's first crest landed ~24px below the rule — a
+under it, and this has now cost three passes on the same divider.**
+`#projects` is the only section with a full-bleed wave at its top. At
+`top:-16px` the wave's first crest landed ~24px below the rule; moved to a
+`clamp()`ed offset it was still only ~27px below on a narrow window. A
 full-width blue hairline that close to a full-width blue rule merges into one
-fuzzy band, and the divider was reported missing there twice while the other
-four read fine. `.deco-waves-proj` now sits in the gap *between* the divider
-and the section head, with both its offset and height scaled by viewport so it
-stays inside the section's own clamped padding rather than running into the
-heading on narrow screens. **Before assuming a divider isn't rendering, check
-what else is drawn within ~40px of it.**
+fuzzy band — the eye reads a smudge, not two lines, and concludes the rule
+isn't there. It was reported missing three times while the other dividers read
+fine, most recently as "missing on narrow mode", where the gap is smallest.
 
-**The stops are `6% / 30% / 70% / 94%`, not an even fade from the ends.** An
+The root cause is that the gap the wave has to fit in **is `#projects`' top
+padding**, and below ~1360px that padding is `7vw` — not tall enough to hold
+44px of clearance from the rule, 42px of wave, and clearance from the heading
+as well. So `.deco-waves-proj` now uses **fixed** offsets (`top:46px`,
+`height:42px` → ~58px clear of the rule) and is **shown only at ≥1360px**,
+where `7vw` finally reaches its 96px maximum. Narrower than that, the divider
+gets the empty band to itself.
+
+**Before assuming a divider isn't rendering, check what else is drawn within
+~40px of it** — and if you move that wave again, measure the gap first rather
+than eyeballing it.
+
+**The stops are `6% / 30% / 70% / 94%` of the span, not an even fade from the
+ends.** An
 even `transparent → accent → transparent` gradient looked fine in the middle
 of the screen and was effectively invisible across the outer third, so on a
 wide monitor the section dividers read as *missing* rather than as subtle —
@@ -245,13 +296,27 @@ making it bigger alone starts to compete with the titles it sits beside.
 About / Selected / Projects / Education / Experience / Contact — the same six
 words as the progress rail's labels, one for one, so the rail and the page
 agree on what each section is called. It is therefore sized as a title
-(`clamp(14px,1.1vw,17px)`, `--accent`, with a short copper bar before it), not
-at `.label`'s 11.5px caption size. **That sizing is scoped to
-`.section-head .label` plus the one-off `.section-label`, never applied to
-`.label` globally** — `.label` is also the image placeholders, the footer
-lines and the CV strip's "The formal version" sub-label, none of which should
-grow. `#contact`'s eyebrow isn't inside a `.section-head`, which is what
-`.section-label` exists for.
+(`clamp(15px,1.25vw,19px)`, `--accent`), not at `.label`'s 11.5px caption
+size. **That sizing is scoped to `.section-head .label` plus the one-off
+`.section-label`, never applied to `.label` globally** — `.label` is also the
+image placeholders, the footer lines and the CV strip's "The formal version"
+sub-label, none of which should grow. `#contact`'s eyebrow isn't inside a
+`.section-head`, which is what `.section-label` exists for.
+
+**The eyebrow is bracketed by a matching orange dash on BOTH sides**
+(`::before` *and* `::after`, identical `width` and `border-radius`), not led
+by one on the left. With a single dash the name hung off the end of a stub;
+the pair reads as a deliberate mark, and it puts the whole colour system —
+blue name between two orange rules — into one small object. **Keep them
+identical; the symmetry is the point.**
+
+**The three lines of a section head are deliberately three clear steps**:
+eyebrow (mono, blue, `15→19px`) → title (serif, `clamp(34px,4.8vw,56px)`) →
+note (sans, `clamp(13.5px,…,15px)`, i.e. *smaller* than body copy). The note
+used to be full body size and competed with the title above it; the title used
+to top out at 48px and did not clearly outrank the group titles at 38px. The
+resulting ladder is hero 104 → section title 56 → group title 38 → strip title
+34. **If you resize one of these, check it against that ladder.**
 
 The two timelines' years (`.path-when`) get the strongest treatment on the
 page — 15px/600 in `--accent`, centred in their 170px column. They are the
@@ -291,7 +356,8 @@ for it to be centred in.
 6. **Photo strip** — auto-scrolling clickable photo cards (not a `<section>`).
 7. **`#education`** — three boxed timeline cards.
 8. **`#experience`** — five boxed timeline cards, then the compact CV strip.
-9. **`#contact`** — email as a large serif line, socials.
+9. **`#contact`** — email as a large serif line (with an envelope whose flap
+   opens on hover), socials.
 10. **Footer** — location, icon links, copyright.
 11. Floating: right-hand progress rail, back-to-top button.
 
@@ -993,7 +1059,7 @@ exception going forward, not the default.
 |---|---|
 | `#about` | `deco-orbit-about` *(warm)* — bottom-**left**, bled off the corner, satellite orbiter |
 | `#selected` | `deco-orbit` — top-right, the reference, rocket + counter-rotating satellite; `deco-telescope` *(warm)* (left); `deco-drone` (left, low, level with the swarm tile); `deco-orbit-sm` *(warm)* — bottom-right, satellite orbiter |
-| `#projects` | `deco-waves-proj` (a wavy set across the top, above "Browse by area"); `deco-traj` *(warm)* (right); `deco-orbit-left` (left, behind space & rocketry, satellite orbiter); `deco-rocket-b` (left, 33%); `deco-robot` *(warm)* (left, 46%, behind robotics & simulation); `deco-orbit-mid` (right, rocket orbiter); `deco-cube` *(warm)* (left, 76%, by the hobbies group where the puzzles entry lives); `deco-orbit-2` *(warm)* (bottom-left, satellite orbiter) |
+| `#projects` | `deco-waves-proj` (a wavy set across the top, above "Browse by area" — **≥1360px only**, see §3); `deco-traj` *(warm)* (right); `deco-orbit-left` (left, behind space & rocketry, satellite orbiter); `deco-rocket-b` (left, 33%); `deco-robot` *(warm)* (left, 46%, behind robotics & simulation); `deco-orbit-mid` (right, rocket orbiter); `deco-cube` *(warm)* (left, 76%, by the hobbies group where the puzzles entry lives); `deco-orbit-2` *(warm)* (bottom-left, satellite orbiter) |
 | photo strip | `deco-waves-top` |
 | `#education` | `deco-orbit-edu-2` (top-left, rocket + counter-rotating satellite); `deco-orbit-edu` *(warm)* (bottom-right, satellite orbiter) |
 | `#experience` | `deco-orbit-4` (top-left, satellite orbiter); `deco-orbit-3` *(warm)* (right, bled almost fully off-canvas, satellite orbiter); `deco-rocket` (left, mid); `deco-traj-2` *(warm)* (bottom-left) |
@@ -1213,17 +1279,38 @@ the next frame's measurement and drift steadily off.
   there is no cursor to follow and the ring would just strand itself wherever
   you last tapped. It sits at `z-index:1` with `.hero-copy` at `2`, so it
   passes *behind* the name.
-- **Envelope flap** — the mail icon's flap lifts on hover. CSS still cannot
-  reach inside a `<use>` shadow tree to transform one path of a symbol, but it
-  *can* transform the `<use>` element itself, so the envelope is split into
-  two `<use>`s (`#i-mail-box` + `#i-mail-flap`). Those two are `<g>` inside
-  `<defs>`, **not `<symbol>`**: a `<use>` of a `<symbol>` with its own
+- **Envelope flap** — the mail icon's flap folds open on hover. CSS still
+  cannot reach inside a `<use>` shadow tree to transform one path of a symbol,
+  but it *can* transform the `<use>` element itself, so the envelope is split
+  into two `<use>`s (`#i-mail-box` + `#i-mail-flap`). Those two are `<g>`
+  inside `<defs>`, **not `<symbol>`**: a `<use>` of a `<symbol>` with its own
   `viewBox` re-establishes a viewport and remaps coordinates, which makes the
   flap's `transform-origin` unpredictable; a `<use>` of a `<g>` is copied
-  straight into the current coordinate system. Flipping the flap about its own
-  top edge turns the V into a Λ standing above the box — an open flap for
-  free, with no second drawing of the icon. **`<g>` in `<defs>` + two `<use>`s
-  is the pattern to reuse whenever one part of an icon needs to animate.**
+  straight into the current coordinate system. **`<g>` in `<defs>` + two
+  `<use>`s is the pattern to reuse whenever one part of an icon needs to
+  animate.**
+
+  Two things about it were wrong and are worth not repeating. It was hinged
+  with `transform-box:fill-box` + `transform-origin:center top`, which
+  resolves against the `<use>`'s own object bounding box — something engines
+  compute inconsistently for a `<use>`, so the flap silently never moved in
+  some browsers while working in others, and it was reported as simply not
+  working. It is now `transform-box:view-box` with the hinge named outright in
+  view-box units (`transform-origin:12px 7px`), which is exact and portable.
+  **Do not go back to `fill-box` on a `<use>`.** And the open state is
+  `translateY(-3px) scaleY(-.5)`, not a full `scaleY(-1)`: a full mirror puts
+  the apex at y=1 with the flap's legs still crossing the box's own top edge
+  at y=4, which reads as a line floating over the envelope. Halving and
+  lifting it seats the flap's base exactly on that top edge — a folded-back
+  flap, foreshortened the way a real one is. It also has to stay inside the
+  0–24 viewBox, and the box top at y=4 is all the headroom there is.
+
+  The animation lives in three places: the two 17px icons in `#about`'s
+  socials and the footer link row, and — added because those two are far too
+  small for anyone to notice a flap moving — **a `.62em` envelope in front of
+  the contact section's email address**, which is the one place it is actually
+  discoverable. There, the underline sits on an inner `<span>` rather than on
+  the `<a>`, so the rule runs under the address only and not under the glyph.
 
 ---
 
