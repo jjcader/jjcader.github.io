@@ -898,8 +898,10 @@ section{overflow:hidden;overflow:clip}
 /* A HEIGHT, not an aspect-ratio. With 16/10 the 7-column card was ~740px wide
    and therefore ~460px tall, so two rows of cards could never share a screen.
    A clamped height keeps every card the same size regardless of span and lets
-   all four land in roughly one viewport. */
-.tile-media{position:relative;height:clamp(132px,13.5vw,196px);overflow:hidden;
+   all four land in roughly one viewport. Raised once the description below was
+   allowed to run the full card width: it wraps to fewer lines now, so the photo
+   can take the space without the card growing. */
+.tile-media{position:relative;height:clamp(150px,15.5vw,232px);overflow:hidden;
   background:var(--paper-2);border-bottom:1px solid var(--rule)}
 .tile-media img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
 .tile:hover .tile-media img{transform:scale(1.05)}
@@ -910,18 +912,23 @@ section{overflow:hidden;overflow:clip}
   text-transform:uppercase;color:var(--accent)}
 .tile-title{font-family:var(--serif);font-weight:400;line-height:1.14;margin-top:6px;
   font-size:var(--fs-card-title);letter-spacing:-.015em;color:var(--ink)}
-.tile-desc{margin:10px 0 0;color:var(--ink-body);max-width:46ch;
-  font-size:var(--fs-small);line-height:1.55}
-/* pushed to the bottom of the card by margin-top:auto so the "Open" line sits
-   on the same baseline across cards of different text length */
+/* No narrow cap: the CARD is the measure here. 46ch on a 7-column card used
+   barely half the width, so the text stopped short and the card looked
+   padded out. 88ch is a backstop for very wide monitors, not a design. */
+.tile-desc{margin:9px 0 0;color:var(--ink-body);max-width:88ch;
+  font-size:var(--fs-small);line-height:1.5}
+/* margin-top:auto pins this to the foot of the card, so the pills line up
+   across cards whose text runs to different lengths. The gap above it MUST be
+   padding, not margin — a `.tile-body .tile-go{margin-top:14px}` rule used to
+   sit below this and, being more specific, silently replaced the `auto`. That
+   is why the MIT and POLANA pills floated up under their shorter blurbs. */
 .tile-go{align-self:flex-start;display:inline-flex;align-items:center;gap:9px;
-  margin-top:auto;
+  margin-top:auto;padding-top:16px;
   font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.12em;
   text-transform:uppercase;color:var(--accent);background:none;
   border:1.5px solid color-mix(in srgb,var(--accent) 34%,var(--rule));
   border-radius:999px;padding:8px 15px;
   transition:.3s var(--ease)}
-.tile-body .tile-go{margin-top:14px}
 .tile-go .ic{width:14px;height:14px}
 /* outlined where the category pill is filled: same shape, different weight, so
    "open in place" and "jump down the page" are visibly not the same verb */
@@ -972,12 +979,11 @@ section{overflow:hidden;overflow:clip}
    card types were only distinguishable by an 11px word — the affordance now
    carries as much weight as the word does. */
 .cat-go{align-self:flex-start;display:inline-flex;align-items:center;gap:9px;
-  margin-top:auto;margin-bottom:0;
+  margin-top:auto;padding-top:18px;margin-bottom:0;
   font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.12em;
   text-transform:uppercase;color:var(--paper);background:var(--cat-hue);
   border-radius:999px;padding:9px 17px;
   transition:background .3s var(--ease),gap .3s var(--ease),transform .3s var(--ease)}
-.cats .cat-go{margin-top:18px}
 .cat-go .ic{width:14px;height:14px}
 .cat:hover .cat-go{background:var(--accent-warm-ink);gap:14px;transform:translateY(2px)}
 
@@ -1732,8 +1738,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     <div class="wrap">
       <h1 class="hero-name"><span class="hero-hi">Hi, I'm</span>Jędrzej Cader</h1>
       <p class="hero-pronounce">Pronounced: Yan-Jay Cader. (yes, really)</p>
-      <p class="hero-sub">I build things that have to survive being set on fire. Rocket engines
-         at ARIS, a lunar radio telescope at NASA JPL, and right now a master's thesis at MIT.</p>
+      <p class="hero-sub">Engineer interested in space technology, robotics and innovation, 
+        Formerly at NASA JPL, now at MIT - constantly seeking new challenges</p>
       <!-- EDIT ME — the four names worth reading in the first two seconds.
            These are load-bearing: the page deliberately puts Education and
            Experience near the bottom, and this row is what stops that being a
@@ -1923,7 +1929,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div class="tile-title">A radio telescope on the far side of the Moon</div>
           <p class="tile-desc">Signal processing and orbital simulation for a wire mesh strung
              inside a lunar crater, shielded from every transmitter on Earth.</p>
-          <div class="tile-go">Open <svg class="ic"><use href="#i-arrow-right"/></svg></div>
+          <div class="tile-go">Learn more <svg class="ic"><use href="#i-arrow-right"/></svg></div>
         </div>
       </button>
       <button class="tile t-narrow" data-target="e1">
@@ -1933,7 +1939,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div class="tile-title">Master's thesis at MIT</div>
           <p class="tile-desc">Placeholder — one line on what the thesis actually asks, and
              what you are building to answer it.</p>
-          <div class="tile-go">Open <svg class="ic"><use href="#i-arrow-right"/></svg></div>
+          <div class="tile-go">Learn more <svg class="ic"><use href="#i-arrow-right"/></svg></div>
         </div>
       </button>
       <button class="tile t-narrow" data-target="e11">
@@ -1943,7 +1949,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div class="tile-title">POLANA — building an organisation of 200+</div>
           <p class="tile-desc">Co-founded and grew the largest Polish student association in
              Zürich, from a first meeting to a standing committee structure.</p>
-          <div class="tile-go">Open <svg class="ic"><use href="#i-arrow-right"/></svg></div>
+          <div class="tile-go">Learn more <svg class="ic"><use href="#i-arrow-right"/></svg></div>
         </div>
       </button>
       <button class="tile t-wide" data-target="e12">
@@ -1953,7 +1959,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div class="tile-title">Chairing 100 people arguing about Europe</div>
           <p class="tile-desc">Presided over a 100+ delegate session in Sassari, running seven
              committees through teambuilding, debate and drafting.</p>
-          <div class="tile-go">Open <svg class="ic"><use href="#i-arrow-right"/></svg></div>
+          <div class="tile-go">Learn more <svg class="ic"><use href="#i-arrow-right"/></svg></div>
         </div>
       </button>
     </div>
