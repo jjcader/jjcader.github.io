@@ -935,15 +935,22 @@ section{overflow:hidden;overflow:clip}
 /* No narrow cap: the CARD is the measure here. 46ch on a 7-column card used
    barely half the width, so the text stopped short and the card looked
    padded out. 88ch is a backstop for very wide monitors, not a design. */
-.tile-desc{margin:9px 0 0;color:var(--ink-body);max-width:88ch;
+/* The clearance above the pill lives HERE, as this element's bottom margin,
+   and that is not arbitrary. The pill itself cannot hold it: `margin-top`
+   would replace the `auto` that pins the pill to the card's foot, and
+   `padding-top` is wiped a few lines later by the `padding:8px 15px`
+   shorthand that gives the pill its shape — a shorthand always resets the
+   longhands above it. So the only element that can reserve this space without
+   breaking the pin is the text above. It reads as a floor: when a card has
+   slack the `auto` pushes the pill further down than this, and when the text
+   fills the card this is the gap that survives. */
+.tile-desc{margin:9px 0 20px;color:var(--ink-body);max-width:88ch;
   font-size:var(--fs-small);line-height:1.5}
 /* margin-top:auto pins this to the foot of the card, so the pills line up
-   across cards whose text runs to different lengths. The gap above it MUST be
-   padding, not margin — a `.tile-body .tile-go{margin-top:14px}` rule used to
-   sit below this and, being more specific, silently replaced the `auto`. That
-   is why the MIT and POLANA pills floated up under their shorter blurbs. */
+   across cards whose text runs to different lengths — do not give it a
+   margin-top, and see .tile-desc above for where the gap comes from. */
 .tile-go{align-self:flex-start;display:inline-flex;align-items:center;gap:9px;
-  margin-top:auto;padding-top:16px;
+  margin-top:auto;
   font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.12em;
   text-transform:uppercase;color:var(--accent);background:none;
   border:1.5px solid color-mix(in srgb,var(--accent) 34%,var(--rule));
@@ -991,7 +998,8 @@ section{overflow:hidden;overflow:clip}
 .cat:hover .cat-ic{color:var(--accent-warm-ink);background:var(--warm-soft);transform:scale(1.08)}
 .cat-name{font-family:var(--serif);font-size:clamp(22px,2.1vw,29px);line-height:1.12;
   letter-spacing:-.015em;margin:14px 0 0}
-.cat-desc{font-size:var(--fs-small);color:var(--ink-2);margin:9px 0 0;line-height:1.5}
+/* Bottom margin, not padding-top on .cat-go — same reason as .tile-desc. */
+.cat-desc{font-size:var(--fs-small);color:var(--ink-2);margin:9px 0 18px;line-height:1.5}
 /* margin-top:auto pins it to the card's bottom edge, so the four "Jump" lines
    sit on one baseline regardless of how long each description runs */
 /* A filled pill, not a line of text. "Jump" (moves you down the page) and
@@ -999,7 +1007,7 @@ section{overflow:hidden;overflow:clip}
    card types were only distinguishable by an 11px word — the affordance now
    carries as much weight as the word does. */
 .cat-go{align-self:flex-start;display:inline-flex;align-items:center;gap:9px;
-  margin-top:auto;padding-top:18px;margin-bottom:0;
+  margin-top:auto;margin-bottom:0;
   font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.12em;
   text-transform:uppercase;color:var(--paper);background:var(--cat-hue);
   border-radius:999px;padding:9px 17px;
@@ -1965,7 +1973,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         <div class="tile-body">
           <div class="tile-meta">2026 · MIT · Cambridge, MA</div>
           <div class="tile-title">Master's thesis at MIT — work in progress</div>
-          <p class="tile-desc">Building a space-weather aware satellite trajectory optims</p>
+          <p class="tile-desc">Using machine learning to build a space weather prediction model to improve satellite trajectory optimisation and maneuverability.</p>
           <div class="tile-go">Learn more <svg class="ic"><use href="#i-arrow-right"/></svg></div>
         </div>
       </button>
