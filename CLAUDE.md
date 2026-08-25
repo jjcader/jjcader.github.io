@@ -298,7 +298,7 @@ belonging to this person rather than to a template. Keep metadata in mono.
 | Token | Used by |
 |---|---|
 | `--fs-small` | Card descriptions, entry summaries, timeline blurbs, category blurbs |
-| `--fs-meta` | Small mono metadata: hero chips, table keys, timeline years *and* orgs, card meta, form labels |
+| `--fs-meta` | Small mono metadata: hero chips, table keys, timeline years *and* orgs, card meta, entry datelines, form labels |
 | `--fs-nav` | Header nav, brand, status chip, rail labels, rail readout |
 | `--fs-action` | Every pill-shaped action: Jump, Open, Full CV, Send, Close, Top, social pills |
 | `--fs-card-title` | Mosaic, Life and timeline card titles |
@@ -335,6 +335,38 @@ the contact line into a run-on with the button above it.
 `.section-sub` was given `max-width:64ch` at the same time. It had no measure
 because it used to be a short line; now that the aside sets inside it, without
 one the merged sentence would run the full 1228px of the wrap.
+
+**`--fs-meta` is 13px, raised from 11.5px, and that was done at the token
+rather than on one component on purpose.** The ask was "make the dates and
+company names bigger", and dates and company names are not in one place — they
+are entry datelines, timeline years and orgs, mosaic card meta, hero
+credential chips and the facts table's keys, all of which read from this one
+token. Editing `.entry-meta` alone would have made the same information
+smaller in the timeline than in the list. There is a `≤520px` override holding
+the hero chips at 10.5px; nothing else needed one.
+
+**The entry dateline column is FIXED at 348px and left-aligned, and that is
+the only way to get the years flush.** Every `.entry-head` is its own grid, so
+an `auto` column sizes to that entry's own string and the twelve datelines
+each begin at a different x — which is what "the years aren't aligned" meant.
+The value is the widest dateline, 40 monospace characters at 13px plus .06em
+tracking, rounded up; the upper bound is `max-content`, so a missing webfont
+grows the column instead of running it under the toggle. ⚠ **A dateline longer
+than 40 characters silently breaks the alignment for the whole list** — widen
+the column with it. The trade is that short datelines ("2026 · HACKATHON")
+now leave a visible gap before the toggle, which is inherent: you cannot have
+both a flush left edge and a flush right one.
+
+**Restacking moved from 820px to 1150px** for the same reason. Below ~1150px
+the fixed column takes enough of the title's `1fr` to wrap titles to four
+lines, so the dateline drops under the title instead — where it sits at the
+row's own left edge and the years stay flush against that. The `≤820px` block
+still exists for the padding and `.entry-content`.
+
+**The three things in an entry head are centre-aligned, not baseline-aligned.**
+A 27px serif title, a 13px mono dateline and a 30px bordered disc share that
+row; baseline alignment sat the disc visibly above the words, because a disc's
+baseline is its glyph's baseline and the glyph is centred inside it.
 
 **Mono metadata is set at 500–600 weight, 11px and up, in `--accent` or
 `--ink-2` — never 400 weight at 10px in `--ink-3`.** That was the original

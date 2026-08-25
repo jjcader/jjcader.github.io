@@ -92,7 +92,7 @@
      Learn more button, the about table's keys, timeline years and orgs. These
      were six values between 10px and 12.5px, which reads as drift rather than
      hierarchy. */
-  --fs-meta:11.5px;
+  --fs-meta:13px;
   /* ONE size and treatment for top-level navigation, shared by the header nav
      and the progress rail's labels so the two agree on what a section link
      looks like. */
@@ -1066,9 +1066,22 @@ section{overflow:hidden;overflow:clip}
    brief spans the full width on row 2. */
 .entry-head{position:relative;width:100%;background:none;border:0;cursor:pointer;font:inherit;
   color:inherit;text-align:left;display:grid;column-gap:16px;row-gap:9px;
-  grid-template-columns:1fr auto 30px;
+  /* A FIXED meta column, because every .entry-head is its own grid — an `auto`
+     column sizes to that one entry's own string, so the twelve datelines each
+     started at a different x and the years read as ragged. 348px is the widest
+     dateline ("2018–PRESENT · EUROPEAN YOUTH PARLIAMENT", 40 monospace
+     characters at 13px plus .06em tracking) rounded up. `max-content` as the
+     upper bound is a safety net for the fallback font: if IBM Plex Mono hasn't
+     loaded and the substitute is wider, the column grows instead of running
+     under the toggle. Widen this if any dateline gets longer than 40
+     characters — nothing recalculates it for you. */
+  grid-template-columns:1fr minmax(348px,max-content) 30px;
   grid-template-areas:"title meta toggle" "brief brief brief";
-  align-items:baseline;
+  /* centre, not baseline: the toggle is a 30px disc and the three things in
+     this row are a 27px serif title, a 13px mono dateline and that disc, so
+     the only alignment that reads as "one row" is their optical centres.
+     Baseline hung the disc above the words. */
+  align-items:center;
   padding:20px 6px;transition:background .22s var(--ease),padding-left .22s var(--ease)}
 .entry-head:hover{background:var(--paper-2);padding-left:14px}
 .entry-title{grid-area:title;font-family:var(--serif);font-weight:400;
@@ -1090,7 +1103,7 @@ section{overflow:hidden;overflow:clip}
    next to it. Bigger, 600, and blue — the same accent the rail uses, so the
    metadata column reads as one deliberate system down the page. */
 .entry-meta{grid-area:meta;font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.06em;
-  text-transform:uppercase;color:var(--accent);text-align:right;white-space:nowrap;opacity:.9;
+  text-transform:uppercase;color:var(--accent);text-align:left;white-space:nowrap;opacity:.9;
   transition:color .3s var(--ease)}
 /* the whole row goes warm once it's open — toggle, left bar and now the
    date/place too, so the open entry reads as one lit-up unit */
@@ -1100,7 +1113,7 @@ section{overflow:hidden;overflow:clip}
    and it read as decoration. Giving it a border makes it obviously pressable,
    and the whole head stays clickable as before. */
 .entry-toggle{grid-area:toggle;position:relative;display:grid;place-items:center;
-  width:30px;height:30px;border-radius:50%;justify-self:end;align-self:center;
+  width:30px;height:30px;border-radius:50%;justify-self:end;
   font-family:var(--mono);font-size:17px;font-weight:500;line-height:1;
   color:var(--accent);border:1.5px solid color-mix(in srgb,var(--accent) 32%,var(--rule));
   background:var(--paper);
@@ -1167,13 +1180,19 @@ section{overflow:hidden;overflow:clip}
 .shot.wide{grid-column:1 / -1;aspect-ratio:16/9}
 .shot.small{aspect-ratio:1}
 .shot .label{font-size:9.5px;line-height:1.5}
-@media (max-width:820px){
-  /* the meta drops under the title and left-aligns, so the areas restack to
-     three rows in one column plus the toggle pinned top-right */
-  .entry-head{grid-template-columns:1fr 30px;row-gap:6px;padding:16px 4px;
+/* Restacks at 1150px rather than 820px, which is where the 348px dateline
+   column starts eating enough of the title's `1fr` to wrap titles to four
+   lines. The dateline drops under the title and sits at the row's own left
+   edge — so the years stay flush in this mode too, just against a different
+   line. */
+@media (max-width:1150px){
+  .entry-head{grid-template-columns:1fr 30px;row-gap:6px;
     grid-template-areas:"title toggle" "meta meta" "brief brief"}
+  .entry-meta{white-space:normal}
+}
+@media (max-width:820px){
+  .entry-head{padding:16px 4px}
   .entry-head:hover{padding-left:4px}
-  .entry-meta{text-align:left;white-space:normal}
   .entry-content{grid-template-columns:1fr}
 }
 
