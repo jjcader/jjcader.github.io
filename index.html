@@ -54,9 +54,11 @@
      interior borders (tags, chips, cards); this one is for structural rules
      that should read as part of the same blue system as the progress rail. */
   --rule-blue:color-mix(in srgb,var(--accent) 26%,var(--rule));
-  /* ONE divider recipe, in two orientations sharing identical stops, so the
-     header rule, every section divider and the rail's vertical separator are
-     visibly the same object turned different ways. The stops sit at 6/30/70/94
+  /* ONE divider recipe for every horizontal rule on the page: the header's
+     bottom edge, every section divider, the footer. The rail's vertical
+     separator used to share it in a --rule-grad-v variant, but it now draws
+     its own gradient that CHARGES to the rocket's position (see .rail::before)
+     — it still uses the same two accent stops, so the family holds. The stops sit at 6/30/70/94
      rather than fading from the very ends: an even fade left the middle
      strong but the outer thirds effectively invisible, so on a wide screen
      the section dividers read as MISSING rather than as subtle. */
@@ -76,8 +78,6 @@
     var(--accent)   calc((100% - var(--rule-inset))*.70),
     var(--accent-2) calc((100% - var(--rule-inset))*.94),
     transparent     calc(100% - var(--rule-inset)));
-  --rule-grad-v:linear-gradient(180deg,transparent 0%,var(--accent-2) 6%,
-    var(--accent) 30%,var(--accent) 70%,var(--accent-2) 94%,transparent 100%);
   /* The circular bite taken out of a divider so the gear ornament can sit ON
      the line without the line being drawn across it. Radius is 3px more than
      the gear's own, so a little paper shows between the teeth and the cut. */
@@ -88,6 +88,15 @@
      to be five slightly different clamps, which reads as sloppiness rather
      than hierarchy. Change it here, not per component. */
   --fs-small:clamp(13px,.26vw + 12.1px,14.5px);
+  /* ONE size for small mono metadata: hero chips, the pronunciation line, the
+     Learn more button, the about table's keys, timeline years and orgs. These
+     were six values between 10px and 12.5px, which reads as drift rather than
+     hierarchy. */
+  --fs-meta:11.5px;
+  /* ONE size and treatment for top-level navigation, shared by the header nav
+     and the progress rail's labels so the two agree on what a section link
+     looks like. */
+  --fs-nav:12px;
   --serif:"Instrument Serif",Georgia,serif;
   --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,monospace;
@@ -158,13 +167,13 @@ a{color:var(--accent)}
 .site-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
   background:var(--rule-grad)}
 .header-inner{display:flex;align-items:center;gap:18px;height:78px}
-.brand{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.12em;
+.brand{font-family:var(--mono);font-size:var(--fs-nav);font-weight:600;letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink);text-decoration:none;white-space:nowrap;
   transition:color .22s var(--ease)}
 .brand:hover{color:var(--accent-warm-ink)}
 /* status chips */
 .status-group{display:flex;align-items:center;gap:8px;margin-left:24px}
-.status{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;
+.status{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:var(--fs-nav);
   font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
   border:1px solid var(--rule-blue);border-radius:999px;padding:7px 14px;white-space:nowrap}
 .status .ic{width:13px;height:13px;color:var(--accent)}
@@ -179,7 +188,11 @@ a{color:var(--accent)}
 @media (max-width:1300px){.status-group,.head-div{display:none}}
 
 .site-nav{display:flex;gap:2px;margin-left:16px}
-.site-nav a{position:relative;font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.05em;
+/* same treatment as .rail a below — mono, uppercase, --fs-nav, wide tracking —
+   so the header nav and the progress rail agree on what a section link looks
+   like. They name the same seven things; they should look the same. */
+.site-nav a{position:relative;font-family:var(--mono);font-size:var(--fs-nav);font-weight:500;
+  letter-spacing:.15em;text-transform:uppercase;
   color:var(--ink-2);text-decoration:none;padding:11px 13px;border-radius:999px;white-space:nowrap;
   transition:color .2s var(--ease),background .2s var(--ease)}
 /* The top nav is a clickable thing, so it follows the site-wide rule: blue at
@@ -267,7 +280,7 @@ a{color:var(--accent)}
 .rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;
   justify-content:space-between;gap:10px}
 .rail a{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:16px;
-  text-decoration:none;font-family:var(--mono);font-size:12px;letter-spacing:.15em;
+  text-decoration:none;font-family:var(--mono);font-size:var(--fs-nav);letter-spacing:.15em;
   text-transform:uppercase;color:var(--ink-2);padding:7px 0;border-radius:8px;
   transition:color .3s var(--ease),background .3s var(--ease)}
 /* Label pills are the DEFAULT at every width the rail appears at — the boxes
@@ -446,14 +459,13 @@ a{color:var(--accent)}
 .hero-veil{position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(6,26,34,.42) 0%,rgba(6,26,34,.06) 40%,rgba(6,26,34,.72) 100%)}
 .hero-copy{position:absolute;inset:auto 0 0 0;padding-bottom:clamp(34px,5vw,68px);z-index:2}
-.hero-eyebrow{color:rgba(255,255,255,.76);margin:0 0 10px;display:flex;align-items:center;gap:9px}
 .hero-name{font-family:var(--serif);font-weight:400;color:#fff;font-size:clamp(46px,9vw,104px);
   line-height:.94;letter-spacing:-.025em;margin:0;text-shadow:0 1px 28px rgba(0,0,0,.34)}
-/* deliberately identical treatment to .hero-eyebrow (which is .label) — same
-   size, weight, tracking and caps. They sit directly above and below the name
-   and any difference between them read as a third font rather than as one
-   mono voice; only the opacity differs, because this line is the aside. */
-.hero-pronounce{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;
+/* Mono at --fs-meta, like every other small mono label on the page. It used to
+   pair with an eyebrow above the name ("Mechanical engineer · Zürich →
+   Cambridge"); that line was removed because the credential chips below say
+   the same thing with more force. */
+.hero-pronounce{font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:rgba(255,255,255,.6);margin:12px 0 0;
   text-shadow:0 1px 12px rgba(0,0,0,.5)}
 /* Credential chips — the first hard information on the page. Blue-tinted
@@ -462,7 +474,7 @@ a{color:var(--accent)}
    accent pair doing the work at small scale. */
 .hero-creds{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:20px 0 0;padding:0}
 .hero-creds li{display:inline-flex;align-items:center;gap:8px;
-  font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;
+  font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:#fff;
   background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.28);
   border-radius:999px;padding:7px 14px;backdrop-filter:blur(4px)}
@@ -487,7 +499,7 @@ a{color:var(--accent)}
    click — the button rendered fine and simply did nothing. */
 .hero-more{position:absolute;left:50%;bottom:20px;z-index:3;transform:translateX(-50%);cursor:pointer;
   display:inline-flex;align-items:center;gap:10px;
-  font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.16em;
+  font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.16em;
   text-transform:uppercase;color:#fff;
   background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.34);
   border-radius:999px;padding:11px 20px;backdrop-filter:blur(4px);
@@ -758,7 +770,7 @@ section{overflow:hidden;overflow:clip}
 .facts li:hover{padding-left:14px;background:color-mix(in srgb,var(--warm-soft) 55%,transparent)}
 .facts li:hover::before{width:8px}
 .facts li:hover .k{color:var(--accent-warm-ink)}
-.facts .k{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.11em;
+.facts .k{font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.11em;
   text-transform:uppercase;color:var(--accent);flex:0 0 86px;transition:color .28s var(--ease)}
 .facts .v{color:var(--ink);font-size:14.5px;line-height:1.45}
 /* The staggered row animation was removed along with the rest of the reveal
@@ -858,12 +870,19 @@ section{overflow:hidden;overflow:clip}
   font-size:var(--fs-small);line-height:1.55}
 /* pushed to the bottom of the card by margin-top:auto so the "Open" line sits
    on the same baseline across cards of different text length */
-.tile-go{display:flex;align-items:center;gap:7px;margin-top:auto;padding-top:11px;
-  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--accent);
-  transition:color .3s var(--ease),gap .3s var(--ease)}
-.tile-go .ic{width:13px;height:13px}
-.tile:hover .tile-go{color:var(--accent-warm-ink);gap:12px}
+.tile-go{align-self:flex-start;display:inline-flex;align-items:center;gap:9px;
+  margin-top:auto;
+  font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--accent);background:none;
+  border:1.5px solid color-mix(in srgb,var(--accent) 34%,var(--rule));
+  border-radius:999px;padding:8px 15px;
+  transition:.3s var(--ease)}
+.tile-body .tile-go{margin-top:14px}
+.tile-go .ic{width:14px;height:14px}
+/* outlined where the category pill is filled: same shape, different weight, so
+   "open in place" and "jump down the page" are visibly not the same verb */
+.tile:hover .tile-go{color:var(--accent-warm-ink);border-color:var(--accent-warm);
+  background:var(--warm-soft);gap:14px}
 @media (max-width:900px){
   .t-wide,.t-narrow{grid-column:span 12}
   .tile-media{height:clamp(150px,34vw,210px)}
@@ -879,7 +898,8 @@ section{overflow:hidden;overflow:clip}
   gap:clamp(12px,1.3vw,18px)}
 .cat{position:relative;overflow:hidden;display:flex;flex-direction:column;
   text-align:left;font:inherit;color:inherit;cursor:pointer;
-  background:var(--paper);border:1.5px solid var(--rule-blue);border-radius:4px;
+  background:var(--paper);border:2px solid color-mix(in srgb,var(--accent) 30%,var(--rule));
+  border-radius:6px;box-shadow:0 10px 26px -22px color-mix(in srgb,var(--accent) 70%,transparent);
   padding:clamp(20px,2vw,26px) clamp(18px,1.8vw,24px) clamp(16px,1.6vw,20px);
   transition:.28s var(--ease);
   /* --cat-hue defaults to the house accent; everything blue inside a card
@@ -889,7 +909,7 @@ section{overflow:hidden;overflow:clip}
   background:linear-gradient(180deg,var(--cat-hue),var(--accent-warm));
   transform:scaleY(0);transform-origin:top;transition:transform .35s var(--ease)}
 .cat:hover{border-color:var(--accent-warm);background:var(--paper-2);transform:translateY(-4px);
-  box-shadow:0 18px 36px -24px color-mix(in srgb,var(--accent-warm) 70%,transparent)}
+  box-shadow:0 22px 42px -22px color-mix(in srgb,var(--accent-warm) 75%,transparent)}
 .cat:hover::before{transform:scaleY(1)}
 .cat-n{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-3)}
@@ -903,12 +923,19 @@ section{overflow:hidden;overflow:clip}
 .cat-desc{font-size:var(--fs-small);color:var(--ink-2);margin:9px 0 0;line-height:1.5}
 /* margin-top:auto pins it to the card's bottom edge, so the four "Jump" lines
    sit on one baseline regardless of how long each description runs */
-.cat-go{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:18px;
-  font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--cat-hue);
-  transition:color .3s var(--ease),gap .3s var(--ease)}
+/* A filled pill, not a line of text. "Jump" (moves you down the page) and
+   "Open" (expands something in place) are different actions, and the two
+   card types were only distinguishable by an 11px word — the affordance now
+   carries as much weight as the word does. */
+.cat-go{align-self:flex-start;display:inline-flex;align-items:center;gap:9px;
+  margin-top:auto;margin-bottom:0;
+  font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--paper);background:var(--cat-hue);
+  border-radius:999px;padding:9px 17px;
+  transition:background .3s var(--ease),gap .3s var(--ease),transform .3s var(--ease)}
+.cats .cat-go{margin-top:18px}
 .cat-go .ic{width:14px;height:14px}
-.cat:hover .cat-go{color:var(--accent-warm-ink);gap:13px}
+.cat:hover .cat-go{background:var(--accent-warm-ink);gap:14px;transform:translateY(2px)}
 
 /* The five-different-blues experiment is RESOLVED: card 03's azure won and
    was pushed brighter/more royal into --accent (#0a5fd0). Every card now
@@ -1161,36 +1188,41 @@ section{overflow:hidden;overflow:clip}
   background:var(--paper);border:1px solid var(--rule);border-radius:3px;
   padding:11px clamp(14px,1.4vw,19px) 13px;
   transition:border-color .3s var(--ease),transform .3s var(--ease),box-shadow .3s var(--ease)}
-.tl-row.work .tl-card{grid-column:1;text-align:right}
-.tl-row.edu  .tl-card{grid-column:3}
+.tl-row.edu  .tl-card{grid-column:1;text-align:right}
+.tl-row.work .tl-card{grid-column:3}
 .tl-card::before{content:"";position:absolute;top:0;bottom:0;width:3px;
   background:linear-gradient(180deg,var(--accent-2),var(--accent-warm));
   transform:scaleY(0);transform-origin:top;transition:transform .35s var(--ease)}
-.tl-row.work .tl-card::before{right:0}
-.tl-row.edu  .tl-card::before{left:0}
+.tl-row.edu  .tl-card::before{right:0}
+.tl-row.work .tl-card::before{left:0}
 .tl-row:hover .tl-card{border-color:var(--accent-warm);
   box-shadow:0 12px 26px -20px color-mix(in srgb,var(--accent-warm) 55%,transparent)}
-.tl-row.work:hover .tl-card{transform:translateX(-3px)}
-.tl-row.edu:hover  .tl-card{transform:translateX(3px)}
+.tl-row.edu:hover  .tl-card{transform:translateX(-3px)}
+.tl-row.work:hover .tl-card{transform:translateX(3px)}
 .tl-row:hover .tl-card::before{transform:scaleY(1)}
-.tl-when{display:block;font-family:var(--mono);font-size:12px;font-weight:600;
+.tl-when{display:block;font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;
   letter-spacing:.04em;color:var(--accent);font-variant-numeric:tabular-nums;
   transition:color .25s var(--ease)}
 .tl-row.edu .tl-when{color:var(--accent)}
 .tl-row:hover .tl-when{color:var(--accent-warm-ink)}
 .tl-role{font-family:var(--serif);font-weight:400;font-size:clamp(17px,1.35vw,20px);
   line-height:1.16;letter-spacing:-.01em;margin:3px 0 0}
-.tl-org{display:block;font-family:var(--mono);font-size:10px;font-weight:600;
+.tl-org{display:block;font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;
   letter-spacing:.08em;text-transform:uppercase;color:var(--accent-warm-ink);margin-top:4px}
 /* capped in ch: the cards are already half-width, so this only bites on very
    wide monitors — but there it stops a one-line summary running to 900px */
 .tl-card p{margin:6px 0 0;color:var(--ink-body);max-width:62ch;
   font-size:var(--fs-small);line-height:1.5}
-.tl-row.work .tl-card p{margin-left:auto}
-/* the Education heading occupies a whole row on the right-hand side */
+.tl-row.edu .tl-card p{margin-left:auto}
+/* An inline heading occupies a whole row. It MUST sit in the same column as
+   the cards it introduces — this was hardcoded to column 3 while the work
+   cards moved to it, which dropped the EXPERIENCE heading on top of an
+   education card. Derive the column from the row's side, never fix it. */
 .tl-mark{margin:clamp(10px,1.4vw,20px) 0}
 .tl-node-mark{width:17px;height:17px;border-width:3px}
-.tl-headbox{grid-column:3;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.tl-headbox{display:flex;flex-direction:column;gap:4px}
+.tl-row.work .tl-headbox{grid-column:3;align-items:flex-start;text-align:left}
+.tl-row.edu  .tl-headbox{grid-column:1;align-items:flex-end;text-align:right}
 .tl-headbox .cv-mini{margin-top:8px}
 @media (max-width:860px){
   /* one column, spine on the left — the left/right split has no meaning once
@@ -1200,7 +1232,8 @@ section{overflow:hidden;overflow:clip}
   .tl-node{grid-column:1;margin-top:16px}
   .tl-row.work .tl-card,.tl-row.edu .tl-card{grid-column:2;text-align:left;transform:none}
   .tl-row.work .tl-card::before,.tl-row.edu .tl-card::before{left:0;right:auto}
-  .tl-headbox{grid-column:2}
+  .tl-row.edu .tl-card p{margin-left:0}
+  .tl-row.work .tl-headbox,.tl-row.edu .tl-headbox{grid-column:2;align-items:flex-start;text-align:left}
   .tl-node-mark{margin-top:8px}
 }
 
@@ -1298,6 +1331,9 @@ section{overflow:hidden;overflow:clip}
 .msg-field input:focus,.msg-field textarea:focus{outline:none;background:var(--paper);
   border-color:var(--accent-warm);
   box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-warm) 16%,transparent)}
+/* off-screen rather than display:none — some bots skip anything with
+   display:none, which would defeat the point */
+.msg-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .msg-foot{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:4px}
 .msg-send{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:11px;
   font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.13em;
@@ -1351,6 +1387,44 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 .foot-links a:hover{color:var(--accent-warm-ink);border-color:var(--accent-warm);
   background:var(--warm-soft);transform:translateY(-2px)}
 .foot-links .ic{width:17px;height:17px}
+
+/* ============ PRINT ============
+   Someone will print this or save it as a PDF, and by default they'd get a
+   dark hero, a fixed rail floating over the text, every decoration, and half
+   the content hidden inside collapsed entries. This forces the page into a
+   plain document: no chrome, no colour surfaces, everything expanded. */
+@media print{
+  .rail,.to-top,.skip-link,.deco,.strip,.site-header,.hero-orbit,.hero-more,
+  .entry-close,.entry-toggle,.msg,.mail-reveal{display:none !important}
+  html,body{background:#fff;color:#000;font-size:10.5pt}
+  .hero{height:auto;min-height:0;background:none}
+  .hero-veil,.hero-media{display:none}
+  .hero-copy{position:static}
+  .hero-name{color:#000;text-shadow:none;font-size:26pt}
+  .hero-sub,.hero-pronounce{color:#000;text-shadow:none}
+  .hero-creds li{color:#000;background:none;border-color:#999}
+  .wrap{max-width:none;margin:0;padding:0}
+  section{padding-block:14pt;overflow:visible}
+  section::before,section::after,.group-head::after{display:none}
+  .section-name{color:#000;font-size:15pt}
+  .section-name::before,.section-name::after{display:none}
+  /* collapsed entries print empty otherwise — the grid trick that animates
+     them open resolves to 0fr on paper */
+  .entry-body{display:block !important}
+  .entry-body > div{overflow:visible !important}
+  .entry-content{opacity:1 !important;transform:none !important;
+    grid-template-columns:1fr !important}
+  .entry-summary{display:none !important}
+  .shots,.tile-media,.life-media{display:none}
+  .tl-row{display:block;margin:0 0 8pt}
+  .tl::before,.tl-node{display:none}
+  .tl-card,.cat,.tile,.life-card,.entry{border-color:#bbb;box-shadow:none;
+    break-inside:avoid;page-break-inside:avoid}
+  .tl-row.edu .tl-card,.tl-row.work .tl-card{text-align:left;transform:none}
+  a{color:#000;text-decoration:underline}
+  /* URLs are invisible on paper otherwise */
+  .entry-links a::after,.socials a::after{content:" (" attr(href) ")";font-size:8pt}
+}
 
 /* ============ BACK TO TOP ============ */
 .to-top{position:fixed;right:24px;bottom:24px;z-index:55;
@@ -1549,7 +1623,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   </svg></div>
   <div class="hero-copy">
     <div class="wrap">
-      <p class="label hero-eyebrow">Mechanical engineer · Zürich → Cambridge, MA</p>
       <h1 class="hero-name">Jędrzej Cader</h1>
       <p class="hero-pronounce">Pronounced: Yan-Jay Cader. (yes, really)</p>
       <p class="hero-sub">I build things that have to survive being set on fire. Rocket engines
@@ -2336,6 +2409,16 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <p>Placeholder — the lab, the topic, and who you're working with.</p>
         </div>
       </li>
+      <!-- The Experience heading lives INSIDE the timeline, on the WORK side —
+           the same side as the cards it introduces. Its id is the scroll target
+           for the rail's Experience item: two headings, one object. -->
+      <li class="tl-row work tl-mark" id="experience">
+        <span class="tl-node tl-node-mark" aria-hidden="true"></span>
+        <div class="tl-headbox">
+          <h2 class="section-name">Experience<a class="cv-mini" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
+          <p class="section-sub">Where I've worked</p>
+        </div>
+      </li>
       <li class="tl-row edu">
         <span class="tl-node" aria-hidden="true"></span>
         <div class="tl-card">
@@ -2343,16 +2426,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <h3 class="tl-role">MSc Mechanical Engineering</h3>
           <span class="tl-org">ETH Zürich</span>
           <p>Robotics, design and aerospace — distributed drone control and an aerospace micropump testbed.</p>
-        </div>
-      </li>
-      <!-- The Experience heading lives INSIDE the timeline, on the left. It is
-           the scroll target for the rail's Experience item: both headings point
-           into one object rather than labelling two separate sections. -->
-      <li class="tl-row work tl-mark" id="experience">
-        <span class="tl-node tl-node-mark" aria-hidden="true"></span>
-        <div class="tl-headbox">
-          <h2 class="section-name">Experience<a class="cv-mini" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
-          <p class="section-sub">Where I've worked</p>
         </div>
       </li>
       <li class="tl-row work">
@@ -2371,6 +2444,15 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <h3 class="tl-role">Head Coach &amp; Technical Advisor</h3>
           <span class="tl-org">ARIS · Swiss Academic Spaceflight Initiative</span>
           <p>Leading the coaching and technical advisory team for HERMES, the flagship bi-liquid rocket project.</p>
+        </div>
+      </li>
+      <li class="tl-row edu">
+        <span class="tl-node" aria-hidden="true"></span>
+        <div class="tl-card">
+          <span class="tl-when">2020 — 2024</span>
+          <h3 class="tl-role">BSc Mechanical Engineering</h3>
+          <span class="tl-org">ETH Zürich</span>
+          <p>Focus on robotics, design and control. Bachelor's thesis on additively manufactured cryogenic ball valves.</p>
         </div>
       </li>
       <li class="tl-row work">
@@ -2398,15 +2480,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <h3 class="tl-role">Teaching Assistant</h3>
           <span class="tl-org">ETH Zürich · Innovation Project</span>
           <p>Led six teams of five through a full product development cycle.</p>
-        </div>
-      </li>
-      <li class="tl-row edu">
-        <span class="tl-node" aria-hidden="true"></span>
-        <div class="tl-card">
-          <span class="tl-when">2020 — 2024</span>
-          <h3 class="tl-role">BSc Mechanical Engineering</h3>
-          <span class="tl-org">ETH Zürich</span>
-          <p>Focus on robotics, design and control. Bachelor's thesis on additively manufactured cryogenic ball valves.</p>
         </div>
       </li>
       <li class="tl-row edu">
@@ -2509,7 +2582,18 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <textarea id="msgBody" name="message" rows="4" required
                     placeholder="What are you building?"></textarea>
         </p>
-        <div class="msg-foot">
+        <!-- HONEYPOT. A real field, hidden from people by CSS and from screen
+           readers by aria-hidden, and skipped by tabindex. A human never sees
+           it so it stays empty; most spam bots fill in every input they find.
+           The JS below refuses to send when it has a value. Costs nothing, and
+           it is the standard trick because it needs no captcha and no
+           third-party script. Keep the name generic ("website") — bots skip
+           fields obviously named "honeypot". -->
+      <p class="msg-hp" aria-hidden="true">
+        <label for="msgSite">Website</label>
+        <input id="msgSite" name="website" type="text" tabindex="-1" autocomplete="off">
+      </p>
+      <div class="msg-foot">
           <button class="msg-send" type="submit">
             <span class="msg-send-label">Send</span>
             <svg class="ic msg-rocket" viewBox="0 0 24 24" aria-hidden="true"><use href="#d-rocket"/></svg>
@@ -3019,6 +3103,10 @@ toTop.addEventListener('click',function(){
     e.preventDefault();
     if(!form.reportValidity()) return;
     var data=new FormData(form);
+    /* honeypot: a person can't see or tab to this field, so anything in it is
+       a bot. Fail silently — telling a bot it was caught just teaches it. */
+    if((data.get('website')||'').trim()!==''){ say('Sent — thank you.'); form.reset(); return; }
+    data.delete('website');
     var action=form.getAttribute('action')||'';
 
     if(action.indexOf(PLACEHOLDER)>-1){
