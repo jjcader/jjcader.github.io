@@ -1,0 +1,261 @@
+================================================================================
+EDITING THIS SITE — a practical map
+================================================================================
+
+Everything is in index.html. One file: CSS in one <style> block, HTML in the
+middle, JS in one <script> block at the end.
+
+Line numbers below were correct when this was written. They drift as you add
+text. If a number looks wrong, search for the quoted marker instead — those
+don't move.
+
+Open index.html and press Ctrl+G in VS Code to jump to a line.
+
+
+--------------------------------------------------------------------------------
+1. THE THREE ZONES
+--------------------------------------------------------------------------------
+
+  35 – 1480    <style>   All CSS. Colours, sizes, layout.
+1489 – 2672    HTML      The actual page content. THIS IS WHERE YOU EDIT TEXT.
+2674 – end     <script>  All JS. You should never need to touch this.
+
+  Line 37      :root     Every colour and size token. Change colours HERE only.
+
+
+--------------------------------------------------------------------------------
+2. WHERE EACH SECTION LIVES
+--------------------------------------------------------------------------------
+
+Search marker                     Line    What it is
+---------------------------------------------------------------------------
+<svg width="0"                    1489    Icon sprite (all the small icons)
+<header class="site-header"       1572    Top bar: name, "Now at" chip, nav
+<nav class="site-nav"             1580    The seven nav links
+<nav class="rail"                 1594    The progress rail (right edge)
+<div class="hero">                1645    Hero photo + name + chips
+<section id="about">              1685    About
+<section id="selected">           1754    Highlights (the four cards)
+<section id="projects">           1893    Everything (categories + entries)
+<section id="life">               2272    Life
+<div class="strip"                2333    Photo strip (inside Life)
+<section id="education">          2421    The timeline (education AND experience)
+<div class="cv-strip              2547    CV download strip
+<section id="contact">            2559    Contact
+<footer>                          2661    Footer
+
+
+--------------------------------------------------------------------------------
+3. EDITING TEXT — the common jobs
+--------------------------------------------------------------------------------
+
+HERO
+  1670   Credential chips (NASA JPL / MIT / ETH ZÜRICH / ARIS)
+  ~1666  Your name, the pronunciation line, the one-line pitch
+  Photo: replace the <div class="hero-placeholder"> with an <img>.
+         Keep it inside <div class="hero-media"> or the parallax breaks.
+
+ABOUT
+  1716   The facts table (Name / Age / Hometown / Based in / Lived in / Languages)
+  1730   The three prose paragraphs
+  To add a table row: copy a whole <li> line. To remove one: delete the line.
+
+HIGHLIGHTS — the four big cards
+  1848   card 1  -> opens entry e2  (JPL)
+  1858   card 2  -> opens entry e1  (MIT thesis)
+  1868   card 3  -> opens entry e11 (POLANA)
+  1878   card 4  -> opens entry e12 (EYP)
+  Each card has: tile-meta (small blue line), tile-title, tile-desc.
+  data-target="eN" must match an entry id further down, or the card does nothing.
+
+EVERYTHING — three category cards then three groups of entries
+  1954   The three category cards
+  1977   Group: Rocketry & space      (entries e2, e3, e4, e5, e6)
+  2105   Group: Robotics & simulation (entries e1, e7, e8)
+  2181   Group: Leadership & teaching (entries e11, e12, e13)
+
+  Individual entries (search "aria-controls=" to find any of them):
+    1981  e2   A radio telescope on the far side of the Moon
+    2008  e3   HERMES
+    2034  e4   HELIOS
+    2059  e5   3D-printed cryogenic ball valves
+    2082  e6   Micropump testbed
+    2109  e1   Master's thesis at MIT
+    2133  e7   Drone swarm
+    2157  e8   Snack robot
+    2185  e11  POLANA
+    2210  e12  EYP
+    2236  e13  Nine years of teaching
+
+  Each entry has FOUR text bits:
+    entry-title     the headline
+    entry-meta      "2025 · NASA JPL"
+    entry-summary   the one-line teaser, ends with " …"
+    the <p> tags    the full text, shown when opened
+
+  >>> IMPORTANT: entry-summary must be the OPENING WORDS of the first <p>,
+      cut off with " …". Clicking the entry continues the sentence. If you
+      rewrite a paragraph, re-cut its summary to match, or the two disagree.
+
+LIFE
+  2290, 2299, 2308, 2318    the four cards
+  Card 4 has class "life-card no-photo" — it has no image block at all.
+  To make a card text-only: add "no-photo" and delete its <div class="life-media">.
+  2345   The photo strip cards.
+         >>> The strip holds SEVEN cards listed TWICE. If you add or remove
+             one, do it in BOTH halves or the scroll will show a gap.
+
+THE TIMELINE (education + experience, one object)
+  2461   Master's thesis, MIT            (education, LEFT side)
+  2470   MSc Mechanical Engineering      (education, LEFT)
+  2483   "EXPERIENCE" heading            (this is the anchor the rail jumps to)
+  2490   Researcher, NASA JPL            (work, RIGHT side)
+  2499   Head Coach, ARIS                (work, RIGHT)
+  2508   BSc Mechanical Engineering      (education, LEFT)
+  2517   Mechanical Engineer, ARIS       (work, RIGHT)
+  2526   Workshop Intern, KMB            (work, RIGHT)
+  2535   Hull's School                   (education, LEFT)
+
+  class="tl-row edu"  = left side.  class="tl-row work" = right side.
+  Order on screen = order in the file. To move an entry, move its whole <li>.
+  Rows are NOT to scale — evenly spaced regardless of dates.
+
+CONTACT
+  2611   The message form
+  >>> To make the form actually send: sign up at web3forms.com, get an access
+      key, and replace PASTE-YOUR-FORM-ENDPOINT-HERE in the action="" attribute.
+      Until then it opens your mail app instead, which also works.
+
+FOOTER
+  2661   Location, icons, copyright, credit line
+
+
+--------------------------------------------------------------------------------
+4. THE PROGRESS RAIL
+--------------------------------------------------------------------------------
+
+Line 1594. Seven <li> items, one per section.
+
+>>> If you add, remove or reorder a section you must update FOUR places, and
+    they must all be in the same order or the rocket points at the wrong dot:
+
+    1. the <section> in the HTML
+    2. the rail's <ol>              (line ~1594)
+    3. the nav links                (line ~1580)
+    4. railSections in the JS       (search "var railSections")
+
+Each rail item has a planet icon (#p-saturn, #p-moon, ...). They're in the
+sprite at line 1489.
+
+
+--------------------------------------------------------------------------------
+5. CHANGING COLOURS
+--------------------------------------------------------------------------------
+
+Line 37, the :root block. Never anywhere else.
+
+  --accent            royal blue    (links, metadata, icons at rest)
+  --accent-2          turquoise     (gradients, water motif)
+  --accent-warm       orange        (flames, bars — GRAPHICS ONLY)
+  --accent-warm-ink   dark orange   (orange that has to be READ)
+  --paper / --paper-2 backgrounds
+  --ink / --ink-2 / --ink-3 / --ink-body   text
+
+>>> Two oranges on purpose. The bright one fails contrast for text. If a person
+    has to read it, use --accent-warm-ink.
+
+>>> If you change --accent or --accent-warm, also change them in 404.html
+    (its :root is a copy) and in the favicon data-URI at the top of index.html.
+
+
+--------------------------------------------------------------------------------
+6. CHANGING TEXT SIZES
+--------------------------------------------------------------------------------
+
+Also line 37. Five tokens cover almost everything:
+
+  --fs-small        card descriptions, entry summaries, timeline blurbs
+  --fs-meta         small mono labels (years, table keys, card meta)
+  --fs-nav          nav links, brand, rail labels
+  --fs-action       every pill button (Jump, Open, Full CV, Send, Close, Top)
+  --fs-card-title   card headlines
+
+Change the token, not the individual component.
+
+
+--------------------------------------------------------------------------------
+7. ADDING IMAGES
+--------------------------------------------------------------------------------
+
+STEP 1 — put the files in images/ with lowercase-hyphen names:
+    hero.jpg, jpl-1.jpg, jpl-2.jpg, helios-1.jpg, polana-1.jpg, strip-1.jpg ...
+
+    NEVER "HELIOS 1.JPG". Your Mac doesn't care about case; the server does.
+    A wrong-case name works locally and 404s on the live site.
+
+STEP 2 — resize BEFORE committing. Run this in the repo folder:
+
+    mogrify -resize 1600x1600\> -quality 82 images/*.jpg
+
+    (Install once with:  sudo apt install imagemagick)
+
+    Check nothing is over ~400KB:
+
+    find images -size +400k -ls
+
+    Git keeps every version of every binary forever. One oversized image
+    committed once is permanent weight you can't remove.
+
+STEP 3 — swap each placeholder. Find lines like:
+
+    <span class="label">images/jpl-1.jpg</span>
+
+    Replace the SPAN (keep the wrapper div, it holds the aspect ratio) with:
+
+    <img src="images/jpl-1.jpg" alt="Describe what's in the photo"
+         loading="lazy" decoding="async" width="1600" height="1067">
+
+    - loading="lazy" on EVERYTHING except the hero photo and the first
+      Highlights card. Those two are on screen immediately; deferring them
+      makes them appear later, not sooner.
+    - width/height are the file's real pixel size. They stop the page jumping
+      around as images load. Get them with:  identify images/jpl-1.jpg
+    - alt: if a caption right next to it already says the same thing, use
+      alt="". If the photo IS the information, describe it.
+
+STEP 4 — the social preview card. Make a 1200x630 image, save as
+    images/og-card.jpg. It's already referenced at the top of index.html.
+
+
+--------------------------------------------------------------------------------
+8. WORKFLOW
+--------------------------------------------------------------------------------
+
+    git pull                  # start of every session
+    ...edit...
+    git status                # check what changed
+    git add .
+    git commit -m "what you did"
+    git push                  # live in about a minute
+
+Preview locally: right-click index.html -> Open with Live Server.
+Never commit just to see a change — the file opens in a browser directly.
+
+To go back to an earlier version:
+    git tag                   # list the saved checkpoints
+    git checkout v16-404-and-type   # look at one
+    git checkout main         # come back
+
+
+--------------------------------------------------------------------------------
+9. THINGS THAT WILL BREAK IF YOU'RE NOT CAREFUL
+--------------------------------------------------------------------------------
+
+  - Entry ids must be unique. e9, e10 and e15 are retired. New ones start at e18.
+  - data-target="eN" on a card must match a real entry id.
+  - The photo strip's seven cards are listed twice. Keep both halves identical.
+  - Adding/removing an entry means updating the group's count in TWO places:
+    the <span class="group-count"> and the category card's data-n.
+  - The entry summary and the first paragraph must agree (see section 3).
+  - Never put a phone number, home address or date of birth in this repo.
+    It is public and it gets scraped. Email and LinkedIn only.

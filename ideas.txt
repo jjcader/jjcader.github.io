@@ -1,0 +1,282 @@
+================================================================================
+IDEAS NOT YET BUILT
+Everything discussed but not implemented, plus things not yet raised.
+================================================================================
+
+
+================================================================================
+ANIMATION
+================================================================================
+
+Already built (for reference, don't redo):
+  flame reacts to scroll speed · rocket leans into travel · ignition ring on
+  open, reverse ring on close · category count-up · envelope flap · deco
+  parallax · cursor-following orbit in the hero · year scramble on hover ·
+  rail separator charges to the rocket · turning gears on every divider
+
+--- STRONGEST UNBUILT ---
+
+  * Gears turn with scroll velocity.
+    They spin at a fixed rate now. Driving them from the same signal the flame
+    uses would tie the whole page to one mechanical system. Cheapest big win
+    on this list — the signal already exists.
+
+  * Gears counter-rotate down the page.
+    Alternate direction per divider so consecutive gears read as a gear train.
+
+  * Rail separator's bright band already tracks the rocket — next step is the
+    rail planets rotating slowly, each at its own rate. They're planets.
+
+--- ENTRY / CARD INTERACTIONS ---
+
+  * Tags populate sequentially when an entry opens, like a spec sheet filling.
+  * Entry images slide in slightly offset as the body expands.
+  * Open entries mark their group head: "2 of 6 open".
+  * Entry opens like a drawer — subtle scale-x on the left edge.
+  * Card descriptions reveal staggered on scroll-in.
+  * The "Open" arrow becomes a rocket on hover.
+  * Cards tilt 2–3° toward the cursor. Physical, easy to overdo.
+
+--- HERO ---
+
+  * Cursor orbit reacts to what's under it — tightens over the name, opens
+    over empty photo.
+  * Ken Burns drift on the hero photo, 40s cycle, independent of parallax.
+  * Scroll cue draws a trajectory arc instead of bobbing.
+  * Credential chips deal in left-to-right after the name settles.
+
+--- COUNTDOWN / MISSION CLOCK ---
+
+  * Below T+010 the readout goes red-orange and the flame idles hot.
+  * At T+000 the rocket gives one small bob and the flame flares.
+  * Mission clock digits flip individually, split-flap style (reuse the year
+    scramble machinery).
+
+--- STRUCTURAL MOTION ---
+
+  * Section titles wipe in behind their own divider as it draws left-to-right.
+  * Photo strip reverses direction with scroll direction.
+  * Nav underline travels between items rather than fading independently.
+  * Waves respond to scroll velocity — choppier when you scroll fast.
+  * Timeline spine "draws" downward as you scroll through it.
+
+--- EASTER EGGS ---
+
+  * Typing "launch" anywhere runs T+010 → T+000, then a rocket crosses the
+    viewport diagonally.
+  * Konami code turns every decoration warm for a few seconds.
+  * Clicking the hero name three times animates the pronunciation line.
+
+--- RULE FOR ANY NEW ANIMATION ---
+
+  Never animate from invisible. The scroll-reveal fades were removed because
+  content hidden until scrolled past fails anyone who lands and just looks.
+  Animate from a visible resting state.
+  Every JS effect needs its own `if(reduced) return` — the CSS kill switch
+  can't stop JavaScript writing inline styles.
+
+
+================================================================================
+STRUCTURE
+================================================================================
+
+--- DECIDED AGAINST (for now) ---
+
+  * A blog. An abandoned blog dated eighteen months ago actively damages a
+    portfolio. Revisit only with three posts already written.
+    Middle ground if tempted: a single undated "Notes" page. No schedule
+    implied, so nothing goes stale.
+
+  * Splitting into multiple pages. A portfolio's job is to be finished in one
+    sitting; every click is a place someone leaves.
+    The boundary that WOULD justify a second page: content people arrive at
+    directly rather than encounter while reading about you.
+      - project detail pages -> no, nobody links to them
+      - photo album          -> yes, eventually. A gallery is a destination.
+      - blog                 -> yes, when it exists
+    When you do: a second .html that copies the <style> block wholesale. Two
+    files duplicating CSS beats one file plus a build step.
+
+--- OPEN QUESTIONS ---
+
+  * Which four go in Highlights. Currently JPL / MIT / POLANA / EYP.
+    The case against: none of them is a rocket, and the site's argument is
+    "things that survive being set on fire". Two of four on leadership proves
+    one point twice.
+    Suggested: JPL / HELIOS / MIT / POLANA, with EYP prominent in the
+    Leadership group instead. Decide before cropping photos.
+
+  * Merging Education and Experience in the rail. They're one object already —
+    seven rail items is at the practical ceiling, and this is the mergeable pair.
+
+  * Category cards vs mosaic cards still look alike. Fixed partly (filled pill
+    vs outlined pill). Remaining options: make category cards a horizontal
+    strip of short bars, or fold them into the section head as inline links.
+
+  * "Everything" leads with Rocketry and ends with Leadership & teaching —
+    the group carrying the actual differentiator is third of three.
+
+  * Hull's School may not earn a timeline row on a page led by MIT and ETH.
+
+--- SMALL ---
+
+  * Back-to-top only appears after 90% of a viewport. Show it earlier.
+  * Mosaic "Open" jumps into a long list with no sense of where you came from.
+    A "back to Highlights" affordance on the opened entry would close the loop.
+  * `T+091` is unexplained. A title attribute costs nothing.
+  * The two dividers around the photo strip sit close together.
+  * Mobile has never had a real pass. Known, deferred, still true.
+
+
+================================================================================
+CONTENT
+================================================================================
+
+--- BEFORE ANYTHING ELSE ---
+
+  * Real photos. The mosaic is ~half photograph; a card with a grey box looks
+    worse than no card. Feature what you can actually illustrate.
+  * Real prose in the five placeholder entries. They say "Placeholder —" and
+    are easy to miss in a long list.
+  * og-card.jpg (1200x630). Should be YOU IN CONTEXT — at the test stand, in
+    the workshop — not a cropped headshot. A headshot at feed size reads as a
+    LinkedIn avatar, which is the register this site avoids.
+  * alt text on every image, once they exist.
+  * lazy-loading on everything but the hero and the first Highlights card.
+
+--- COPY ---
+
+  * Section subtitles are the weakest writing on the page. They describe the
+    section instead of saying something only you would say.
+    Candidates:
+      Highlights  "If you only open four things"
+      Life        "What I do when nothing is on fire"
+      Education   "Where I learned to be wrong efficiently"
+      Everything  "Sixteen years of making things work"
+  * About opening line — alternatives to the current one:
+      "Space technology is what I want to spend my life on. Getting a group of
+       people to agree on how turned out to be half the job."
+      "I'm a mechanical engineer who kept getting handed the organising as
+       well, and stopped treating that as a distraction."
+      "Cryogenic valves, a lunar telescope, two hundred students and a debating
+       chamber. The through-line is less obvious than it looks."
+      "Most of what I've built either had to survive a test fire or had to
+       survive a committee."
+  * Entry titles are already good. Keep naming the interesting thing, not the
+    job title.
+  * Reconcile "Four things worth opening" vs "Start here — the four I'd show
+    you first". Same thing said twice, differently.
+
+--- HERO PHOTO ---
+
+  If no single photo is strong enough, two is a legitimate answer:
+    - split hero (diagonal or vertical seam, 60/40)
+    - one photo with a smaller inset in a corner
+    - slow crossfade between two, 8s each, paused under reduced-motion
+  Portrait + hardware is the strongest pairing: the person and what they build.
+
+
+================================================================================
+EVERYTHING ELSE
+================================================================================
+
+  * Print stylesheet exists but has never been tested against real content.
+  * `--fs-*` tokens cover most sizes; ~15 one-off literals remain (form inputs,
+    tag chips, mobile overrides). Genuinely single-use, but worth a look.
+  * 404.html duplicates the palette from index.html. If you recolour, do both.
+  * The favicon's colours are hard-coded in a data URI — same caveat.
+  * `#projects` decorations are positioned by top:% against a section whose
+    height changes with content. Re-check spacing once entries are written.
+  * The timeline's orbit ring is at top:27%; if a card lands on it after the
+    descriptions grow, move the deco rather than reflowing rows.
+  * images/surf-1.jpg is referenced by a Life card but isn't in the expected
+    filename list.
+  * Retired entry ids: e9, e10, e15. New ones start at e18.
+  * Honeypot is in place. If spam ever gets through, the next step is a
+    timestamp check (reject submissions faster than ~3 seconds).
+
+
+================================================================================
+TWO BIG IDEAS
+================================================================================
+
+--------------------------------------------------------------------------------
+BIG IDEA 1 — THE MISSION LOG
+--------------------------------------------------------------------------------
+
+WHAT
+  A dated, append-only log of short entries. Two or three sentences each, in
+  mono, timestamped. Not a blog — no titles, no posts, no comments, no
+  obligation to be interesting.
+
+    T+ 2026.03.14   Third valve seat iteration. Leaks at 40 bar, holds at 35.
+                    The problem is the seal geometry, not the material.
+    T+ 2026.03.02   First full thesis simulation ran overnight. Twelve hours.
+                    Result was wrong but wrong in a way that makes sense.
+
+WHY IT'S DIFFERENT FROM A BLOG
+  A blog promises articles. A log promises nothing — you write when something
+  happened. An abandoned blog looks like failure; a log with a three-month gap
+  just means nothing happened worth writing down. That asymmetry is the whole
+  point, and it's why this survives where a blog wouldn't.
+
+WHY IT FITS THIS SITE SPECIFICALLY
+  The page already has a mission clock, gears, a progress rail, spec-sheet
+  metadata. It's dressed as an engineering document and doesn't yet contain
+  anything an engineering document actually holds. This is that thing.
+
+WHAT IT ADDS THAT NOTHING ELSE DOES
+  Every other section is finished work, past tense, polished. This is work in
+  progress, present tense, uncertain. It's the only thing on the site that
+  could show someone HOW you think rather than what you've completed — which
+  is what a research group or an employer is actually trying to find out.
+
+WHERE
+  Its own page (a log is a destination), linked from the footer and the About
+  section. Newest first, no pagination, no tags. One HTML file you append to.
+
+COST
+  A second .html file copying the <style> block. Nothing else.
+
+
+--------------------------------------------------------------------------------
+BIG IDEA 2 — ANNOTATED HARDWARE
+--------------------------------------------------------------------------------
+
+WHAT
+  One photograph, full-bleed, of something you actually built — a valve
+  assembly, the HELIOS test stand, the engine. Numbered hotspots on it. Click
+  or hover a number and a short note explains that part: what it does, what
+  went wrong with it, what you'd change.
+
+    (1)  Cryogenic ball valve — 3D printed. The seat is the hard part;
+         everything else is geometry.
+    (2)  Propellant line. Routed three times before this one survived a test.
+    (3)  This bracket is the only part that never failed. I have no idea why.
+
+WHY
+  Right now the site TELLS people you're a hardware engineer. This is the only
+  idea that SHOWS it. A photo with a caption says "I was there". A photo you
+  can take apart says "I know what every part of this does and I remember what
+  went wrong with each one" — which is a completely different claim, and one
+  almost nobody can fake.
+
+WHY IT SUITS YOU
+  Your differentiator is depth on physical systems that fail. This is the only
+  format that makes depth visible without making the reader read an essay. And
+  it turns the site's weakest asset — static placeholder photos — into its
+  strongest one.
+
+WHERE
+  Between Highlights and Everything, as its own band. One piece of hardware.
+  Not a gallery — one object, done properly.
+
+TECHNICAL SHAPE
+  Absolutely-positioned buttons over a photo, percentage coordinates so they
+  scale. Click opens a small panel. On mobile the hotspots become a numbered
+  list under the image. Roughly the complexity of the mosaic — the site already
+  does everything this needs.
+
+RISK
+  Needs one genuinely good, well-lit photograph of one thing. If that photo
+  doesn't exist, this doesn't work. Worth taking one deliberately.
