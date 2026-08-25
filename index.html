@@ -1274,42 +1274,51 @@ section{overflow:hidden;overflow:clip}
 }
 
 /* ============ CV STRIP ============ */
-/* Was a grey --paper-2 panel, which made it the only neutral surface on a page
-   built out of blue and orange — it read as unfinished rather than quiet. It is
-   now the page's one solid blue block: this is the last thing before Contact
-   and the only download on the site, so it should stop the eye. */
+/* Blue, but a TINT that fades out across the block rather than a solid slab.
+   It was grey (the only neutral surface on a blue/orange page, which read as
+   unfinished), then a solid accent block, which shouted — it is the last thing
+   before Contact and was pulling more attention than Contact itself. Half
+   filled, half faded is the compromise: unmistakably part of the palette, but
+   it recedes on the right where the button does the shouting instead. */
 .cv-strip{position:relative;overflow:hidden;display:flex;flex-wrap:wrap;align-items:center;
   justify-content:space-between;gap:clamp(18px,2.4vw,34px);border-radius:6px;
-  padding:clamp(24px,2.8vw,36px) clamp(22px,3vw,38px);
-  background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 82%,var(--ink)),
-    color-mix(in srgb,var(--accent) 62%,var(--ink)))}
-/* the same blueprint grid as the message form, so the two "do something" blocks
-   on the page are visibly siblings */
+  border:1.5px solid var(--rule-blue);
+  padding:clamp(22px,2.6vw,32px) clamp(22px,3vw,38px);
+  background:linear-gradient(100deg,
+    color-mix(in srgb,var(--accent) 20%,var(--paper)) 0%,
+    color-mix(in srgb,var(--accent) 11%,var(--paper)) 46%,
+    var(--paper) 100%)}
+/* the left-edge bar every other panel on the page carries, permanently lit —
+   this one is a call to action, not a card */
+.cv-strip::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;
+  border-radius:6px 0 0 6px;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent) 55%,var(--accent-warm))}
+/* same blueprint grid as the message form, so the two "do something" blocks
+   read as siblings. Ink-tinted now the ground is light. */
 .cv-strip::after{content:"";position:absolute;inset:0;pointer-events:none;
   background-image:
-    linear-gradient(to right,rgba(255,255,255,.07) 1px,transparent 1px),
-    linear-gradient(to bottom,rgba(255,255,255,.07) 1px,transparent 1px);
+    linear-gradient(to right,color-mix(in srgb,var(--accent) 9%,transparent) 1px,transparent 1px),
+    linear-gradient(to bottom,color-mix(in srgb,var(--accent) 9%,transparent) 1px,transparent 1px);
   background-size:30px 30px;
-  mask-image:radial-gradient(130% 100% at 0% 0%,#000,transparent 70%)}
+  mask-image:radial-gradient(120% 100% at 0% 0%,#000,transparent 66%)}
 .cv-strip > *{position:relative;z-index:1}
-/* bigger than a normal .label and in the warm accent — on a blue block the
-   orange is the only thing that reads as a heading rather than as caption */
 .cv-strip .label{font-size:clamp(13px,1.15vw,16px);letter-spacing:.16em;
-  color:var(--accent-warm)}
-.cv-strip .skills{color:rgba(255,255,255,.9);max-width:56ch;margin:10px 0 0;
+  color:var(--accent-warm-ink)}
+.cv-strip .skills{color:var(--ink-body);max-width:56ch;margin:10px 0 0;
   font-size:var(--fs-small);line-height:1.55}
-/* Deliberately the biggest button on the page. It is the only download, and the
-   two sections above it are written as summaries that point here. */
+/* Deliberately the biggest button on the page: it is the only download, and
+   both sections above it are written as summaries that point here. */
 .cv-dl{display:inline-flex;align-items:center;gap:12px;font-family:var(--mono);
   font-size:clamp(13px,1.05vw,15px);font-weight:600;letter-spacing:.12em;
   text-transform:uppercase;text-decoration:none;white-space:nowrap;
-  color:var(--accent);background:var(--paper);border:2px solid var(--paper);
+  color:var(--paper);background:var(--accent);border:2px solid var(--accent);
   border-radius:999px;padding:17px 32px;
-  box-shadow:0 12px 28px -16px rgba(0,0,0,.55);
+  box-shadow:0 14px 30px -18px color-mix(in srgb,var(--accent) 85%,transparent);
   transition:.26s var(--ease)}
 .cv-dl .ic{width:19px;height:19px;transition:transform .3s var(--ease)}
 .cv-dl:hover{background:var(--accent-warm);border-color:var(--accent-warm);color:#fff;
-  transform:translateY(-3px);box-shadow:0 18px 34px -14px rgba(0,0,0,.6)}
+  transform:translateY(-3px);
+  box-shadow:0 20px 36px -16px color-mix(in srgb,var(--accent-warm) 85%,transparent)}
 /* the arrow drops, like something being pulled down */
 .cv-dl:hover .ic{transform:translateY(3px)}
 @media (max-width:640px){.cv-dl{width:100%;justify-content:center}}
@@ -1439,15 +1448,24 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
    that sits on the divider directly above. Absolute positioning takes them out
    of the grid, which collapses the middle column to zero and lets the location
    and credit use the full width either side. */
-.foot-inner{display:grid;grid-template-columns:1fr auto 1fr;gap:14px 18px;align-items:center}
-.foot-inner > :first-child{justify-self:start}
+/* Two columns, not three. .foot-links is absolutely positioned (see below), so
+   it leaves the grid flow entirely — with a three-column template the credit
+   then auto-placed into the MIDDLE column and sat dead centre, underneath the
+   icons. Both remaining items get an explicit column so auto-placement can't
+   put them anywhere unexpected. */
+.foot-inner{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;align-items:center}
+.foot-loc{grid-column:1;justify-self:start}
+.foot-credit{grid-column:2}
+/* Centred on the FOOTER, not on .wrap — .wrap is shifted left to clear the
+   rail, so centring inside it put the icons noticeably left of the gear that
+   sits on the divider directly above. */
 .foot-links{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
 .foot-credit{justify-self:end;text-align:right;display:flex;flex-direction:column;gap:3px}
 .foot-credit span{color:var(--ink-2);font-size:10.5px;letter-spacing:.1em;text-transform:none}
 @media (max-width:820px){
   /* stacked: the icons go back into the flow between the two lines */
   .foot-inner{grid-template-columns:1fr;justify-items:center;text-align:center}
-  .foot-inner > :first-child,.foot-credit{justify-self:center;text-align:center}
+  .foot-loc,.foot-credit{grid-column:1;justify-self:center;text-align:center}
   .foot-credit{align-items:center}
   .foot-links{position:static;transform:none}
 }
@@ -3288,5 +3306,23 @@ nav.addEventListener('click',function(e){
   }
 });
 </script>
+<!-- ============ ANALYTICS ============================================
+     GoatCounter. Counts visits, referrers and country — no cookies, no
+     personal data, EU-hosted, and it honours Do Not Track. That is why there
+     is no cookie banner on this site and why there doesn't need to be; swap in
+     Google Analytics and you inherit a consent-banner obligation.
+
+     SETUP (two minutes, once):
+       1. Sign up free at https://www.goatcounter.com — pick a code, e.g.
+          "jjcader". Your dashboard is then jjcader.goatcounter.com
+       2. Replace YOURCODE below with it.
+     Until you do, the script 404s harmlessly and nothing is tracked.
+
+     It will NEVER tell you WHO visited — no analytics tool does. You get
+     numbers, not names. The only place you learn an identity is the form.
+     ================================================================= -->
+<script data-goatcounter="https://YOURCODE.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+
 </body>
 </html>
