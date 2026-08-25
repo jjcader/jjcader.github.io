@@ -268,6 +268,18 @@ gives a real line that still doesn't terminate in a hard edge. **If a divider
 is ever reported as invisible again, check where the reader's viewport sits
 relative to those stops before assuming the element isn't rendering.**
 
+**The section head is inverted from the usual arrangement**: the section NAME
+(About / Selected / Projects / Experience / Education / Contact) is the big
+element — mono, 600, `clamp(26px,3.4vw,44px)`, `--accent`, bracketed by an
+orange dash on each side — and the serif line beneath it is a small subtitle.
+Those six words are the same six the progress rail uses, so making them
+dominant means the rail and the page state the same thing at the same weight.
+
+**The `<h2>` is the name, not the serif line.** When the visual hierarchy was
+inverted the markup was inverted with it, so the heading a screen reader
+announces is the one that actually labels the section. If these are ever
+re-ranked again, move the `<h2>` too.
+
 ### Typography
 
 - **Instrument Serif** — display only. Hero name, section titles, group titles,
@@ -350,14 +362,20 @@ for it to be centred in.
    between the name and the positioning statement) exists specifically
    because "Jędrzej" trips up an English-speaking reader — keep it dry
    ("(yes, really)"), not apologetic, matching the rest of the voice.
+   A `.hero-creds` row of four chips (NASA JPL · MIT · ETH Zürich · ARIS) sits
+   under the positioning statement. **These are load-bearing, not decoration**:
+   the page deliberately puts Education and Experience near the bottom, and
+   this row is what stops that being a problem for someone scanning for
+   credentials. The hero is ~68vh rather than a full screen so the chips and
+   the top of `#about` are both visible on landing.
 3. **`#about`** — facts sidebar (left), prose (right), social pills.
-4. **`#selected`** — mosaic of six featured tiles.
+4. **`#selected`** — mosaic of four featured cards (image + caption).
 5. **`#projects`** — four category cards, then four grouped lists of entries.
 6. **Photo strip** — auto-scrolling clickable photo cards (not a `<section>`).
-7. **`#education`** — three boxed timeline cards.
-8. **`#experience`** — five boxed timeline cards, then the compact CV strip.
+7. **`#experience`** — five boxed timeline cards, then the compact CV strip.
+8. **`#education`** — three boxed timeline cards.
 9. **`#contact`** — email as a large serif line (with an envelope whose flap
-   opens on hover), socials.
+   opens on hover), socials, and the message form.
 10. **Footer** — location, icon links, copyright.
 11. Floating: right-hand progress rail, back-to-top button.
 
@@ -369,19 +387,31 @@ Sections carry `EDIT ME #n` comments marking where content goes.
 
 ### The featured mosaic (`#selected`)
 
-Six `<button class="tile">` elements in a six-column grid with deliberately
-uneven spans: `.t-lg` (4 cols, 16:10), `.t-sm` (2 cols, 3:4), `.t-md` (3 cols,
-3:2). The irregularity is what stops it reading as a product grid — **do not
-regularise the tile sizes.**
+Four `<button class="tile">` cards on a twelve-column grid, alternating
+`.t-wide` (7 cols) and `.t-narrow` (5 cols). The uneven widths are what stop it
+reading as a product listing — **do not regularise them into a flat 4-up.**
 
-Each tile carries `data-target="eN"` pointing at an entry's `id` below. Clicking
+**Each card is image on top, caption underneath** — not a title floating over a
+photograph, which is what it was for six rounds. That version asked the reader
+to click a picture to find out what it was, and a reader who is scanning does
+not click, so they learned nothing. The caption carries meta, title, a
+two-line description and an "Open" affordance; roughly half the card is now
+text. The description is the one place a project gets summarised without
+opening anything.
+
+Each card carries `data-target="eN"` pointing at an entry's `id` below. Clicking
 scrolls to that entry, opens it, and flashes it. The mosaic is a *visual layer
 over the same content*, never a duplicate — there is exactly one copy of every
 project's text.
 
-Tiles are ~60% photograph. A tile with no real image looks worse than no mosaic
-at all. If fewer than six good images exist, reduce the tile count rather than
-shipping grey placeholders.
+The four featured are **JPL, MIT, POLANA and EYP** — chosen on the grounds
+that they are the ones with usable photographs. A card with no real image looks
+worse than no mosaic at all, so **feature what you can actually illustrate**
+and cut the count rather than shipping grey placeholders. Note the trade this
+makes: none of the four is a rocket, so the mosaic no longer shows the thing
+the rest of the site argues is central. HERMES or HELIOS moving into the four
+(displacing one of the two leadership cards) would fix that if the photos
+exist.
 
 ### Category cards + groups (`#projects`)
 
@@ -442,10 +472,13 @@ resting hues.
     <span class="entry-title">…</span>
     <span class="entry-meta">Year · Place</span>
     <span class="entry-toggle" aria-hidden="true">+</span>
+    <span class="entry-brief">
+      <span class="entry-summary">One line on what the work was.</span>
+      <span class="tags"><span>Tag</span><span>Tag</span></span>
+    </span>
   </button>
   <div class="entry-body" id="eN"><div><div class="entry-content">
     <div>
-      <ul class="tags"><li>…</li></ul>
       <p>…</p>
       <ul class="entry-links"><li><a href="#">Label <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
     </div>
@@ -457,6 +490,20 @@ resting hues.
   </div></div></div>
 </article>
 ```
+
+**The summary and the tags live in the HEAD, not the body, and are visible
+while the entry is collapsed.** They used to sit inside `.entry-content`, which
+meant a reader scanning `#projects` saw fifteen bare titles and had to click
+each one to learn anything — the exact wrong bargain for someone who is
+scanning, because they don't click. They were **moved, not copied**: there is
+still one copy of every entry's text.
+
+Two consequences to preserve. The tags are `<span>`, not `<ul>`/`<li>` — a list
+is not valid inside a `<button>`, and the whole row has to stay one hit target.
+And `.entry-head` is a two-row `grid-template-areas` layout
+(`"title meta toggle" / "brief brief brief"`), which is what keeps the meta
+right-aligned on row one while the brief spans the full width on row two; the
+≤820px query restacks the same areas into one column.
 
 The triple-nested `div` inside `.entry-body` is load-bearing: the expand
 animation uses `grid-template-rows: 0fr → 1fr` with `overflow:hidden` on the
@@ -1314,6 +1361,35 @@ the next frame's measurement and drift steadily off.
 
 ---
 
+### The contact form (`#contact`)
+
+`<form class="msg" id="msgForm">` — a bordered panel, deliberately the only
+thing on the page that asks the reader to *do* something rather than read.
+
+**It has two modes and picks between them from the `action` attribute**, which
+is the whole point of the design: the site is static, has no backend, and must
+keep working with zero setup.
+
+- `action` still contains `PASTE-YOUR-FORM-ENDPOINT-HERE` → the JS composes a
+  pre-filled `mailto:` and hands off to the reader's mail client. Nothing is
+  sent by the page, nothing leaves the browser.
+- `action` set to a real endpoint (Formspree, Web3Forms — anything that takes a
+  POST and answers JSON) → the JS `fetch`es it in the background and confirms
+  in place, so the reader never leaves the page.
+
+**Swapping modes is a one-line change and requires no code edits** — paste the
+endpoint over the placeholder. Don't "simplify" this by deleting the mailto
+branch: it is what makes the form work on a fresh clone with no account
+anywhere.
+
+The browser's own `required` / `type=email` validation runs first via
+`reportValidity()`, so there is no hand-rolled validation to keep in sync. The
+send button's rocket animation is CSS keyed off `.is-sent`, which the JS
+removes again after 800ms so a second message re-arms it — same
+remove/reflow/re-add pattern as the entry ignition ring.
+
+---
+
 ## 8. Images
 
 Live in `images/`, referenced relatively. Expected names include `hero.jpg`,
@@ -1399,8 +1475,9 @@ give it a fresh unique `id`, update that group's `.group-count` and the matching
 **Add a category** → copy a whole `.group` block with a new `id`, add a matching
 `.cat` card with `data-goto` pointing at it, pick an icon from the sprite.
 
-**Feature something in the mosaic** → change a tile's `data-target`, title, meta
-and image. Keep six tiles and keep the size classes as they are.
+**Feature something in the mosaic** → change a card's `data-target`, title,
+meta, description and image. Keep four cards, and keep the alternating
+`.t-wide` / `.t-narrow` widths.
 
 **Recolour** → edit `:root` only.
 
@@ -1414,6 +1491,17 @@ Jędrzej's projects rather than one of his profiles, so repeating it in every
 link cluster over-weighted it. GitHub is still in all three clusters, kept
 for now despite a thin commit history; if that changes, remove it from
 `#about` and the footer first and leave `#contact`, same shape as POLANA.
+
+---
+
+**Favicon** → an inline `data:image/svg+xml` URI in `<head>`, not a file: the
+repo has a no-extra-files habit and an SVG favicon scales to every size on its
+own. It is drawn **filled**, unlike every sprite icon on the page, because at
+16px a hairline stroke disappears completely. Its colours are hard-coded
+(`%230d55bd` / `%23f07a1a`, where `%23` is an escaped `#`) because a data URI
+cannot read CSS variables — **if `--accent` or `--accent-warm` change, change
+them there too.** That is the one place on the site where "recolour by editing
+`:root` only" does not hold.
 
 ---
 

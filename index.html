@@ -10,6 +10,14 @@
 <meta property="og:description" content="Mechanical engineer. Rocket engines at ARIS, a lunar radio telescope at NASA JPL, master's thesis at MIT.">
 <meta property="og:type" content="website">
 
+<!-- Favicon as an inline data URI rather than a .ico/.png file: this repo has a
+     no-extra-files habit and an SVG favicon scales to every size on its own.
+     Drawn FILLED, not stroked like the sprite icons — at 16px a hairline
+     outline disappears completely. Colours are hard-coded because a data URI
+     can't read CSS variables; if --accent or --accent-warm change, change
+     %230d55bd and %23f07a1a here too (%23 is an escaped '#'). -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path fill='%23f07a1a' d='M16 21c2.6 2.4 4 4.6 4 6.5a4 4 0 0 1-8 0c0-1.9 1.4-4.1 4-6.5z'/><path fill='%230d55bd' d='M16 2.5c3.9 3.5 6.1 8.2 6.1 13.3 0 2.9-.9 5.9-2.5 8.2H12.4c-1.6-2.3-2.5-5.3-2.5-8.2 0-5.1 2.2-9.8 6.1-13.3z'/><path fill='%230d55bd' d='M11.2 12.2 12.9 16.1 9.2 21.4z'/><path fill='%230d55bd' d='M20.8 12.2 19.1 16.1 22.8 21.4z'/><circle cx='16' cy='13.4' r='2.6' fill='%23fffdfa'/></svg>">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Mono carries 600 as well as 400/500: every piece of metadata on this page
@@ -366,7 +374,11 @@ a{color:var(--accent)}
 }
 
 /* ============ HERO ============ */
-.hero{position:relative;height:min(84vh,760px);min-height:440px;overflow:hidden;background:var(--paper-2)}
+/* Shorter than a full viewport on purpose. At 84vh the hero filled the screen
+   and the reader had to scroll before learning anything, which for a portfolio
+   is a wasted first impression; at ~68vh the credential row and the top of
+   #about are both visible on landing, so the page starts by saying something. */
+.hero{position:relative;height:min(68vh,620px);min-height:420px;overflow:hidden;background:var(--paper-2)}
 .hero-media{position:absolute;inset:-10% 0;will-change:transform}
 .hero-media > *{width:100%;height:100%}
 .hero-media img{object-fit:cover}
@@ -395,6 +407,19 @@ a{color:var(--accent)}
 .hero-pronounce{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:rgba(255,255,255,.6);margin:12px 0 0;
   text-shadow:0 1px 12px rgba(0,0,0,.5)}
+/* Credential chips — the first hard information on the page. Blue-tinted
+   glass on the photo rather than solid fills, so they read as labels over the
+   image instead of buttons; the orange dot before each one is the site's
+   accent pair doing the work at small scale. */
+.hero-creds{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:20px 0 0;padding:0}
+.hero-creds li{display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:#fff;
+  background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.28);
+  border-radius:999px;padding:7px 14px;backdrop-filter:blur(4px)}
+.hero-creds li::before{content:"";width:5px;height:5px;border-radius:50%;
+  background:var(--accent-warm);flex:0 0 auto}
+@media (max-width:520px){.hero-creds li{font-size:10.5px;padding:6px 11px}}
 .hero-sub{color:rgba(255,255,255,.94);max-width:52ch;margin:16px 0 0;
   font-size:clamp(15px,.6vw + 13px,19px);text-shadow:0 1px 18px rgba(0,0,0,.5)}
 @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
@@ -402,6 +427,7 @@ a{color:var(--accent)}
 .hero-copy > .wrap > *:nth-child(2){animation-delay:.08s}
 .hero-copy > .wrap > *:nth-child(3){animation-delay:.16s}
 .hero-copy > .wrap > *:nth-child(4){animation-delay:.24s}
+.hero-copy > .wrap > *:nth-child(5){animation-delay:.32s}
 /* scroll cue */
 .scroll-cue{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
   color:rgba(255,255,255,.6);animation:bob 2.6s var(--ease) infinite}
@@ -464,29 +490,28 @@ section::before,.strip::before{content:"";position:absolute;bottom:0;left:50%;z-
 @keyframes gear-turn{from{transform:translateX(-50%) rotate(0)}
   to{transform:translateX(-50%) rotate(360deg)}}
 .section-head{margin-bottom:clamp(26px,4vw,46px)}
-/* The eyebrow above each section title is the actual SECTION NAME (About,
-   Selected, Projects…) and matches the progress rail's labels one-for-one, so
-   it is sized as a title rather than as fine print — .label's 11.5px made it
-   look like a caption. Scoped to .section-head plus the one-off
-   .section-label rather than restyling .label globally: .label is also the
-   image placeholders, the footer and the CV strip's sub-label, none of which
-   should grow. The small bar before it gives the name something to sit
-   against now that it carries weight. */
-/* The eyebrow is bracketed by a matching orange dash on BOTH sides rather
-   than led by one on the left: with a single dash the name hung off the end
-   of a stub, and the pair reads as a deliberate mark. Blue name between two
-   orange rules is the site's whole colour system in one small object. */
-.section-head .label,.section-label{display:flex;align-items:center;gap:13px;
-  font-size:clamp(15px,1.25vw,19px);letter-spacing:.2em;color:var(--accent)}
-.section-head .label::before,.section-head .label::after,
-.section-label::before,.section-label::after{content:"";width:clamp(22px,2.2vw,34px);height:2px;
-  border-radius:2px;background:var(--accent-warm);flex:0 0 auto}
-.section-title{font-family:var(--serif);font-weight:400;font-size:clamp(34px,4.8vw,56px);
-  line-height:1.02;letter-spacing:-.022em;margin:14px 0 0}
-/* Deliberately a step SMALLER than body copy: it is a caption under a big
-   title, and at full body size it competed with the title above it. The
-   hierarchy down the head is eyebrow (mono, blue) > title (serif, huge) >
-   note (sans, quiet). */
+/* The SECTION NAME is the heading — big mono, blue, bracketed by orange
+   dashes — and the serif line under it is the subtitle. That is the inverse
+   of the usual eyebrow-over-title arrangement, and it is deliberate: these
+   six words (About / Selected / Projects / Education / Experience / Contact)
+   are the same six the progress rail uses, so making them dominant means the
+   rail and the page state the same thing at the same weight.
+   The <h2> is the NAME, not the serif line, so the heading a screen reader
+   announces is the one that actually labels the section. */
+.section-name{font-family:var(--mono);font-weight:600;margin:0;line-height:1.08;
+  font-size:clamp(26px,3.4vw,44px);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);display:flex;align-items:center;gap:clamp(12px,1.4vw,20px)}
+/* Bracketed by a dash on BOTH sides rather than led by one: with a single
+   dash the name hangs off the end of a stub. Blue name between two orange
+   rules is the site's whole colour system in one object. */
+.section-name::before,.section-name::after{content:"";flex:0 0 auto;border-radius:2px;
+  width:clamp(22px,2.4vw,40px);height:3px;background:var(--accent-warm)}
+/* Serif, and deliberately small — it is a caption under the name, not a
+   competing title. It carried the display scale until the hierarchy was
+   inverted; keeping the typeface is what stops the change reading as a
+   demotion rather than a re-ranking. */
+.section-sub{font-family:var(--serif);font-weight:400;font-size:clamp(17px,1.6vw,23px);
+  line-height:1.25;letter-spacing:-.01em;color:var(--ink-2);margin:13px 0 0}
 .section-note{color:var(--ink-2);max-width:56ch;margin:14px 0 0;
   font-size:clamp(13.5px,.28vw + 12.4px,15px);line-height:1.62}
 
@@ -689,39 +714,51 @@ section{overflow:hidden}
 @media (max-width:980px){.about-grid{grid-template-columns:1fr}}
 
 /* ============ MOSAIC ============ */
-.mosaic{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
-.tile{position:relative;overflow:hidden;border:1px solid var(--rule);background:var(--paper-2);
+/* Four cards, image on top and a real caption beneath — not a title floating
+   over a photo. The old six-tile version made the reader click a picture to
+   find out what it was, which is exactly the wrong bargain for someone
+   scanning: they don't click, so they learn nothing. Half the card is now
+   text that says what the work was.
+   The two widths stay UNEVEN (7/5 of a 12-column grid, alternating) because a
+   flat 4-up grid reads as a product listing. Do not regularise them. */
+.mosaic{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(12px,1.4vw,18px)}
+.tile{position:relative;display:flex;flex-direction:column;overflow:hidden;
+  border:1px solid var(--rule);border-radius:3px;background:var(--paper);
   cursor:pointer;padding:0;text-align:left;font:inherit;color:inherit;
   transition:transform .4s var(--ease),border-color .3s var(--ease),box-shadow .4s var(--ease)}
+.t-wide{grid-column:span 7}
+.t-narrow{grid-column:span 5}
 .tile:hover{transform:translateY(-4px);border-color:var(--accent-warm);
-  box-shadow:0 14px 34px -18px color-mix(in srgb,var(--accent-warm) 60%,transparent)}
-.tile img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
-.tile:hover img{transform:scale(1.05)}
+  box-shadow:0 16px 36px -20px color-mix(in srgb,var(--accent-warm) 60%,transparent)}
+/* left edge bar, same blue-to-orange wipe as the category and timeline cards */
+.tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;z-index:2;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent-warm));
+  transform:scaleY(0);transform-origin:top;transition:transform .38s var(--ease)}
+.tile:hover::before{transform:scaleY(1)}
+.tile-media{position:relative;aspect-ratio:16/10;overflow:hidden;background:var(--paper-2);
+  border-bottom:1px solid var(--rule)}
+.tile-media img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+.tile:hover .tile-media img{transform:scale(1.05)}
 .tile-ph{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:12px}
-.tile-veil{position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(6,26,34,0) 36%,rgba(6,26,34,.8) 100%)}
-.tile-copy{position:absolute;inset:auto 0 0 0;padding:18px 20px}
-.tile-title{font-family:var(--serif);font-weight:400;color:#fff;line-height:1.12;
-  font-size:clamp(19px,1.6vw,27px);letter-spacing:-.01em;text-shadow:0 1px 14px rgba(0,0,0,.5)}
-.tile-meta{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.1em;
-  text-transform:uppercase;color:rgba(255,255,255,.88);margin-top:6px;
-  display:flex;align-items:center;gap:7px}
-/* the arrow that slides in on hover is warm — on a dark photo veil copper
-   reads much hotter than blue, and this is the "something happens here" cue */
-.tile-meta .ic{width:13px;height:13px;opacity:0;transform:translateX(-4px);color:var(--accent-warm);
-  transition:opacity .3s var(--ease),transform .3s var(--ease)}
-.tile:hover .tile-meta .ic{opacity:1;transform:none}
-.t-lg{grid-column:span 4;aspect-ratio:16/10}
-.t-sm{grid-column:span 2;aspect-ratio:3/4}
-.t-md{grid-column:span 3;aspect-ratio:3/2}
+.tile-body{display:flex;flex-direction:column;flex:1 1 auto;
+  padding:clamp(15px,1.5vw,21px) clamp(16px,1.6vw,23px) clamp(15px,1.5vw,20px)}
+.tile-meta{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--accent)}
+.tile-title{font-family:var(--serif);font-weight:400;line-height:1.14;margin-top:7px;
+  font-size:clamp(20px,1.8vw,28px);letter-spacing:-.015em;color:var(--ink)}
+.tile-desc{margin:10px 0 0;color:var(--ink-body);max-width:46ch;
+  font-size:clamp(13.5px,.3vw + 12.3px,15px);line-height:1.55}
+/* pushed to the bottom of the card by margin-top:auto so the "Open" line sits
+   on the same baseline across cards of different text length */
+.tile-go{display:flex;align-items:center;gap:7px;margin-top:auto;padding-top:14px;
+  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--accent);
+  transition:color .3s var(--ease),gap .3s var(--ease)}
+.tile-go .ic{width:13px;height:13px}
+.tile:hover .tile-go{color:var(--accent-warm-ink);gap:12px}
 @media (max-width:900px){
-  .mosaic{grid-template-columns:repeat(2,1fr)}
-  .t-lg,.t-sm,.t-md{grid-column:span 1;aspect-ratio:1}
-  .t-lg{grid-column:span 2;aspect-ratio:16/10}
-}
-@media (max-width:520px){
-  .mosaic{grid-template-columns:1fr}
-  .t-lg,.t-sm,.t-md{grid-column:span 1;aspect-ratio:4/3}
+  .t-wide,.t-narrow{grid-column:span 12}
+  .tile-media{aspect-ratio:16/9}
 }
 
 /* ============ CATEGORY OVERVIEW ============ */
@@ -777,22 +814,48 @@ section{overflow:hidden}
   background:linear-gradient(180deg,var(--accent-2),var(--accent-warm));
   transform:scaleY(0);transform-origin:top;transition:transform .3s var(--ease)}
 .entry:hover::before,.entry[data-open="true"]::before{transform:scaleY(1)}
+/* Two rows now: title/meta/toggle across the top, then a summary and the tag
+   chips underneath — all inside the button, so the whole block stays one hit
+   target. The summary and tags used to live in the EXPANDED body, which meant
+   a reader scanning the list saw fifteen bare titles and had to click each one
+   to learn anything. They are moved, not duplicated: there is still exactly
+   one copy of every entry's text.
+   grid-template-areas keeps the meta column right-aligned on row 1 while the
+   brief spans the full width on row 2. */
 .entry-head{position:relative;width:100%;background:none;border:0;cursor:pointer;font:inherit;
-  color:inherit;text-align:left;
-  display:grid;grid-template-columns:1fr auto 24px;align-items:baseline;gap:16px;
-  padding:16px 6px;transition:background .22s var(--ease),padding-left .22s var(--ease)}
+  color:inherit;text-align:left;display:grid;column-gap:16px;row-gap:9px;
+  grid-template-columns:1fr auto 24px;
+  grid-template-areas:"title meta toggle" "brief brief brief";
+  align-items:baseline;
+  padding:20px 6px;transition:background .22s var(--ease),padding-left .22s var(--ease)}
 .entry-head:hover{background:var(--paper-2);padding-left:14px}
-.entry-title{font-size:1.04em;font-weight:600;line-height:1.4}
+.entry-title{grid-area:title;font-family:var(--serif);font-weight:400;
+  font-size:clamp(20px,1.75vw,27px);line-height:1.16;letter-spacing:-.015em}
+.entry-brief{grid-area:brief;display:flex;flex-wrap:wrap;align-items:center;
+  gap:9px 14px;max-width:92ch}
+.entry-summary{color:var(--ink-2);font-size:clamp(13.5px,.3vw + 12.4px,15px);line-height:1.55;
+  max-width:68ch}
+/* chips are <span>, not <li>: a <ul> is not valid inside a <button>, and the
+   whole row has to stay one clickable target */
+.entry-brief .tags{display:flex;flex-wrap:wrap;gap:6px}
+.entry-brief .tags span{font-family:var(--mono);font-size:10.5px;font-weight:500;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--accent);
+  background:var(--accent-soft);border-radius:3px;padding:3px 8px;white-space:nowrap;
+  border:1px solid color-mix(in srgb,var(--accent) 18%,var(--rule));
+  transition:color .25s var(--ease),background .25s var(--ease),border-color .25s var(--ease)}
+.entry[data-open="true"] .entry-brief .tags span{color:var(--accent-warm-ink);
+  background:var(--warm-soft);border-color:color-mix(in srgb,var(--accent-warm) 30%,var(--rule))}
+@media (max-width:820px){.entry-brief{gap:8px 10px}}
 /* the dates column: was 10.5px --ink-3 and near-invisible against the title
    next to it. Bigger, 600, and blue — the same accent the rail uses, so the
    metadata column reads as one deliberate system down the page. */
-.entry-meta{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.06em;
+.entry-meta{grid-area:meta;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.06em;
   text-transform:uppercase;color:var(--accent);text-align:right;white-space:nowrap;opacity:.9;
   transition:color .3s var(--ease)}
 /* the whole row goes warm once it's open — toggle, left bar and now the
    date/place too, so the open entry reads as one lit-up unit */
 .entry[data-open="true"] .entry-meta{color:var(--accent-warm-ink);opacity:1}
-.entry-toggle{position:relative;font-family:var(--mono);font-size:18px;font-weight:500;
+.entry-toggle{grid-area:toggle;position:relative;font-family:var(--mono);font-size:18px;font-weight:500;
   color:var(--accent);justify-self:end;
   transition:transform .3s var(--ease),color .3s var(--ease)}
 /* warm on hover/open — heat where the interaction is */
@@ -844,9 +907,12 @@ section{overflow:hidden}
 .shot.small{aspect-ratio:1}
 .shot .label{font-size:9.5px;line-height:1.5}
 @media (max-width:820px){
-  .entry-head{grid-template-columns:1fr 22px;row-gap:4px;padding:14px 4px}
+  /* the meta drops under the title and left-aligns, so the areas restack to
+     three rows in one column plus the toggle pinned top-right */
+  .entry-head{grid-template-columns:1fr 22px;row-gap:6px;padding:16px 4px;
+    grid-template-areas:"title toggle" "meta meta" "brief brief"}
   .entry-head:hover{padding-left:4px}
-  .entry-meta{grid-column:1/3;text-align:left;white-space:normal}
+  .entry-meta{text-align:left;white-space:normal}
   .entry-content{grid-template-columns:1fr}
 }
 
@@ -864,10 +930,6 @@ section{overflow:hidden}
    hover outline lost its top side. This works BECAUSE overflow:hidden clips
    at the padding edge, so the padding band is inside the visible region —
    the same property exploited (in reverse) by the margin-right rule below. */
-/* a real subheading, sized between .section-title and a group title — the
-   strip isn't a <section> so it can't borrow .section-title's scale */
-.strip-title{font-family:var(--serif);font-weight:400;font-size:clamp(24px,2.8vw,34px);
-  line-height:1.1;letter-spacing:-.02em;margin:0}
 .strip-viewport{overflow:hidden;padding-block:7px;
   mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
 /* Keep the marquee's cards from sliding under the fixed rail. The strip is
@@ -981,6 +1043,67 @@ section{overflow:hidden}
    adds the same amount back so the footer's own content doesn't move. The
    gear and the rule both carry a positive z-index, so they still paint over
    the footer's background rather than being buried by it. */
+/* ============ CONTACT FORM ============
+   A bordered panel so it reads as a distinct thing to DO on a page that is
+   otherwise all reading. Runs the site's blue-at-rest / orange-on-interaction
+   rule at every level: blue label and border at rest, orange on focus, orange
+   fill on the send button, and the rocket lifting off on submit. */
+.msg{position:relative;margin-top:clamp(34px,4.4vw,54px);max-width:640px;
+  background:var(--paper);border:1px solid var(--rule-blue);border-radius:4px;
+  padding:clamp(22px,2.6vw,32px);
+  box-shadow:0 18px 44px -34px color-mix(in srgb,var(--accent) 55%,transparent)}
+/* the same left-edge wipe every other panel on the page has, but permanently
+   lit rather than hover-triggered — this one is a call to action, not a card */
+.msg::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:4px 0 0 4px;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent) 55%,var(--accent-warm))}
+.msg-head{margin-bottom:clamp(16px,1.8vw,22px)}
+.msg-eyebrow{display:block;font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.msg-title{font-family:var(--serif);font-weight:400;font-size:clamp(21px,2vw,27px);
+  line-height:1.15;letter-spacing:-.015em;margin:6px 0 0}
+.msg-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:560px){.msg-grid{grid-template-columns:1fr}}
+.msg-field{margin:0 0 14px;display:flex;flex-direction:column;gap:6px}
+.msg-grid .msg-field{margin:0}
+.msg-field label{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-3);transition:color .22s var(--ease)}
+.msg-field input,.msg-field textarea{font:inherit;font-size:15px;color:var(--ink);
+  background:var(--paper-2);border:1px solid var(--rule-blue);border-radius:3px;
+  padding:11px 13px;width:100%;resize:vertical;
+  transition:border-color .22s var(--ease),background .22s var(--ease),box-shadow .22s var(--ease)}
+.msg-field textarea{min-height:104px;line-height:1.55}
+.msg-field input::placeholder,.msg-field textarea::placeholder{color:var(--ink-3)}
+.msg-field:focus-within label{color:var(--accent-warm-ink)}
+.msg-field input:focus,.msg-field textarea:focus{outline:none;background:var(--paper);
+  border-color:var(--accent-warm);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-warm) 16%,transparent)}
+.msg-foot{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:4px}
+.msg-send{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:11px;
+  font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.13em;
+  text-transform:uppercase;cursor:pointer;color:var(--paper);
+  background:var(--accent);border:1px solid var(--accent);border-radius:999px;
+  padding:13px 24px;transition:.24s var(--ease)}
+.msg-send:hover{background:var(--accent-warm-ink);border-color:var(--accent-warm-ink);
+  transform:translateY(-2px)}
+.msg-send .ic{width:17px;height:17px;transition:transform .3s var(--ease)}
+.msg-send:hover .ic{transform:translateY(-3px)}
+/* ANIMATION — on a successful send the rocket climbs out of the button and
+   the label blinks with it. .is-sent is removed again by the JS once the
+   status line has shown, so a second message re-arms the whole thing. */
+.msg.is-sent .msg-rocket{animation:msg-launch .75s var(--ease) forwards}
+.msg.is-sent .msg-send-label{animation:msg-lift .75s var(--ease) forwards}
+@keyframes msg-launch{0%{transform:translateY(0);opacity:1}
+  60%{transform:translateY(-38px);opacity:0}
+  61%{transform:translateY(26px);opacity:0}
+  100%{transform:translateY(0);opacity:1}}
+@keyframes msg-lift{0%,55%{opacity:1}60%{opacity:0}100%{opacity:1}}
+.msg-send[disabled]{opacity:.65;pointer-events:none}
+.msg-status{margin:0;font-family:var(--mono);font-size:11.5px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--accent-warm-ink);
+  opacity:0;transform:translateY(4px);transition:.3s var(--ease)}
+.msg-status.show{opacity:1;transform:none}
+.msg-status.err{color:#b4231f}
+
 footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   padding-top:calc(30px + var(--gear-size)/2);padding-bottom:30px;
   background:var(--paper-2)}
@@ -1107,8 +1230,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <a href="#about">About</a>
       <a href="#selected">Selected</a>
       <a href="#projects">Projects</a>
-      <a href="#education">Education</a>
       <a href="#experience">Experience</a>
+      <a href="#education">Education</a>
       <a href="#contact">Contact</a>
     </nav>
     <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="nav">Menu</button>
@@ -1123,8 +1246,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <li><a href="#about"><span class="rail-label">About</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-saturn"/></svg></span></a></li>
       <li><a href="#selected"><span class="rail-label">Selected</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-moon"/></svg></span></a></li>
       <li><a href="#projects"><span class="rail-label">Projects</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-banded"/></svg></span></a></li>
-      <li><a href="#education"><span class="rail-label">Education</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-cratered"/></svg></span></a></li>
       <li><a href="#experience"><span class="rail-label">Experience</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-saturn-2"/></svg></span></a></li>
+      <li><a href="#education"><span class="rail-label">Education</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-cratered"/></svg></span></a></li>
       <li><a href="#contact"><span class="rail-label">Contact</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-twin"/></svg></span></a></li>
     </ol>
     <div class="rail-gauge">
@@ -1173,6 +1296,16 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <p class="hero-pronounce">Pronounced: Yan-Jay Cader. (yes, really)</p>
       <p class="hero-sub">I build things that have to survive being set on fire. Rocket engines
          at ARIS, a lunar radio telescope at NASA JPL, and right now a master's thesis at MIT.</p>
+      <!-- EDIT ME — the four names worth reading in the first two seconds.
+           These are load-bearing: the page deliberately puts Education and
+           Experience near the bottom, and this row is what stops that being a
+           problem for a reader who is scanning for credentials. -->
+      <ul class="hero-creds">
+        <li>NASA JPL</li>
+        <li>MIT</li>
+        <li>ETH Zürich</li>
+        <li>ARIS</li>
+      </ul>
     </div>
   </div>
   <svg class="ic scroll-cue" width="22" height="22"><use href="#i-arrow-down"/></svg>
@@ -1193,8 +1326,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
   <div class="wrap">
     <div class="section-head reveal">
-      <p class="label">About</p>
-      <h2 class="section-title">The short version</h2>
+      <h2 class="section-name">About</h2>
+      <p class="section-sub">The short version</p>
     </div>
     <div class="about-grid reveal">
       <div>
@@ -1317,58 +1450,55 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
   <div class="wrap">
     <div class="section-head reveal">
-      <p class="label">Selected</p>
-      <h2 class="section-title">Six things worth opening</h2>
+      <h2 class="section-name">Selected</h2>
+      <p class="section-sub">Four things worth opening</p>
       <p class="section-note">Click one and it opens in the list below.</p>
     </div>
 
     <div class="mosaic reveal">
-      <button class="tile t-lg" data-target="e2">
-        <div class="tile-ph"><span class="label">images/jpl-1.jpg</span></div>
-        <div class="tile-veil"></div>
-        <div class="tile-copy">
+      <!-- EDIT ME — four tiles, each with a real caption UNDER the image
+           rather than a title floating over it. The photo is now roughly half
+           the card: a scanning reader gets the picture AND a sentence saying
+           what the work was, without having to click through to the entry.
+           data-target must match an entry id further down. -->
+      <button class="tile t-wide" data-target="e2">
+        <div class="tile-media"><div class="tile-ph"><span class="label">images/jpl-1.jpg</span></div></div>
+        <div class="tile-body">
+          <div class="tile-meta">2025 · NASA JPL</div>
           <div class="tile-title">A radio telescope on the far side of the Moon</div>
-          <div class="tile-meta">2025 · NASA JPL <svg class="ic"><use href="#i-arrow-right"/></svg></div>
+          <p class="tile-desc">Signal processing and orbital simulation for a wire mesh strung
+             inside a lunar crater, shielded from every transmitter on Earth.</p>
+          <div class="tile-go">Open <svg class="ic"><use href="#i-arrow-right"/></svg></div>
         </div>
       </button>
-      <button class="tile t-sm" data-target="e4">
-        <div class="tile-ph"><span class="label">images/helios-1.jpg</span></div>
-        <div class="tile-veil"></div>
-        <div class="tile-copy">
-          <div class="tile-title">Cryogenic valves &amp; a test stand</div>
-          <div class="tile-meta">2023–24 · ARIS <svg class="ic"><use href="#i-arrow-right"/></svg></div>
-        </div>
-      </button>
-      <button class="tile t-sm" data-target="e1">
-        <div class="tile-ph"><span class="label">images/mit-1.jpg</span></div>
-        <div class="tile-veil"></div>
-        <div class="tile-copy">
+      <button class="tile t-narrow" data-target="e1">
+        <div class="tile-media"><div class="tile-ph"><span class="label">images/mit-1.jpg</span></div></div>
+        <div class="tile-body">
+          <div class="tile-meta">2026 · MIT · Cambridge, MA</div>
           <div class="tile-title">Master's thesis at MIT</div>
-          <div class="tile-meta">2026 · Cambridge <svg class="ic"><use href="#i-arrow-right"/></svg></div>
+          <p class="tile-desc">Placeholder — one line on what the thesis actually asks, and
+             what you are building to answer it.</p>
+          <div class="tile-go">Open <svg class="ic"><use href="#i-arrow-right"/></svg></div>
         </div>
       </button>
-      <button class="tile t-lg" data-target="e3">
-        <div class="tile-ph"><span class="label">images/hermes-1.jpg</span></div>
-        <div class="tile-veil"></div>
-        <div class="tile-copy">
-          <div class="tile-title">HERMES — leading the team building a bi-liquid rocket</div>
-          <div class="tile-meta">2024–present · ARIS <svg class="ic"><use href="#i-arrow-right"/></svg></div>
-        </div>
-      </button>
-      <button class="tile t-md" data-target="e7">
-        <div class="tile-ph"><span class="label">images/swarm-1.jpg</span></div>
-        <div class="tile-veil"></div>
-        <div class="tile-copy">
-          <div class="tile-title">Drones that read each other's wake</div>
-          <div class="tile-meta">2025 · ETH research <svg class="ic"><use href="#i-arrow-right"/></svg></div>
-        </div>
-      </button>
-      <button class="tile t-md" data-target="e11">
-        <div class="tile-ph"><span class="label">images/polana-1.jpg</span></div>
-        <div class="tile-veil"></div>
-        <div class="tile-copy">
+      <button class="tile t-narrow" data-target="e11">
+        <div class="tile-media"><div class="tile-ph"><span class="label">images/polana-1.jpg</span></div></div>
+        <div class="tile-body">
+          <div class="tile-meta">2023–present · Co-founder</div>
           <div class="tile-title">POLANA — building an organisation of 200+</div>
-          <div class="tile-meta">2023–present · Co-founder <svg class="ic"><use href="#i-arrow-right"/></svg></div>
+          <p class="tile-desc">Co-founded and grew the largest Polish student association in
+             Zürich, from a first meeting to a standing committee structure.</p>
+          <div class="tile-go">Open <svg class="ic"><use href="#i-arrow-right"/></svg></div>
+        </div>
+      </button>
+      <button class="tile t-wide" data-target="e12">
+        <div class="tile-media"><div class="tile-ph"><span class="label">images/eyp-1.jpg</span></div></div>
+        <div class="tile-body">
+          <div class="tile-meta">2018–present · European Youth Parliament</div>
+          <div class="tile-title">Chairing 100 people arguing about Europe</div>
+          <p class="tile-desc">Presided over a 100+ delegate session in Sassari, running seven
+             committees through teambuilding, debate and drafting.</p>
+          <div class="tile-go">Open <svg class="ic"><use href="#i-arrow-right"/></svg></div>
         </div>
       </button>
     </div>
@@ -1439,8 +1569,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
   <div class="wrap">
     <div class="section-head reveal">
-      <p class="label">Projects</p>
-      <h2 class="section-title">Browse by area</h2>
+      <h2 class="section-name">Projects</h2>
+      <p class="section-sub">Browse by area</p>
       <p class="section-note">Four areas. Pick one to jump straight to it, or keep scrolling
          through the lot.</p>
     </div>
@@ -1482,10 +1612,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">Master's thesis at MIT</span>
           <span class="entry-meta">2026 · Cambridge, MA</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Placeholder — one line on what the thesis asks and what you are building to answer it.</span>
+            <span class="tags"><span>MIT</span><span>Research</span><span>Aerospace</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e1"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>MIT</li><li>Research</li><li>Aerospace</li></ul>
             <p>Writing my ETH master's thesis at MIT. Placeholder — the topic, the lab, who
                you're working with, and what you're trying to find out.</p>
             <ul class="entry-links"><li><a href="#">Read more <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
@@ -1503,10 +1636,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">A radio telescope on the far side of the Moon</span>
           <span class="entry-meta">2025 · NASA JPL</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Signal processing, orbital simulation and foreground extraction for a telescope on the lunar far side.</span>
+            <span class="tags"><span>MATLAB</span><span>Python</span><span>Signal processing</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e2"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>MATLAB</li><li>Python</li><li>Signal processing</li></ul>
             <p>Visiting Student Researcher in the Robotics Group at JPL, on the Lunar Crater
                Radio Telescope — a wire mesh strung inside a crater on the lunar far side,
                shielded from every radio transmitter on Earth.</p>
@@ -1527,10 +1663,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">HERMES — leading the team building a bi-liquid rocket</span>
           <span class="entry-meta">2024–present · ARIS</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Head Coach of the team designing and building a bi-liquid rocket, from concept through test campaign.</span>
+            <span class="tags"><span>Leadership</span><span>Bi-liquid</span><span>Project management</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e3"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>Leadership</li><li>Bi-liquid</li><li>Project management</li></ul>
             <p>Head Coach and Technical Advisor for HERMES, the flagship rocketry project at
                ARIS. I lead the coaching and advisory team supporting the students building it.</p>
             <p>Mostly this is asking the right awkward question three weeks before anyone
@@ -1550,10 +1689,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">HELIOS — cryogenic valves and a rocket engine test stand</span>
           <span class="entry-meta">2023–2024 · ARIS</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Designed the cryogenic valve system and led the engine test stand campaign.</span>
+            <span class="tags"><span>Fluid dynamics</span><span>Cryogenics</span><span>Test campaigns</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e4"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>Fluid dynamics</li><li>Cryogenics</li><li>Test campaigns</li></ul>
             <p>Propellant supply engineer on a liquid rocket engine test stand. Co-designed and
                implemented a throttling control mechanism and the cryogenic liquid oxygen
                valve systems.</p>
@@ -1574,10 +1716,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">3D-printed cryogenic ball valves for rocket engines</span>
           <span class="entry-meta">2024 · Bachelor's thesis</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Bachelor’s thesis: additively manufactured ball valves that still seal at cryogenic temperature.</span>
+            <span class="tags"><span>Additive manufacturing</span><span>CFD</span><span>ANSYS</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e5"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>Additive manufacturing</li><li>CFD</li><li>ANSYS</li></ul>
             <p>Additively manufactured cryogenic ball valves — can you print a valve that
                survives liquid oxygen, and should you?</p>
           </div>
@@ -1594,10 +1739,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">A testbed for aerospace micropumps</span>
           <span class="entry-meta">2025 · Semester thesis</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Built a test rig for characterising micropumps intended for spacecraft fluid systems.</span>
+            <span class="tags"><span>Test rig</span><span>Fluid systems</span><span>ETH × ARIS</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e6"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>Test rig</li><li>Fluid systems</li><li>ETH × ARIS</li></ul>
             <p>Built the testbed that lays the foundation for aerospace pump research at ARIS
                and ETH. Infrastructure work — the sort nobody cites but everybody uses.</p>
           </div>
@@ -1618,10 +1766,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">Teaching a swarm of drones to read each other's wake</span>
           <span class="entry-meta">2025 · ETH research project</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Distributed control research on quadcopters flying close enough to disturb each other’s air.</span>
+            <span class="tags"><span>Distributed control</span><span>CFD</span><span>Python</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e7"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>Distributed control</li><li>CFD</li><li>Python</li></ul>
             <p>Wake-based analysis and distributed control of a drone swarm — using the
                aerodynamic mess each drone leaves behind as information the others can act on.</p>
             <ul class="entry-links"><li><a href="#">Repository <svg class="ic"><use href="#i-external"/></svg></a></li></ul>
@@ -1639,10 +1790,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">A robot that hands you snacks</span>
           <span class="entry-meta">2021–2022 · ETH Innovation Project</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">A full product development cycle in a team of four, from requirements to a working mechatronic prototype.</span>
+            <span class="tags"><span>Mechatronics</span><span>Agile</span><span>Team of 4</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e8"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>Mechatronics</li><li>Agile</li><li>Team of 4</li></ul>
             <p>A desktop snack dispenser robot, built in a team of four. Deeply unserious
                problem, entirely serious engineering.</p>
           </div>
@@ -1659,9 +1813,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">Placeholder — another robotics or simulation project</span>
           <span class="entry-meta">Year · Placeholder</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Placeholder — swap this out or delete it.</span>
+            <span class="tags"><span>Tag</span><span>Tag</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e9"><div><div class="entry-content">
-          <div><ul class="tags"><li>Tag</li><li>Tag</li></ul>
+          <div>
           <p>Swap this out or delete it.</p></div>
           <div class="shots">
             <div class="shot wide"><span class="label">images/placeholder-1.jpg</span></div>
@@ -1680,10 +1838,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">POLANA — the biggest Polish student association in Zürich</span>
           <span class="entry-meta">2023–present · Co-founder</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Co-founded and grew the largest Polish student association in Zürich to 200+ members.</span>
+            <span class="tags"><span>Co-founder</span><span>External relations</span><span>200+ members</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e11"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>Co-founder</li><li>External relations</li><li>200+ members</li></ul>
             <p>Co-founded the Polish Academic Network Abroad and run external relations —
                outreach, partner acquisition, sponsors, and events for up to 100 people.</p>
             <p>Started as a handful of us who missed home cooking. Now it's 200+ members.</p>
@@ -1702,10 +1863,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">Chairing 100 people arguing about Europe</span>
           <span class="entry-meta">2018–present · European Youth Parliament</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Chaired a 100+ delegate session in Sassari and ran seven committees through debate and drafting.</span>
+            <span class="tags"><span>Public speaking</span><span>Chairing</span><span>Sassari 2023</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e12"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>Public speaking</li><li>Chairing</li><li>Sassari 2023</li></ul>
             <p>Presided over a 100+ person session in Sassari, Italy. Led seven committees
                through teambuilding, debate and drafting proposals, and ran smaller sessions
                in Tessin.</p>
@@ -1725,10 +1889,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">Nine years of teaching, tutoring and mentoring</span>
           <span class="entry-meta">2017–present · ETH &amp; freelance</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Nine years teaching and tutoring, from school maths to mentoring first-year ETH students.</span>
+            <span class="tags"><span>Teaching assistant</span><span>Mentorship</span><span>Maths &amp; physics</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e13"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>Teaching assistant</li><li>Mentorship</li><li>Maths &amp; physics</li></ul>
             <p>TA at ETH, mentoring six teams of five through the Innovation Project. Mentor in
                ETH's Mentorship Programme for first-years. Eight years tutoring maths, physics
                and economics on the side.</p>
@@ -1751,10 +1918,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">500 km across the Balkans on a bicycle</span>
           <span class="entry-meta">Year · Personal</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Placeholder — where it started, where it ended, and the one thing that went wrong.</span>
+            <span class="tags"><span>Bikepacking</span><span>500 km</span><span>Balkans</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e14"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>Bikepacking</li><li>500 km</li><li>Balkans</li></ul>
             <p>Placeholder — where you started, where you ended, how many days, and the one
                thing that went wrong. That's the story people actually want.</p>
           </div>
@@ -1771,10 +1941,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">Ten years swimming for Poland</span>
           <span class="entry-meta">2012–2021 · Junior National Team</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Ten years on the Polish junior national team, with national titles in butterfly and both relays.</span>
+            <span class="tags"><span>200m butterfly</span><span>4×100 freestyle</span><span>4×100 medley</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e16"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>200m butterfly</li><li>4×100 freestyle</li><li>4×100 medley</li></ul>
             <p>Represented Poland on the junior national team, with national championship
                titles in 200m butterfly and both relays.</p>
             <p>Ten years of 5am alarms. Retired from competition in 2021.</p>
@@ -1792,10 +1965,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-title">Rubik's cubes, chess, and other small puzzles</span>
           <span class="entry-meta">Ongoing · Personal</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
+          <span class="entry-brief">
+            <span class="entry-summary">Placeholder — best solve time, chess rating, or just why you like them.</span>
+            <span class="tags"><span>Speedcubing</span><span>Chess</span></span>
+          </span>
         </button>
         <div class="entry-body" id="e17"><div><div class="entry-content">
           <div>
-            <ul class="tags"><li>Speedcubing</li><li>Chess</li></ul>
             <p>Placeholder — best solve time, chess rating, or just why you like them.</p>
           </div>
           <div class="shots">
@@ -1822,7 +1998,10 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     </g>
   </svg></div>
 
-  <div class="wrap" style="margin-bottom:26px"><h2 class="strip-title">Selected highlights</h2></div>
+  <div class="wrap" style="margin-bottom:26px">
+    <h2 class="section-name">Highlights</h2>
+    <p class="section-sub">A few things, out of context</p>
+  </div>
   <div class="strip-viewport">
     <div class="strip-track" id="stripTrack">
       <button class="strip-card" data-target="e4">
@@ -1888,66 +2067,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   </div>
 </div>
 
-<!-- ============ EDIT ME #9 — EDUCATION ============ -->
-<section id="education">
-  <!-- A rocket riding an actual orbit around its planet. Replaces a scattered
-       star field that sat here and read as dirt on the screen. -->
-  <div class="deco deco-orbit-edu-2" aria-hidden="true"><svg viewBox="0 0 400 400">
-    <circle cx="200" cy="200" r="150"/><circle cx="200" cy="200" r="46"/>
-    <ellipse cx="200" cy="200" rx="150" ry="44" transform="rotate(-18 200 200)"/>
-    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
-    <!-- The inner rotate() turns the rocket 90° about its own centre so its
-         nose lies along the orbit rather than pointing at the planet. The
-         outer .orbiter group is what actually carries it around. -->
-    <g class="orbiter"><g transform="rotate(90 200 50)"><use href="#d-rocket" x="176" y="26" width="48" height="48"/></g></g>
-    <!-- a second orbiter, the tight r=46 ring, going the other way -->
-    <g class="orbiter rev"><use href="#d-satellite" x="190" y="144" width="20" height="20"/></g>
-  </svg></div>
-  <div class="deco deco-orbit-edu warm" aria-hidden="true"><svg viewBox="0 0 400 400">
-    <circle cx="200" cy="200" r="176"/><circle cx="200" cy="200" r="118"/><circle cx="200" cy="200" r="62"/>
-    <ellipse cx="200" cy="200" rx="176" ry="56" transform="rotate(-16 200 200)"/>
-    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
-    <circle cx="70" cy="284" r="6" fill="currentColor" stroke="none"/>
-    <circle cx="330" cy="132" r="4" fill="currentColor" stroke="none"/>
-    <g class="orbiter"><use href="#d-satellite" x="184" y="66" width="32" height="32"/></g>
-  </svg></div>
-
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="label">Education</p>
-      <h2 class="section-title">Where I studied</h2>
-    </div>
-    <ul class="path reveal">
-      <li class="path-item">
-        <span class="path-when">2024 — present</span>
-        <div>
-          <p class="path-role">MSc Mechanical Engineering<span class="path-org">ETH Zürich · thesis at MIT</span></p>
-          <p>Specialising in robotics, design and aerospace. Research project on distributed
-             drone swarm control, semester thesis building an aerospace micropump testbed, and
-             currently writing the master's thesis at MIT.</p>
-        </div>
-      </li>
-      <li class="path-item">
-        <span class="path-when">2020 — 2024</span>
-        <div>
-          <p class="path-role">BSc Mechanical Engineering<span class="path-org">ETH Zürich</span></p>
-          <p>Focus on robotics, design and control. Bachelor's thesis on additively
-             manufactured cryogenic ball valves for rocket engines.</p>
-        </div>
-      </li>
-      <li class="path-item">
-        <span class="path-when">2016 — 2020</span>
-        <div>
-          <p class="path-role">Hull's School<span class="path-org">Zürich · English College</span></p>
-          <p>Straight A* in maths, physics, economics and French. Founded the Debate Society.
-             Finalist in the Swiss Mathematics and Physics Olympiads.</p>
-        </div>
-      </li>
-    </ul>
-  </div>
-</section>
-
-<!-- ============ EDIT ME #10 — EXPERIENCE ============ -->
+<!-- ============ EDIT ME #9 — EXPERIENCE ============ -->
 <section id="experience">
   <!-- bled almost entirely off the right edge — only a sliver shows, kept
        clear of the fixed progress rail on purpose -->
@@ -1978,8 +2098,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
   <div class="wrap">
     <div class="section-head reveal">
-      <p class="label">Experience</p>
-      <h2 class="section-title">Where I've worked</h2>
+      <h2 class="section-name">Experience</h2>
+      <p class="section-sub">Where I've worked</p>
     </div>
     <ul class="path reveal">
       <li class="path-item">
@@ -2037,6 +2157,65 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   </div>
 </section>
 
+<!-- ============ EDIT ME #10 — EDUCATION ============ -->
+<section id="education">
+  <!-- A rocket riding an actual orbit around its planet. Replaces a scattered
+       star field that sat here and read as dirt on the screen. -->
+  <div class="deco deco-orbit-edu-2" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="150"/><circle cx="200" cy="200" r="46"/>
+    <ellipse cx="200" cy="200" rx="150" ry="44" transform="rotate(-18 200 200)"/>
+    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
+    <!-- The inner rotate() turns the rocket 90° about its own centre so its
+         nose lies along the orbit rather than pointing at the planet. The
+         outer .orbiter group is what actually carries it around. -->
+    <g class="orbiter"><g transform="rotate(90 200 50)"><use href="#d-rocket" x="176" y="26" width="48" height="48"/></g></g>
+    <!-- a second orbiter, the tight r=46 ring, going the other way -->
+    <g class="orbiter rev"><use href="#d-satellite" x="190" y="144" width="20" height="20"/></g>
+  </svg></div>
+  <div class="deco deco-orbit-edu warm" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="176"/><circle cx="200" cy="200" r="118"/><circle cx="200" cy="200" r="62"/>
+    <ellipse cx="200" cy="200" rx="176" ry="56" transform="rotate(-16 200 200)"/>
+    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="70" cy="284" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="330" cy="132" r="4" fill="currentColor" stroke="none"/>
+    <g class="orbiter"><use href="#d-satellite" x="184" y="66" width="32" height="32"/></g>
+  </svg></div>
+
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 class="section-name">Education</h2>
+      <p class="section-sub">Where I studied</p>
+    </div>
+    <ul class="path reveal">
+      <li class="path-item">
+        <span class="path-when">2024 — present</span>
+        <div>
+          <p class="path-role">MSc Mechanical Engineering<span class="path-org">ETH Zürich · thesis at MIT</span></p>
+          <p>Specialising in robotics, design and aerospace. Research project on distributed
+             drone swarm control, semester thesis building an aerospace micropump testbed, and
+             currently writing the master's thesis at MIT.</p>
+        </div>
+      </li>
+      <li class="path-item">
+        <span class="path-when">2020 — 2024</span>
+        <div>
+          <p class="path-role">BSc Mechanical Engineering<span class="path-org">ETH Zürich</span></p>
+          <p>Focus on robotics, design and control. Bachelor's thesis on additively
+             manufactured cryogenic ball valves for rocket engines.</p>
+        </div>
+      </li>
+      <li class="path-item">
+        <span class="path-when">2016 — 2020</span>
+        <div>
+          <p class="path-role">Hull's School<span class="path-org">Zürich · English College</span></p>
+          <p>Straight A* in maths, physics, economics and French. Founded the Debate Society.
+             Finalist in the Swiss Mathematics and Physics Olympiads.</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
 <!-- ============ EDIT ME #11 — CONTACT ============ -->
 <section id="contact">
   <div class="deco deco-waves" aria-hidden="true"><svg viewBox="0 0 1200 170" preserveAspectRatio="none">
@@ -2056,7 +2235,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   </svg></div>
 
   <div class="wrap reveal">
-    <p class="label section-label">Contact</p>
+    <h2 class="section-name">Contact</h2>
     <p class="contact-line"><a class="contact-mail" href="mailto:jcader@ethz.ch"><svg
         class="ic mail-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-mail-box"/><use
         class="flap" href="#i-mail-flap"/></svg><span>jcader@ethz.ch</span></a></p>
@@ -2069,6 +2248,47 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <a href="https://github.com/jjcader"><svg class="ic"><use href="#i-github"/></svg> GitHub</a>
       <a href="https://polana.ch"><svg class="ic"><use href="#i-globe"/></svg> POLANA</a>
     </div>
+
+    <!-- ============ EDIT ME #12 — THE MESSAGE FORM =====================
+         RIGHT NOW this works with zero setup: it composes a pre-filled email
+         and opens your mail client. Nothing is sent behind your back and no
+         data leaves the browser.
+
+         To make it send WITHOUT opening a mail client, sign up at
+         https://formspree.io (or https://web3forms.com), then replace
+         PASTE-YOUR-FORM-ENDPOINT-HERE in the action below with the real
+         endpoint. The JS detects the placeholder — swap it and the form
+         starts POSTing in the background instead. Nothing else to change.
+         ================================================================ -->
+    <form class="msg" id="msgForm" method="POST"
+          action="PASTE-YOUR-FORM-ENDPOINT-HERE">
+      <div class="msg-head">
+        <span class="msg-eyebrow">Direct line</span>
+        <h3 class="msg-title">Send me something</h3>
+      </div>
+      <div class="msg-grid">
+        <p class="msg-field">
+          <label for="msgName">Name</label>
+          <input id="msgName" name="name" type="text" autocomplete="name" required>
+        </p>
+        <p class="msg-field">
+          <label for="msgEmail">Email</label>
+          <input id="msgEmail" name="email" type="email" autocomplete="email" required>
+        </p>
+      </div>
+      <p class="msg-field">
+        <label for="msgBody">Message</label>
+        <textarea id="msgBody" name="message" rows="4" required
+                  placeholder="What are you building?"></textarea>
+      </p>
+      <div class="msg-foot">
+        <button class="msg-send" type="submit">
+          <span class="msg-send-label">Send</span>
+          <svg class="ic msg-rocket" viewBox="0 0 24 24" aria-hidden="true"><use href="#d-rocket"/></svg>
+        </button>
+        <p class="msg-status" id="msgStatus" role="status" aria-live="polite"></p>
+      </div>
+    </form>
   </div>
 </section>
 
@@ -2302,7 +2522,7 @@ var railRocket=document.getElementById('railRocket');
 var railTrack=document.querySelector('.rail-track');
 var railDots=Array.prototype.slice.call(document.querySelectorAll('.rail ol .dot'));
 /* same order as the rail's <ol> */
-var railSections=['about','selected','projects','education','experience','contact']
+var railSections=['about','selected','projects','experience','education','contact']
   .map(function(id){ return document.getElementById(id); });
 var heroMedia=document.getElementById('heroMedia');
 var toTop=document.getElementById('toTop');
@@ -2485,6 +2705,69 @@ requestFrame();
 toTop.addEventListener('click',function(){
   window.scrollTo({top:0,behavior:reduced?'auto':'smooth'});
 });
+
+/* 6b — the message form.
+   Two modes, chosen automatically from the action attribute:
+   - endpoint NOT configured (still the placeholder) -> compose a pre-filled
+     mailto: and hand off to the reader's mail client. Works with zero setup
+     and sends nothing anywhere by itself.
+   - endpoint configured (Formspree / Web3Forms / anything that accepts a POST
+     and answers JSON) -> POST in the background and confirm in place, so the
+     reader never leaves the page.
+   Either way the browser's own required/type=email validation runs first. */
+(function(){
+  var form=document.getElementById('msgForm');
+  if(!form) return;
+  var status=document.getElementById('msgStatus');
+  var btn=form.querySelector('.msg-send');
+  var PLACEHOLDER='PASTE-YOUR-FORM-ENDPOINT-HERE';
+
+  function say(text,isError){
+    status.textContent=text;
+    status.classList.toggle('err',!!isError);
+    status.classList.add('show');
+  }
+  function launch(){
+    if(reduced) return;
+    form.classList.remove('is-sent');
+    void form.offsetWidth;          /* restart the animation on a repeat send */
+    form.classList.add('is-sent');
+    setTimeout(function(){ form.classList.remove('is-sent'); },800);
+  }
+
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!form.reportValidity()) return;
+    var data=new FormData(form);
+    var action=form.getAttribute('action')||'';
+
+    if(action.indexOf(PLACEHOLDER)>-1){
+      /* No endpoint yet: build a mailto the reader's client can open. */
+      var body='From: '+data.get('name')+' <'+data.get('email')+'>\n\n'+data.get('message');
+      var href='mailto:jcader@ethz.ch'
+        +'?subject='+encodeURIComponent('Website — '+data.get('name'))
+        +'&body='+encodeURIComponent(body);
+      launch();
+      say('Opening your mail app…');
+      window.location.href=href;
+      return;
+    }
+
+    btn.disabled=true;
+    say('Sending…');
+    fetch(action,{method:'POST',body:data,headers:{Accept:'application/json'}})
+      .then(function(r){
+        if(!r.ok) throw new Error(r.status);
+        launch();
+        say('Sent — thank you, I\'ll reply soon.');
+        form.reset();
+      })
+      .catch(function(){
+        say('Didn\'t send. Email jcader@ethz.ch instead.',true);
+      })
+      .then(function(){ btn.disabled=false; });
+  });
+})();
 
 /* 7 — mobile menu */
 var nav=document.getElementById('nav'), toggle=document.getElementById('navToggle');
