@@ -664,8 +664,6 @@ section{overflow:hidden;overflow:clip}
 .deco-orbit-left{top:12%;left:-150px;width:min(400px,38vw);aspect-ratio:1;opacity:.21}
 .deco-orbit-2{bottom:-140px;left:-120px;width:min(380px,38vw);aspect-ratio:1;opacity:.2}
 .deco-orbit-mid{top:56%;right:-150px;width:min(340px,32vw);aspect-ratio:1;opacity:.2}
-.deco-orbit-edu{top:auto;bottom:-120px;right:-100px;width:min(320px,32vw);aspect-ratio:1;opacity:.21}
-.deco-orbit-edu-2{top:6%;left:-70px;width:min(330px,31vw);aspect-ratio:1;opacity:.24}
 .deco-orbit-3{top:34%;right:-150px;width:min(340px,32vw);aspect-ratio:1;opacity:.22}
 .deco-orbit-4{top:6%;left:-100px;width:min(300px,28vw);aspect-ratio:1;opacity:.21}
 .deco-orbit-life{top:auto;bottom:-90px;right:-120px;width:min(320px,30vw);aspect-ratio:1;opacity:.2}
@@ -729,8 +727,8 @@ section{overflow:hidden;overflow:clip}
    never exposes a bare edge — and it animates the inner <g>, not the <svg>,
    so the SVG's own clip stays put and the overhang scrolls into view. */
 @keyframes wave-drift{0%,100%{transform:translateX(0)}50%{transform:translateX(-34px)}}
-.deco-orbit svg,.deco-orbit-2 svg,.deco-orbit-3 svg,.deco-orbit-left svg,.deco-orbit-edu svg,
-.deco-orbit-edu-2 svg,.deco-orbit-about svg,.deco-orbit-sm svg,.deco-orbit-4 svg,
+.deco-orbit svg,.deco-orbit-2 svg,.deco-orbit-3 svg,.deco-orbit-left svg,
+.deco-orbit-about svg,.deco-orbit-sm svg,.deco-orbit-4 svg,
 .deco-orbit-mid svg,.deco-orbit-contact svg,.deco-orbit-life svg{
   animation:spin-slow 200s linear infinite;transform-origin:50% 50%}
 .deco-drone{animation:drift 15s ease-in-out infinite}
@@ -2386,6 +2384,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
     <circle cx="330" cy="248" r="5" fill="currentColor" stroke="none"/>
     <g class="orbiter"><use href="#d-satellite" x="185" y="79" width="30" height="30"/></g>
+  </svg></div>
+  <div class="deco deco-rocket" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#d-rocket"/></svg></div>
+  <div class="deco deco-orbit-3 warm" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="182"/><circle cx="200" cy="200" r="120"/>
+    <ellipse cx="200" cy="200" rx="182" ry="62" transform="rotate(22 200 200)"/>
+    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
+    <g class="orbiter"><use href="#d-satellite" x="185" y="65" width="30" height="30"/></g>
   </svg></div>
   <div class="deco deco-traj-2 warm" aria-hidden="true"><svg viewBox="0 0 200 260">
     <path d="M14 246C52 224 92 176 116 118 132 78 138 40 136 12"/>

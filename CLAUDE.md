@@ -372,9 +372,12 @@ re-check that the content's right edge still lands left of the rail.
 1. **Sticky header** — brand, one "Now at" status chip listing both current
    institutions, vertical divider, nav, mobile
    menu button.
-2. **Hero** — full-bleed photo with parallax, gradient veil, serif name, a
-   small mono pronunciation line, one-line positioning statement, bobbing
-   scroll cue. The name is plain text, no `<em>` — an earlier version
+2. **Hero** — ~68vh full-bleed photo with parallax, gradient veil, serif name,
+   a small mono pronunciation line, one-line positioning statement, a row of
+   credential chips and a **Learn more** button. There is no eyebrow above the
+   name any more — it read "Mechanical engineer · Zürich → Cambridge" and the
+   chips below say the same thing with more force.
+   The name is plain text, no `<em>` — an earlier version
    italicised the surname only, which read as if it were being emphasised or
    were a different name; first and last name now share identical styling.
    The pronunciation line (`.hero-pronounce`, small mono, dim white,
@@ -393,16 +396,20 @@ re-check that the content's right edge still lands left of the rail.
    this row is what stops that being a problem for someone scanning for
    credentials. The hero is ~68vh rather than a full screen so the chips and
    the top of `#about` are both visible on landing.
-3. **`#about`** — facts sidebar (left), prose (right), social pills.
+3. **`#about`** — the section head sits inside the grid's left column above
+   the facts table; prose on the right starts level with the subtitle.
 4. **`#selected`** — "Highlights": mosaic of four featured cards (image + caption).
 5. **`#projects`** — "Everything": three category cards, then three grouped lists of entries.
 6. **`#life`** — "Life": fun-stuff cards (image + caption, some text-only),
    with the photo strip as a band at its foot.
-7. **`#experience`** — five compact timeline cards, then the CV strip.
-8. **`#education`** — three compact timeline cards.
-9. **`#contact`** — email as a large serif line (with an envelope whose flap
-   opens on hover), socials, and the message form.
-10. **Footer** — location, icon links, copyright.
+7. **`#education`** — owns the whole timeline: one spine, education left,
+   experience right, reverse-chronological, with `#experience` as an anchor
+   partway down it. Then the CV strip.
+8. *(no separate experience section — see the timeline in §5)*
+9. **`#contact`** — a click-to-reveal email box and the message form side by
+   side, plus socials.
+10. **Footer** — location, centred icon links (under the divider gear),
+    copyright plus a "no template" credit.
 11. Floating: right-hand progress rail, back-to-top button.
 
 Sections carry `EDIT ME #n` comments marking where content goes.
@@ -448,17 +455,21 @@ nav labels follow, as always, one for one. The photo strip took the name
 
 ### Category cards + groups (`#projects`)
 
-Four `<button class="cat">` cards with `data-goto="g-xxx"` scrolling to the
+Three `<button class="cat">` cards with `data-goto="g-xxx"` scrolling to the
 matching `<div class="group" id="g-xxx">`:
 
 | id | Title | Icon |
 |---|---|---|
-| `g-space` | Space & rocketry | `#i-rocket` |
+| `g-space` | Rocketry & space | `#i-rocket` |
 | `g-robotics` | Robotics & simulation | `#i-cpu` |
 | `g-people` | Leadership & teaching | `#i-users` |
-| `g-hobbies` | Hobbies | `#i-waves` |
 
-Order encodes priority. Hobbies is last and that is correct. When adding or
+Order encodes priority. The MIT thesis sits in Robotics & simulation, not
+Rocketry — it is simulation-led, and Robotics was the thin group.
+**A `.cat` card is a filled pill saying "Jump"; a mosaic card is an outlined
+pill saying "Open".** Same shape, different weight, because they are different
+verbs: one moves you down the page, the other expands something in place. Keep
+that distinction if either is restyled. When adding or
 removing entries, **update three hand-maintained things, not two**: the card's
 leading number and `data-n` in the `.cat-n` line, and the `.group-count` span.
 `data-n` is what the count-up animation counts to, so a stale one animates to
@@ -977,8 +988,8 @@ build one, in order of preference:
    content-specific glyphs, each parked beside the thing it refers to rather
    than floating generically: the telescope-aimed-at-a-moon and the quadcopter
    sit behind the JPL and swarm tiles in `#selected`, the robot behind the
-   robotics group, the Rubik's cube by the hobbies group where the puzzles
-   entry lives. Build a one-off when the content calls for something
+   robotics group. (A Rubik's cube one-off sat by the old hobbies group and
+   went with it.) Build a one-off when the content calls for something
    *specific*, not as a default.
 
 `deco-traj`'s arc has a filled dot at the launch end and a **hollow** ring at
@@ -1143,22 +1154,14 @@ Two families deliberately — **space** (rockets, satellites, orbits, planets,
 trajectories) around the engineering sections, **water** (full-bleed wave
 paths) around the photo strip, hobbies and contact.
 
-### ⚠ Ongoing colour experiment — expect this to possibly get reverted
+### The warm/cool split in the decorative layer (settled)
 
-`.warm` (switches a deco's `color` from `--accent` to `--accent-warm`) is
-currently applied to roughly half the deco elements, **interleaved within
-sections rather than assigned by whole section**, as an explicit,
-flagged-as-temporary experiment ("test having half the decorations a
-different colour... we might revert later", later escalated to "mix and match
-the colours more... switch them up more"). It is **not** a settled design
-decision the way the rest of this file's rules are. If a future session is
-asked to revert it: remove `warm` from the `class` list on each deco div
-listed *(warm)* in the table below — `deco-traj` and `deco-traj-2` keep it
-regardless, they were warm before this experiment and aren't part of it.
-Section 3's "copper, used sparingly, on a tight leash" rule for
-`--accent-warm` is exactly the constraint this experiment is testing against;
-don't treat this section as having quietly overridden that rule until the
-experiment is confirmed to stay.
+`.warm` switches a deco's `color` from `--accent` to `--accent-warm`, and it is
+applied to roughly half the deco elements, **interleaved within sections rather
+than assigned by whole section**. This began as a flagged experiment and is now
+settled: assigning it by whole section read as blocky, and interleaving is what
+made it read as one system. **If asked to mix it further, keep editing
+individual elements' `warm` class — don't go back to toggling it by section.**
 
 **No scattered star fields.** Two versions were tried — plain `<circle>` dots
 and `#i-star` sparkles as a standalone field — and both read as dirt on the
@@ -1175,23 +1178,17 @@ top and vanishing. Essentially every orbit ring on the page now carries at
 least one orbiter (see above) — treat "plain, orbiter-less ring" as the
 exception going forward, not the default.
 
-| Section | Decorations, roughly top to bottom |
+| Section | Decorations, in document order |
 |---|---|
-| `#about` | `deco-orbit-about` *(warm)* — bottom-**left**, bled off the corner, satellite orbiter |
-| `#selected` | `deco-orbit` — top-right, the reference, rocket + counter-rotating satellite; `deco-telescope` *(warm)* (left); `deco-drone` (left, low, level with the swarm tile); `deco-orbit-sm` *(warm)* — bottom-right, satellite orbiter |
-| `#projects` | `deco-waves-proj` (a wavy set across the top, above "Browse by area" — **≥1360px only**, see §3); `deco-traj` *(warm)* (right); `deco-orbit-left` (left, behind space & rocketry, satellite orbiter); `deco-rocket-b` (left, 33%); `deco-robot` *(warm)* (left, 46%, behind robotics & simulation); `deco-orbit-mid` (right, rocket orbiter); `deco-cube` *(warm)* (left, 76%, by the hobbies group where the puzzles entry lives); `deco-orbit-2` *(warm)* (bottom-left, satellite orbiter) |
-| photo strip | `deco-waves-top` |
-| `#education` | `deco-orbit-edu-2` (top-left, rocket + counter-rotating satellite); `deco-orbit-edu` *(warm)* (bottom-right, satellite orbiter) |
-| `#experience` | `deco-orbit-4` (top-left, satellite orbiter); `deco-orbit-3` *(warm)* (right, bled almost fully off-canvas, satellite orbiter); `deco-rocket` (left, mid); `deco-traj-2` *(warm)* (bottom-left) |
-| `#contact` | `deco-orbit-contact` *(warm)* (top-left, satellite orbiter); `deco-waves` (bottom) |
+| `#about` | `deco-orbit-about` *(warm)* |
+| `#selected` | `deco-orbit`, `deco-orbit-sm` *(warm)*, `deco-telescope` *(warm)*, `deco-drone` |
+| `#projects` | `deco-traj` *(warm)*, `deco-orbit-2` *(warm)*, `deco-orbit-left`, `deco-rocket-b`, `deco-orbit-mid`, `deco-robot` *(warm)*, `deco-waves-proj` |
+| `#life` | `deco-orbit-life`, `deco-waves-top` |
+| `#education` | `deco-orbit-4`, `deco-rocket`, `deco-orbit-3` *(warm)*, `deco-traj-2` *(warm)* |
+| `#contact` | `deco-waves`, `deco-orbit-contact` *(warm)* |
 
-*(warm)* = part of the ongoing colour experiment, see below — expect these
-tags to go stale if it's reverted. The assignment was deliberately reshuffled
-once already (originally applied by whole section — every deco in
-about/projects/experience warm, everything else blue — which read as blocky;
-now interleaved within each section too) on the explicit request to "mix and
-match the colours more." **If asked to mix further, keep editing
-individual elements' `warm` class, don't go back to toggling it by section.**
+*(warm)* = carries the `warm` class. The table drifts as decorations move;
+treat it as a guide, not a contract, and trust the markup.
 
 Suffixes (`-2`/`-3`/`-4`/`-b`/`-mid`/`-left`/`-edu`/`-about`/`-sm`/`-contact`)
 exist so a repeated motif never sits at an identical offset twice; follow that
