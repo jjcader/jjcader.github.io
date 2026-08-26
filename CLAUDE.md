@@ -1584,10 +1584,36 @@ strong and two thin.
 
 | Category | Media class | What it is |
 |---|---|---|
-| Adventure | `.m-hero` | one big photo + a 2×2 beside it — exactly five |
+| Adventure | `.m-hero` | one big landscape + two stacked beside it — three |
 | Travelling | `.m-scroll` | the contained marquee — any number |
-| Sport | `.m-row` | N across at one height |
-| Sitting still | `.m-row` | N across at one height |
+| Sport | `.m-row.port` | N across, each 3:4 |
+| Sitting still | `.m-row.port` | N across, each 3:4 |
+
+⚠ **`.m-hero` held five photos in a four-slot grid and it was broken.** Two
+columns × two rows, with the hero spanning both rows of column one, leaves
+exactly two slots; children four and five auto-placed into an **implicit third
+row** that the block's fixed height squeezed to nothing. It looked like "the
+bottom row is too thin" and it was really "those photos are outside the grid".
+Three photos is now the shape — and even placed correctly, four cells that size
+are too small to put a photograph in. **If Adventure needs more, add a grid row
+and lengthen the block; never just add another `<div>`.**
+
+**Every photo box carries a real photographic aspect ratio** — `4/3` by
+default, `3/4` under `.m-row.port`, `16/9` for a hero on narrow screens.
+`.m-row` deliberately has **no fixed height**: the height falls out of the
+aspect ratio, so adding a fourth photo makes the row *shorter* rather than
+squashing the pictures. `.m-hero`'s children override `.shotbox`'s
+`aspect-ratio` to `auto`, because there the grid sets the shape.
+
+**Travelling's cards alternate `.land` (4:3) and `.port` (3:4)** so the band
+reads as a camera roll rather than a product grid. The shared height lives on
+`.strip-track`, not on the card, which is what lets each card's *width* come
+from its own aspect ratio.
+
+**The location tag floats ON the photograph** — `.strip-cap` is
+`position:absolute` bottom-left, a pill with a `#i-pin` glyph, not a band
+across the foot of the card. A band eats picture; a chip sits on it. The pin
+may use `--accent-warm` because on a dark veil it is a graphic, not text.
 
 ⚠ **The trap in "give each category a row of photos" is that a row of eight
 makes every photo SMALLER.** Row length buys no prominence; row *height* does.
@@ -1599,11 +1625,26 @@ grows, give it a taller block, not a longer row.
 full-width row each. That is worth ~200px, and it says "these two are the minor
 ones" without a word of explanation.
 
-**Every media block is a fixed height derived from one variable, `--h`, so no
-chapter can balloon as photos are added.** The section is height-budgeted:
-~820px of chapters against the ~620px the old four cards plus the strip took.
-**If Life ever needs to be shorter, change `--h` — never the individual
-blocks.**
+**Every media block sizes off one variable, `--h`, so no chapter can balloon as
+photos are added.** The section runs ~1100px of chapters against the ~620px the
+old four cards plus the strip took — deliberately larger, because it is carried
+by photographs. **If Life ever needs to be shorter, change `--h` — never the
+individual blocks.**
+
+**`.chapters` reaches further right than anything else on the page, and the
+reach is DERIVED rather than guessed.** Every other block stops at `.wrap`'s
+content edge, which above 1500px sits a long way left of the rail — the column
+is nudged LEFT while the rail is anchored RIGHT, leaving ~150px of dead margin
+beside the photographs at 1920px. ⚠ A guessed `4.5vw - 36px` was tried first
+and left **3px** of clearance at 1400px, because the slack is wildly
+non-monotonic: 30px at 1400, 47px at 1520, 85px at 1800, 477px at 2560, since
+`--rule-inset` jumps at 1800 and `.wrap`'s shift grows with the viewport. **Any
+single `vw` expression is wrong somewhere.** The negative margin is now
+literally the slack — `100vw − --rule-inset − .wrap's left offset − --wrap +
+--gutter` — with 40px kept as clearance, applied only at ≥1520px (below that
+the 900–1519px band already adds 100px of `padding-right` for the rail and
+there is nothing spare), and capped at 120px because `.m-hero` has a fixed
+height and an unbounded media column turns its 3:2 photo into a letterbox.
 
 **The Snapshots strip is gone as a band; its marquee lives on as Travelling's
 media.** That removed a whole component and its two ugliest rules: the
