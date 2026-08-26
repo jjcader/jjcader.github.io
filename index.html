@@ -2282,21 +2282,15 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p>Built a test stand for measuring micropump performance at pd|z, ETH's product
                development group, and had to design and build the pump first, because there
                wasn't one to build the stand around.</p>
-            <p>The pump went through four generations of casing. The first had flanges that
-               made it impossible to get the impeller back out once it was in. Everything was
-               FDM-printed in PLA on a Prusa MK4 and a Bambu P1S, and standardising the whole
-               assembly on M8 screws took it apart and back together in five minutes instead
-               of an hour — which is the difference between testing one impeller a day and
-               testing four. The finished stand measures inlet and outlet pressure, mass flow
-               and rotational speed to ISO 9906, with the pressure sensors calibrated against
-               a three-metre standing water column.</p>
+            <p>The pump went through four generations of casing, all FDM-printed in PLA, and
+               standardising the assembly on M8 screws took it apart and back together in five
+               minutes instead of an hour. It measures inlet and outlet pressure, mass flow and
+               speed to ISO 9906.</p>
             <p>Two things nearly killed it. The shaft lip seal ground its way into the printed
-               shaft and destroyed itself in the process — 0.25mm of misalignment, which took
-               a long time to find and a lubricant and a re-print to fix. And PLA turns out to
-               be water-permeable even above 40% infill, so past a certain pressure the pump
-               stopped leaking at the joints and started spraying through its own walls. It
-               reached 0–10 L/min and 0.4 bar, and the honest recommendation at the end of the
-               thesis is to machine the next casing out of metal.</p>
+               shaft and destroyed itself — 0.25mm of misalignment. And PLA stays water-permeable
+               above 40% infill, so past a certain pressure the pump stopped leaking at the joints
+               and started spraying through its own walls. It reached 10 L/min and 0.4 bar; the
+               next casing should be metal.</p>
             <p class="shot-cap"><span>Top:</span> </p>
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
@@ -2324,13 +2318,23 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2024 · Bachelor's thesis</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Additively manufactured cryogenic ball valves — can you print a valve that survives liquid oxygen …</span>
+            <span class="entry-summary">Two changes to a cryogenic ball valve, both only possible if you print it …</span>
           </span>
         </button>
         <div class="entry-body" id="e5"><div><div class="entry-content">
           <div>
-            <p>Additively manufactured cryogenic ball valves — can you print a valve that
-               survives liquid oxygen, and should you?</p>
+            <p>Two changes to a cryogenic ball valve, both only possible if you print it. The
+               brief came from ARIS's PROMETHEUS test stand, where the valves jammed, froze
+               and couldn't throttle the engine.</p>
+            <p>First, morph the port from a circle into the V and back, instead of cutting a V
+               into a sphere. Smoothing the transition alone changed nothing; opening the port
+               out to match the pipe's area took the pressure drop across a fully open valve
+               from 0.9 kPa to zero.</p>
+            <p>Second, a cooling channel through the valve walls, filled with a printed
+               lattice. Thirty seconds into pre-cooling, a standard valve has a 96°C gradient
+               across the ball; the jacketed one has three. The final design is 18.5% lighter.</p>
+            <p>The hardest number in the thesis was the viscosity of liquid oxygen. The best
+               source is from 1971.</p>
             <p class="shot-cap"><span>Top:</span> </p>
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
@@ -2365,8 +2369,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         </button>
         <div class="entry-body" id="e1"><div><div class="entry-content">
           <div>
-            <p>Writing my ETH master's thesis at MIT. Placeholder — the topic, the lab, who
-               you're working with, and what you're trying to find out.</p>
+            <p>Writing my master's thesis at the MIT Star Lab in collaboration with ETH Space Geodesy. 
+              The focus of the research is to optimise satellite trajectory control and maneuvering using a space-weather 
+              aware machine learning models.
+            </p>
+            <p>This means first developing a machine learning prediction model for
+              space weather phenomena, such as iono and thermospheric coupling effects following solar storms, 
+            and taking that data to compute orbital parameters such as drag. This </p>
             <p class="shot-cap"><span>Left:</span> </p>
             <p class="shot-cap"><span>Right:</span> </p>
             <div class="links-block">
@@ -2395,23 +2404,17 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         </button>
         <div class="entry-body" id="e7"><div><div class="entry-content">
           <div>
-            <p>Four of us at ETH, on whether a drone swarm can arrange itself to fly in its
-               own wake. A drone in forward flight drags a cone of downwash behind it, which
-               costs anything following it energy, and two cones of upwash either side, which
-               give that energy back for free. Birds worked this out some time ago.</p>
-            <p>We ran our own CFD to pin the shape down — a truncated cone trailing a drone
-               at 12 m/s and 20° of pitch — and modelled it as a scalar field with Gaussian
-               falloff, so every point in the air behind a drone carries a number saying how
-               much you want to be there. Then three controllers, all distributed: no central
-               computer, each drone using only where its neighbours are.</p>
-            <p>The comparison is the interesting part. Gradient-based control runs in 0.01
-               seconds an iteration and would fit on the drone, but it settles into local
-               maxima — the swarm lands in a formation that is better rather than best. Model
-               predictive control finds the good formation almost every time and takes 2.1
-               seconds an iteration, which is about two hundred times too slow to fly. Neither
-               of those is finished, which is the useful result.</p>
-            <p>EDIT ME — which of the three methods were yours. The paper doesn't say who did
-               what, and on a four-author project that is the one thing worth stating.</p>
+            <p>Four of us at ETH, on whether a drone swarm can arrange itself to fly in its own
+               wake. A drone drags a cone of downwash behind it, which costs anything following
+               it energy, and two cones of upwash either side, which give it back for free.</p>
+            <p>We ran our own CFD to pin the shape down, modelled it as a field with Gaussian
+               falloff, then built three distributed controllers — no central computer, each
+               drone using only its neighbours' positions.</p>
+            <p>The comparison is the result. Gradient-based control runs in 0.01 seconds an
+               iteration and would fit on the drone, but settles into local maxima. Model
+               predictive control finds the right formation almost every time, at 2.1 seconds
+               an iteration — two hundred times too slow to fly.</p>
+            <p>EDIT ME — which of the three methods were yours.</p>
             <p class="shot-cap"><span>Top:</span> </p>
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>

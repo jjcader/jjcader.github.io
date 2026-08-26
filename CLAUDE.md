@@ -632,6 +632,24 @@ repeated it in a second typeface.
 </article>
 ```
 
+**An entry body's prose is budgeted against its own photo column, not written
+to length.** `.entry-content` is two equal columns, so an entry looks balanced
+only while the text is no taller than the shots beside it. For the three-photo
+layout that ceiling is `wide + 8px + square`, i.e. about `1.06 × columnWidth`,
+against which the prose gets whatever is left once the caption lines (~74px)
+and the links block (~88px) are subtracted. **In practice that is 135–150 words
+in 3–4 paragraphs** — the JPL, micropump, swarm and valve entries are all
+written to it. Model it rather than eyeballing it: the terms are `54ch` (the
+`.entry-content p` cap, which bites before the column does), `17px × 1.65`
+line-height, and a 14px margin per paragraph. Two-photo entries have roughly
+half the ceiling and should run correspondingly shorter.
+
+⚠ It fits from **1520px up**. Between 900 and 1519px the `.wrap` gains 100px of
+`padding-right` to keep the rail alive, which narrows the photo column faster
+than it narrows the text — so the prose runs ~40px past the shots there. That
+is the cost of the "shrink the page, not the rail" decision, not a bug in the
+copy; don't cut good sentences to fix it.
+
 **An entry is not obliged to fill a screen, and the photo count is the dial.**
 Three shots (`wide` spanning the top, then two `small` side by side) is the
 full-size entry; two `small` side by side, or one `wide` on its own, are the
