@@ -1213,12 +1213,28 @@ section{overflow:hidden;overflow:clip}
 .entry-close span{font-size:15px;line-height:1}
 .entry-close:hover{color:var(--accent-warm-ink);border-color:var(--accent-warm);
   background:var(--warm-soft)}
-.shots{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.shot{background:var(--paper-2);border:1px solid var(--rule);overflow:hidden;
+/* THE BOX TAKES THE PHOTO'S SHAPE, NOT THE OTHER WAY ROUND. A fixed box and a
+   differently-shaped photograph have exactly three possible outcomes — crop it,
+   letterbox it, or stretch it — and only one of those is ever acceptable. So
+   every box declares the aspect ratio of the picture that goes in it, as --ar:
+   a NUMBER, not a ratio (`1.78`, never `16/9`), because flex-grow cannot take
+   a ratio.
+
+   .shot-row is a JUSTIFIED row: `flex:var(--ar) 1 0` makes each photo's width
+   proportional to its own aspect ratio, and at proportional widths every photo
+   in the row lands on the SAME HEIGHT while the row still fills the column
+   exactly. That is the whole trick — it is what lets a square and a portrait
+   sit side by side with neither of them cropped. Group photos into rows to
+   choose the layout; a row holding one photo is a full-width shot.
+
+   object-fit:cover stays as a safety net for when --ar is a rounding away from
+   the file's true ratio: then it trims a pixel, not a head. */
+.shots{display:flex;flex-direction:column;gap:8px}
+.shot-row{display:flex;gap:8px}
+.shot{--ar:1.5;flex:var(--ar) 1 0;aspect-ratio:var(--ar);
+  background:var(--paper-2);border:1px solid var(--rule);overflow:hidden;
   display:grid;place-items:center;text-align:center;padding:8px}
 .shot img{width:100%;height:100%;object-fit:cover}
-.shot.wide{grid-column:1 / -1;aspect-ratio:16/9}
-.shot.small{aspect-ratio:1}
 .shot .label{font-size:9.5px;line-height:1.5}
 /* Restacks at 1150px rather than 820px, which is where the 348px dateline
    column starts eating enough of the title's `1fr` to wrap titles to four
@@ -1298,7 +1314,7 @@ section{overflow:hidden;overflow:clip}
 /* Every block sizes off ONE variable. If Life ever needs to be taller or
    shorter, change --h and nothing else. */
 .chapter-media{--h:clamp(150px,15vw,200px)}
-.shotbox{aspect-ratio:4/3;background:var(--paper-2);border:1px solid var(--rule);
+.shotbox{--ar:1.33;aspect-ratio:var(--ar);background:var(--paper-2);border:1px solid var(--rule);
   border-radius:3px;overflow:hidden;display:grid;place-items:center;text-align:center;
   padding:8px;transition:border-color .3s var(--ease)}
 .shotbox img{width:100%;height:100%;object-fit:cover}
@@ -1313,8 +1329,11 @@ section{overflow:hidden;overflow:clip}
    highlighted Adventure more than it deserved. Three equal 4:3 photos across
    the full width land at almost exactly the Travelling band's height, so the
    two full-width chapters now read as peers. */
-.m-row{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px}
-.m-row.port .shotbox{aspect-ratio:3/4}
+/* Same mechanism as .shot-row above: width from the photo's own aspect ratio,
+   so a row of mixed shapes still shares one height and still fills the column. */
+.m-row{display:flex;gap:10px}
+.m-row .shotbox{flex:var(--ar) 1 0}
+.m-row.port .shotbox{--ar:.75}
 /* SCROLL — the old full-bleed Snapshots marquee, now contained inside a
    chapter. It is the one layout that does not care how many photographs you
    add, which is why Travelling gets it. Being inside .wrap also deletes the
@@ -1351,7 +1370,8 @@ section{overflow:hidden;overflow:clip}
   /* one column: each chapter's text goes back above its photos, the pair
      unstacks, and the hero drops its fixed height so nothing letterboxes */
   .chapter,.chapter-pair{grid-template-columns:1fr;gap:14px}
-  .m-row{grid-auto-flow:row;grid-template-columns:1fr 1fr}
+  .m-row{flex-wrap:wrap}
+  .m-row .shotbox{min-width:calc(50% - 5px)}
 }
 
 /* ============ TIMELINE — boxed cards ============ */
@@ -2250,9 +2270,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot wide"><span class="label">images/jpl-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/jpl-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/jpl-3.jpg</span></div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.78"><span class="label">images/jpl-1.jpg</span></div>
+            </div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.0"><span class="label">images/jpl-2.jpg</span></div>
+              <div class="shot" style="--ar:1.0"><span class="label">images/jpl-3.jpg</span></div>
+            </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2289,8 +2313,10 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot small"><span class="label">images/hermes-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/hermes-2.jpg</span></div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.0"><span class="label">images/hermes-1.jpg</span></div>
+              <div class="shot" style="--ar:1.0"><span class="label">images/hermes-2.jpg</span></div>
+            </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2329,9 +2355,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot wide"><span class="label">images/micropump-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/micropump-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/micropump-3.jpg</span></div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.78"><span class="label">images/micropump-1.jpg</span></div>
+            </div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.0"><span class="label">images/micropump-2.jpg</span></div>
+              <div class="shot" style="--ar:1.0"><span class="label">images/micropump-3.jpg</span></div>
+            </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2371,9 +2401,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot wide"><span class="label">images/helios-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/helios-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/helios-3.jpg</span></div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.78"><span class="label">images/helios-1.jpg</span></div>
+            </div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.0"><span class="label">images/helios-2.jpg</span></div>
+              <div class="shot" style="--ar:1.0"><span class="label">images/helios-3.jpg</span></div>
+            </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2417,9 +2451,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot wide"><span class="label">images/valves-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/valves-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/valves-3.jpg</span></div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.78"><span class="label">images/valves-1.jpg</span></div>
+            </div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.0"><span class="label">images/valves-2.jpg</span></div>
+              <div class="shot" style="--ar:1.0"><span class="label">images/valves-3.jpg</span></div>
+            </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2457,7 +2495,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot wide"><span class="label">images/mit-1.jpg</span></div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.78"><span class="label">images/mit-1.jpg</span></div>
+            </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2501,9 +2541,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot wide"><span class="label">images/swarm-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/swarm-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/swarm-3.jpg</span></div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.78"><span class="label">images/swarm-1.jpg</span></div>
+            </div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.0"><span class="label">images/swarm-2.jpg</span></div>
+              <div class="shot" style="--ar:1.0"><span class="label">images/swarm-3.jpg</span></div>
+            </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2535,8 +2579,10 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot small"><span class="label">images/hackathon-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/hackathon-2.jpg</span></div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.0"><span class="label">images/hackathon-1.jpg</span></div>
+              <div class="shot" style="--ar:1.0"><span class="label">images/hackathon-2.jpg</span></div>
+            </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2569,8 +2615,10 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot small"><span class="label">images/snackbot-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/snackbot-2.jpg</span></div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.0"><span class="label">images/snackbot-1.jpg</span></div>
+              <div class="shot" style="--ar:1.0"><span class="label">images/snackbot-2.jpg</span></div>
+            </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2613,9 +2661,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot wide"><span class="label">images/polana-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/polana-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/polana-3.jpg</span></div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.78"><span class="label">images/polana-1.jpg</span></div>
+            </div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.0"><span class="label">images/polana-2.jpg</span></div>
+              <div class="shot" style="--ar:1.0"><span class="label">images/polana-3.jpg</span></div>
+            </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2648,9 +2700,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot wide"><span class="label">images/eyp-1.jpg</span></div>
-            <div class="shot small"><span class="label">images/eyp-2.jpg</span></div>
-            <div class="shot small"><span class="label">images/eyp-3.jpg</span></div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.78"><span class="label">images/eyp-1.jpg</span></div>
+            </div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.0"><span class="label">images/eyp-2.jpg</span></div>
+              <div class="shot" style="--ar:1.0"><span class="label">images/eyp-3.jpg</span></div>
+            </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>
@@ -2685,7 +2741,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           </div>
           <div class="shots">
-            <div class="shot wide"><span class="label">images/teaching-1.jpg</span></div>
+            <div class="shot-row">
+              <div class="shot" style="--ar:1.78"><span class="label">images/teaching-1.jpg</span></div>
+            </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
         </div></div></div>

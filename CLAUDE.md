@@ -666,6 +666,30 @@ swarm, POLANA and EYP; two on micropump, the MIT thesis, the hackathon and
 the snack robot; one on teaching. **Dropping to two photos leaves the `-3.jpg`
 of that set unreferenced** — no error, just a file you no longer need.
 
+**A photo box takes the PHOTO's shape, never the other way round.** A fixed box
+and a differently-shaped photograph have exactly three possible outcomes — crop
+it, letterbox it, or stretch it — and only one of those is acceptable. So every
+box declares the aspect ratio of the picture that goes in it as `--ar`, **a
+number and not a ratio** (`1.78`, never `16/9`), because `flex-grow` cannot take
+a ratio.
+
+`.shot-row` is a **justified row**: `flex:var(--ar) 1 0` makes each photo's
+width proportional to its own aspect ratio, and at proportional widths every
+photo in the row lands on the same height while the row still fills the column
+exactly. That is what lets a square and a portrait sit side by side uncropped.
+Group photos into rows to choose the layout — a row holding one photo is a
+full-width shot. `.m-row` in `#life` uses the identical mechanism.
+
+`object-fit:cover` is kept as a safety net for when `--ar` is a rounding away
+from the file's true ratio: then it trims a pixel rather than a head. It is
+**not** the layout strategy.
+
+⚠ Placeholders currently carry the OLD fixed shapes as their `--ar` (1.78 for
+the lead photo, 1.0 for the pair). **Every one has to be set to the real file's
+`width/height` when the photograph goes in** — `identify -format "%w/%h"` gives
+it — or the box is back to cropping. That is the single job that converts this
+mechanism from scaffolding into the thing that stops photos being mangled.
+
 **Every entry with photos ends its prose with caption lines named for grid
 position**, `<p class="shot-cap"><span>Top:</span> …</p>` and so on — Top /
 Bottom left / Bottom right for three, Left / Right for two, Photo for one.
