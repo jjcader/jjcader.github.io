@@ -2688,12 +2688,14 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 <!-- ============ EDIT ME #8 — FUN STUFF & LIFE =======================
      Four chapters, and each one's LAYOUT is chosen for how many photographs it
      has, not for tidiness:
-       .m-hero   one big photo + a 2x2 beside it   — exactly five
-       .m-row    N photos across at one height     — two to four
-       .m-scroll the marquee, contained            — as many as you like
-     Adding a photo to a .m-row means adding one <div class="shotbox">; the row
-     re-divides itself. The marquee's cards must stay DUPLICATED — the loop is
-     a translateX(-50%), so both halves have to be identical or it jumps.
+       .m-row       N photos across, each 4:3   — Adventure
+       .m-row port  N photos across, each 3:4   — Sport, Sitting still
+       .m-scroll    the marquee, contained      — Travelling, any number
+     Adding a photo to a row means adding one <div class="shotbox">; the row
+     re-divides itself and gets SHORTER, because the height comes from the
+     aspect ratio rather than being fixed. The marquee's cards must stay
+     DUPLICATED — the loop is a translateX(-50%), so both halves have to be
+     identical or it jumps.
      ================================================================= -->
 <section id="life">
   <div class="deco deco-orbit-life" aria-hidden="true"><svg viewBox="0 0 400 400">
