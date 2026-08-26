@@ -449,7 +449,11 @@ a{color:var(--accent)}
 .hero{position:relative;height:min(68vh,620px);min-height:420px;overflow:hidden;background:var(--paper-2)}
 .hero-media{position:absolute;inset:-10% 0;will-change:transform}
 .hero-media > *{width:100%;height:100%}
-.hero-media img{object-fit:cover}
+/* The hero photograph is PORTRAIT in a full-bleed landscape band, so cover
+   crops it vertically and object-position chooses which horizontal slice
+   survives. 48% keeps the sign and the figure and drops the tree canopy above
+   and the shrubs below. Re-pick this whenever the hero photo changes. */
+.hero-media img{object-fit:cover;object-position:center 48%}
 .hero-placeholder{display:grid;place-items:center;text-align:center;padding:20px}
 /* ANIMATION — cursor-trailing orbit ring (hero only).
    Sits above the veil but below .hero-copy, so it passes behind the name
@@ -1314,13 +1318,6 @@ section{overflow:hidden;overflow:clip}
 .chapter-title{font-family:var(--serif);font-weight:400;line-height:1.12;margin:8px 0 0;
   font-size:var(--fs-card-title);letter-spacing:-.015em;color:var(--ink)}
 .chapter-blurb{margin:9px 0 0;color:var(--ink-body);font-size:var(--fs-small);line-height:1.5}
-/* The two thin categories SHARE one band rather than taking a full-width row
-   each. It is worth ~200px, and it says "these two are the minor ones" without
-   a word of explanation. */
-.chapter-pair{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,2.4vw,38px);
-  align-items:start}
-.chapter.compact{grid-template-columns:1fr;gap:12px}
-
 /* Every block sizes off ONE variable. If Life ever needs to be taller or
    shorter, change --h and nothing else. */
 .chapter-media{--h:clamp(150px,15vw,200px)}
@@ -1340,10 +1337,11 @@ section{overflow:hidden;overflow:clip}
    the full width land at almost exactly the Travelling band's height, so the
    two full-width chapters now read as peers. */
 /* Same mechanism as .shot-row above: width from the photo's own aspect ratio,
-   so a row of mixed shapes still shares one height and still fills the column. */
+   so a row of mixed shapes still shares one height and still fills the column.
+   Sport is a landscape, a portrait and a landscape side by side and none of
+   them is cropped, which is the whole point. */
 .m-row{display:flex;gap:10px}
 .m-row .shotbox{flex:var(--ar) 1 0}
-.m-row.port .shotbox{--ar:.75}
 /* SCROLL — the old full-bleed Snapshots marquee, now contained inside a
    chapter. It is the one layout that does not care how many photographs you
    add, which is why Travelling gets it. Being inside .wrap also deletes the
@@ -1362,8 +1360,7 @@ section{overflow:hidden;overflow:clip}
   background:var(--paper-2);border:1px solid var(--rule);border-radius:3px}
 .strip-media{height:100%;display:grid;place-items:center;text-align:center;padding:10px;
   overflow:hidden}
-.strip-card.land .strip-media{aspect-ratio:4/3}
-.strip-card.port .strip-media{aspect-ratio:3/4}
+.strip-media{aspect-ratio:var(--ar,1.333)}
 .strip-media img{width:100%;height:100%;object-fit:cover}
 .strip-media .label{font-size:9.5px;line-height:1.5}
 /* The location tag FLOATS on the photograph, bottom-left. A band across the
@@ -1379,7 +1376,7 @@ section{overflow:hidden;overflow:clip}
 @media (max-width:860px){
   /* one column: each chapter's text goes back above its photos, the pair
      unstacks, and the hero drops its fixed height so nothing letterboxes */
-  .chapter,.chapter-pair{grid-template-columns:1fr;gap:14px}
+  .chapter{grid-template-columns:1fr;gap:14px}
   .m-row{flex-wrap:wrap}
   .m-row .shotbox{min-width:calc(50% - 5px)}
 }
@@ -1902,7 +1899,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
      ============================================================ -->
 <div class="hero">
   <div class="hero-media" id="heroMedia">
-    <div class="hero-placeholder"><span class="label">Add hero photo<br>images/hero.jpg</span></div>
+    <img src="images/hero.jpg" alt="Standing in front of the NASA Jet Propulsion Laboratory sign in Pasadena." decoding="async" width="1200" height="1600">
   </div>
   <div class="hero-veil"></div>
   <!-- An orbit ring that trails the cursor, hero only. Deliberately the house
@@ -2962,132 +2959,126 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
     <div class="chapters reveal">
 
-      <!-- ADVENTURE — three across, full width. A fourth photo is one more
-           .shotbox; the row re-divides itself and gets shorter. -->
       <article class="chapter">
         <div>
           <p class="chapter-cat">Adventure</p>
           <h3 class="chapter-title">500 km across the Balkans on a bicycle</h3>
-          <p class="chapter-blurb">EDIT ME — where it started, where it ended, and the one
-             thing that went wrong.</p>
+          <p class="chapter-blurb">We bought second-hand bikes and rode from Croatia to Albania.
+             Fourteen-hour days, scalding heat, unforgettable.</p>
         </div>
         <div class="chapter-media m-row">
-          <div class="shotbox"><span class="label">images/balkans-1.jpg</span></div>
-          <div class="shotbox"><span class="label">images/balkans-2.jpg</span></div>
-          <div class="shotbox"><span class="label">images/balkans-3.jpg</span></div>
+            <div class="shotbox" style="--ar:1.334"><img src="images/balkans-1.jpg" alt="Two of us at a roadside table beside the loaded bikes, the Adriatic coast and mountains behind." loading="lazy" decoding="async" width="1600" height="1199"></div>
+            <div class="shotbox" style="--ar:0.75"><img src="images/balkans-2.jpg" alt="Looking down over the Adriatic from a hilltop, a coastal town below and mountains across the bay." loading="lazy" decoding="async" width="1200" height="1600"></div>
+            <div class="shotbox" style="--ar:0.75"><img src="images/balkans-3.jpg" alt="The two second-hand bikes propped against a stone wall outside a hostel." loading="lazy" decoding="async" width="1200" height="1600"></div>
         </div>
       </article>
 
-      <!-- TRAVELLING — as many photos as you like, alternating .land (4:3) and
-           .port (3:4). BOTH HALVES OF THE TRACK MUST STAY IDENTICAL: the loop
-           is a translateX(-50%), so an odd count makes it jump. -->
+      <!-- TRAVELLING — any number of photos, each with its own --ar and a place
+           on the pin. BOTH HALVES OF THE TRACK MUST STAY IDENTICAL: the loop is
+           a translateX(-50%), so an odd count makes it jump. -->
       <article class="chapter">
         <div>
           <p class="chapter-cat">Travelling</p>
-          <h3 class="chapter-title">EDIT ME — a line about where you go</h3>
-          <p class="chapter-blurb">EDIT ME — one sentence. The photographs are doing the work
-             here.</p>
+          <h3 class="chapter-title">Most of the world I have yet to see</h3>
+          <p class="chapter-blurb">These are some of the highlights so far.</p>
         </div>
         <div class="chapter-media m-scroll">
           <div class="strip-track">
-            <figure class="strip-card land">
-              <div class="strip-media"><span class="label">images/travel-1.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-1.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Osaka, Japan</figcaption>
             </figure>
-            <figure class="strip-card port">
-              <div class="strip-media"><span class="label">images/travel-2.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:1.333">
+              <div class="strip-media"><img src="images/travel-2.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1200"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Grand Canyon, USA</figcaption>
             </figure>
-            <figure class="strip-card land">
-              <div class="strip-media"><span class="label">images/travel-3.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-3.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Yosemite, USA</figcaption>
             </figure>
-            <figure class="strip-card port">
-              <div class="strip-media"><span class="label">images/travel-4.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.562">
+              <div class="strip-media"><img src="images/travel-4.jpg" alt="" loading="lazy" decoding="async" width="900" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Joshua Tree, USA</figcaption>
             </figure>
-            <figure class="strip-card land">
-              <div class="strip-media"><span class="label">images/travel-5.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-5.jpg" alt="" loading="lazy" decoding="async" width="768" height="1024"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Sicily, Italy</figcaption>
             </figure>
-            <figure class="strip-card port">
-              <div class="strip-media"><span class="label">images/travel-6.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-6.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Dubrovnik, Croatia</figcaption>
             </figure>
-            <figure class="strip-card land">
-              <div class="strip-media"><span class="label">images/travel-7.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.636">
+              <div class="strip-media"><img src="images/travel-7.jpg" alt="" loading="lazy" decoding="async" width="1017" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Budapest, Hungary</figcaption>
             </figure>
-            <figure class="strip-card port">
-              <div class="strip-media"><span class="label">images/travel-8.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-8.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Belgrade, Serbia</figcaption>
             </figure>
-            <figure class="strip-card land">
-              <div class="strip-media"><span class="label">images/travel-1.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-1.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Osaka, Japan</figcaption>
             </figure>
-            <figure class="strip-card port">
-              <div class="strip-media"><span class="label">images/travel-2.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:1.333">
+              <div class="strip-media"><img src="images/travel-2.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1200"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Grand Canyon, USA</figcaption>
             </figure>
-            <figure class="strip-card land">
-              <div class="strip-media"><span class="label">images/travel-3.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-3.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Yosemite, USA</figcaption>
             </figure>
-            <figure class="strip-card port">
-              <div class="strip-media"><span class="label">images/travel-4.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.562">
+              <div class="strip-media"><img src="images/travel-4.jpg" alt="" loading="lazy" decoding="async" width="900" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Joshua Tree, USA</figcaption>
             </figure>
-            <figure class="strip-card land">
-              <div class="strip-media"><span class="label">images/travel-5.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-5.jpg" alt="" loading="lazy" decoding="async" width="768" height="1024"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Sicily, Italy</figcaption>
             </figure>
-            <figure class="strip-card port">
-              <div class="strip-media"><span class="label">images/travel-6.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-6.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Dubrovnik, Croatia</figcaption>
             </figure>
-            <figure class="strip-card land">
-              <div class="strip-media"><span class="label">images/travel-7.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.636">
+              <div class="strip-media"><img src="images/travel-7.jpg" alt="" loading="lazy" decoding="async" width="1017" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Budapest, Hungary</figcaption>
             </figure>
-            <figure class="strip-card port">
-              <div class="strip-media"><span class="label">images/travel-8.jpg</span></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>EDIT ME</figcaption>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-8.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Belgrade, Serbia</figcaption>
             </figure>
           </div>
         </div>
       </article>
 
-      <!-- The two thin categories share one band. Adding a photo to either is
-           one more .shotbox — the row re-divides itself and gets shorter. -->
-      <div class="chapter-pair">
-        <article class="chapter compact">
-          <div>
-            <p class="chapter-cat">Sport</p>
-            <h3 class="chapter-title">Pool, snow and saltwater</h3>
-            <p class="chapter-blurb">Ten years swimming for Poland — national titles in 200m
-               butterfly and both relays. Snowboarding and surfing since.</p>
-          </div>
-          <div class="chapter-media m-row port">
-              <div class="shotbox"><span class="label">images/swimming-1.jpg</span></div>
-              <div class="shotbox"><span class="label">images/snowboard-1.jpg</span></div>
-              <div class="shotbox"><span class="label">images/surf-1.jpg</span></div>
-          </div>
-        </article>
-        <article class="chapter compact">
-          <div>
-            <p class="chapter-cat">Sitting still</p>
-            <h3 class="chapter-title">Cubes, chess and whatever I'm reading</h3>
-            <p class="chapter-blurb">Rubik's cubes, best solve ten seconds. In chess I play the
-               Sicilian Dragon and not much else. Currently working through The Witcher saga.</p>
-          </div>
-          <div class="chapter-media m-row port">
-              <div class="shotbox"><span class="label">images/cubes-1.jpg</span></div>
-              <div class="shotbox"><span class="label">images/chess-1.jpg</span></div>
-              <div class="shotbox"><span class="label">images/books-1.jpg</span></div>
-          </div>
-        </article>
-      </div>
+      <article class="chapter">
+        <div>
+          <p class="chapter-cat">Sport</p>
+          <h3 class="chapter-title">Snow, saltwater and, once, a pool</h3>
+          <p class="chapter-blurb">Snowboarding and surfing now. Before that, ten years swimming
+             for Poland as a junior — national titles in 200m butterfly and both relays.</p>
+        </div>
+        <div class="chapter-media m-row">
+            <div class="shotbox" style="--ar:1.333"><img src="images/snowboard-1.jpg" alt="Sitting in deep snow in a whiteout with the board still strapped on." loading="lazy" decoding="async" width="1600" height="1200"></div>
+            <div class="shotbox" style="--ar:0.672"><img src="images/surf-1.jpg" alt="Two of us on the beach in wetsuits, holding rented surfboards." loading="lazy" decoding="async" width="400" height="595"></div>
+            <div class="shotbox" style="--ar:1.333"><img src="images/swimming-1.jpg" alt="A rack of swimming medals hanging on their ribbons." loading="lazy" decoding="async" width="1600" height="1200"></div>
+        </div>
+      </article>
+
+      <article class="chapter">
+        <div>
+          <p class="chapter-cat">Sitting still</p>
+          <h3 class="chapter-title">Cubes, chess and whatever I'm reading</h3>
+          <p class="chapter-blurb">Rubik's cubes, best solve ten seconds. In chess I play the
+             Sicilian Dragon and not much else. Currently working through The Witcher saga.</p>
+        </div>
+        <div class="chapter-media m-row">
+            <div class="shotbox" style="--ar:1.333"><img src="images/cubes-1.jpg" alt="A row of Rubik's cubes and other twisty puzzles lined up along a desk." loading="lazy" decoding="async" width="1600" height="1200"></div>
+            <div class="shotbox"><span class="label">images/chess-1.jpg</span></div>
+            <div class="shotbox" style="--ar:1.333"><img src="images/books-1.jpg" alt="A shelf of the Witcher saga in Polish." loading="lazy" decoding="async" width="1600" height="1200"></div>
+        </div>
+      </article>
 
     </div>
   </div>
