@@ -235,7 +235,7 @@ a{color:var(--accent)}
    **Re-derive these numbers if --wrap, --gutter or the pill width change.**
    ============================================================ */
 .rail{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:50;display:none;
-  pointer-events:none;transition:opacity .5s var(--ease)}
+  pointer-events:none;transition:padding-left .45s var(--ease)}
 .rail a{pointer-events:auto}
 /* The rail is fixed at mid-screen, so at scroll 0 it sits ON the hero. Rather
    than hide it there, it wears its NARROW form over the hero — planets and
@@ -322,12 +322,19 @@ a{color:var(--accent)}
    active one. */
 .rail .rail-label{position:absolute;right:100%;top:50%;margin-right:16px;
   white-space:nowrap;background:var(--paper);color:var(--ink);
-  min-width:134px;text-align:center;
+  width:134px;min-width:0;text-align:center;
   border:1px solid var(--rule);border-radius:999px;padding:6px 13px;
   opacity:.95;box-shadow:0 8px 18px -14px rgba(16,97,125,.3);
   transform:translateY(-50%);
-  transition:opacity .25s var(--ease),transform .25s var(--ease),
-    border-color .25s var(--ease),color .25s var(--ease)}
+  /* Every property that differs between the pill form and the over-the-hero
+     form is animatable, and the pill stays position:absolute in BOTH — that is
+     the whole reason the change can be a transition rather than a snap.
+     `width` is a length rather than min-width+auto for the same reason, and
+     `top` stays 50% so only `right` and `transform` move it. */
+  transition:right .45s var(--ease),margin-right .45s var(--ease),width .45s var(--ease),
+    padding .45s var(--ease),font-size .45s var(--ease),background-color .45s var(--ease),
+    border-color .45s var(--ease),box-shadow .45s var(--ease),
+    opacity .3s var(--ease),transform .45s var(--ease),color .45s var(--ease)}
 /* each section marker is a tiny planet/moon rather than a plain dot. Sized up
    and given real contrast at rest (was 30px, --ink-3 @ .55 — close to
    invisible); the active state is colour + scale + a soft glow —
@@ -400,21 +407,20 @@ a{color:var(--accent)}
 @media (min-width:1800px){
   .rail{display:block;padding-left:150px}
   .rail a::before{content:"";position:absolute;top:0;bottom:0;right:100%;width:150px}
-  /* OVER THE HERO — full mode borrows compact mode's stacked layout: label
-     above its planet, no pill. Collapsing the padding is what actually narrows
-     the rail (that 150px IS the pill reserve, and .rail::before is positioned
-     against the padding box, so the fence slides in with it). The labels are
-     never hidden — they just change shape — which is what keeps this on the
-     right side of "the rail must always be readable". */
-  .rail.is-hero{padding-left:0}
-  .rail.is-hero a{flex-direction:column;justify-content:center;gap:4px;padding:0}
+  /* OVER THE HERO — the label sits ABOVE its planet as bare text, the way
+     compact mode stacks them, with the pill's box dissolved rather than
+     switched off. It stays position:absolute and only `right` and `transform`
+     change, so the whole thing morphs instead of jumping. The labels are never
+     hidden — they change shape — which is what keeps this on the right side of
+     "the rail must always be readable". */
+  .rail.is-hero{padding-left:0;transition:padding-left .45s var(--ease)}
   .rail.is-hero a::before{display:none}
-  .rail.is-hero .dot{width:34px;height:34px}
-  .rail.is-hero .rail-label{position:static;transform:none;background:none;border:0;
-    box-shadow:none;min-width:0;width:78px;padding:0;font-size:10px;
-    letter-spacing:.04em;line-height:1.25}
+  .rail.is-hero .rail-label{right:calc(50% - 38px);margin-right:0;width:76px;
+    padding:0;font-size:10px;letter-spacing:.04em;line-height:1.25;
+    background-color:transparent;border-color:transparent;box-shadow:0 0 0 transparent;
+    transform:translateY(-50%) translateY(-33px)}
   .rail.is-hero a:hover .rail-label,
-  .rail.is-hero a.is-active .rail-label{transform:none;box-shadow:none}
+  .rail.is-hero a.is-active .rail-label{transform:translateY(-50%) translateY(-33px)}
 }
 /* COMPACT MODE — the pill strip doesn't fit, so the label drops underneath
    its planet and shrinks to a caption. Still always visible: the whole point
@@ -509,21 +515,30 @@ a{color:var(--accent)}
   clip-path:polygon(0 0, 100% 0, calc(100% - var(--slant)*2) 100%, 0 100%)}
 .hero-half-b{left:calc(var(--seam) - var(--slant));right:0;
   clip-path:polygon(calc(var(--slant)*2) 0, 100% 0, 100% 100%, 0 100%)}
-/* Dark night shot: keep the horizon, not the sky. The same widen-and-pull
-   trick as half B, but gentler — just enough to walk the face left out from
-   under the name. */
-.hero-half-a{--shift:7%}
+/* Dark night shot: keep the horizon, not the sky. Same two knobs as half B,
+   but gentle — just enough to walk the face left out from under the name. */
+.hero-half-a{--zoom:1.07;--pan:7%}
 .hero-half-a img{object-position:center 62%;
-  width:calc(100% + var(--shift));max-width:none;margin-left:calc(-1 * var(--shift))}
+  width:calc(100% * var(--zoom));max-width:none;margin-left:calc(-1 * var(--pan))}
 /* The sign and the figure, not the pavement — and pulled LEFT so the rail has
    somewhere to sit. object-position cannot do this: the photo is portrait in a
    landscape box, so cover crops it vertically only and there is no horizontal
-   overflow to reposition. Making the image wider than its box and pulling it
-   back with a negative margin is what creates that overflow. --shift is the
-   one number to tune. */
-.hero-half-b{--shift:43%}
+   overflow to reposition. Making the image wider than its box is what creates
+   that overflow.
+
+   ⚠ ZOOM AND PAN ARE SEPARATE KNOBS and they were tangled together in the
+   first version: one --shift both widened the image (zoom IN) and pulled it
+   left, so asking for more pan silently zoomed further in, which is the
+   opposite of what more dead space beside the rail needs.
+     --zoom  1 = the photo exactly fills the panel's width. Higher crops in.
+     --pan   how far left, as a per-cent of the panel's width.
+   The pan cannot exceed (zoom - 1) × 100%, or the image's right edge lifts off
+   the panel's right edge and leaves a bare strip. At the maximum the photo's
+   own right edge sits under the rail, which is the point: the rail should
+   obscure the edge of the picture, not the middle of it. */
+.hero-half-b{--zoom:1.22;--pan:22%}
 .hero-half-b img{object-position:center 38%;
-  width:calc(100% + var(--shift));max-width:none;margin-left:calc(-1 * var(--shift))}
+  width:calc(100% * var(--zoom));max-width:none;margin-left:calc(-1 * var(--pan))}
 /* The seam drawn as a thin blue rule — the same gradient the section dividers
    and the rail's separator use, so the hero belongs to the same system. */
 .hero-seam{position:absolute;inset:0;pointer-events:none;z-index:1;
@@ -3697,7 +3712,9 @@ function onFrame(){
        the hero has gone: we clear the classes once and then skip. */
   if(railEl && heroEl){
     var heroBottom=heroEl.getBoundingClientRect().bottom;
-    railEl.classList.toggle('is-hero', y < heroEl.offsetHeight*0.5);
+    /* the pills come back only once the rail's own TOP edge has cleared the
+       hero — i.e. no part of it is over the photograph any more */
+    railEl.classList.toggle('is-hero', railEl.getBoundingClientRect().top < heroBottom);
     if(heroBottom>0){
       for(var ri=0;ri<railItems.length;ri++){
         var rr=railItems[ri].getBoundingClientRect();
