@@ -530,7 +530,14 @@ a{color:var(--accent)}
    across his face; the text is inset far enough to clear him. Everything else
    on the page still lines up with .wrap — this one block does not, on purpose. */
 .hero-copy{position:absolute;inset:auto 0 0 0;padding-bottom:clamp(34px,5vw,68px);z-index:2}
-.hero-copy > .wrap{padding-left:calc(var(--gutter) + clamp(0px,14vw - 80px,260px))}
+/* This wrap is NOT the page's wrap. .wrap centres itself and, above 1500px,
+   shifts left by a growing amount to clear the rail — so an inset expressed as
+   extra padding on top of it lands in a different place at every width, and at
+   1400px it still sat on his face. The subject's right edge is roughly a fixed
+   FRACTION of the hero's width, so the inset has to be one too: the centring
+   and the shift are cancelled and the text simply starts at 23vw. */
+.hero-copy > .wrap{max-width:none;margin-inline:0;
+  padding-left:clamp(var(--gutter),23vw,640px);padding-right:var(--gutter)}
 .hero-name{font-family:var(--serif);font-weight:400;color:#fff;font-size:clamp(46px,9vw,104px);
   line-height:.94;letter-spacing:-.025em;margin:0;text-shadow:0 1px 28px rgba(0,0,0,.34)}
 /* Sized in `em`, so it scales with the name rather than needing its own clamp —
