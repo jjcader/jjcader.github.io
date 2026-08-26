@@ -245,7 +245,22 @@ a{color:var(--accent)}
    labels are permanently visible everywhere the reader is actually reading.
    Do not extend it into a hover-reveal — that is the version that made the
    rail unusable as navigation. */
-.rail-label{transition:opacity .4s var(--ease),transform .4s var(--ease)}
+.rail-label{transition:opacity .4s var(--ease),transform .4s var(--ease),
+  color .45s var(--ease),background-color .45s var(--ease),border-color .45s var(--ease)}
+.rail-pct{transition:color .45s var(--ease)}
+/* LIGHT OVER THE PHOTOGRAPH — applied PER ITEM, not to the whole rail. The
+   rail is centred on the viewport and the hero is 68vh, so at rest its lower
+   items hang below the hero onto white paper: colouring the whole rail white
+   would make those invisible. Each <li> carries .on-hero only while its own
+   midpoint is above the hero's bottom edge, so Contact — which never reaches
+   the photo — is never recoloured. The JS sets it; the fade is here. */
+.rail li.on-hero .dot{color:rgba(255,255,255,.95);opacity:.95}
+.rail li.on-hero .rail-label{color:#fff;opacity:.95;background:none;border-color:transparent;
+  box-shadow:none;text-shadow:0 1px 6px rgba(0,0,0,.55)}
+.rail li.on-hero a.is-active .dot{color:#fff;opacity:1;
+  filter:drop-shadow(0 0 9px rgba(255,255,255,.6))}
+.rail li.on-hero a.is-active .rail-label{color:#fff}
+.rail-pct.on-hero{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.55)}
 /* hairline that fences the rail off from the page, Jayanth-style: taller and
    more visible than a standard hairline — this is a deliberate section
    divider, not a subtle rule — but still faded at both ends rather than a
@@ -385,13 +400,21 @@ a{color:var(--accent)}
 @media (min-width:1800px){
   .rail{display:block;padding-left:150px}
   .rail a::before{content:"";position:absolute;top:0;bottom:0;right:100%;width:150px}
-  /* Narrow form. Collapsing the padding is what actually narrows the rail: it
-     is the 150px pill reserve, and .rail::before (the separator) is positioned
-     against the padding box, so the fence slides in with it. Scoped to full
-     mode because compact mode is already narrow — hiding its labels there would
-     take them out of flow and shift the planets. */
-  .rail.is-narrow{padding-left:0}
-  .rail.is-narrow .rail-label{opacity:0;transform:translateX(12px);pointer-events:none}
+  /* OVER THE HERO — full mode borrows compact mode's stacked layout: label
+     above its planet, no pill. Collapsing the padding is what actually narrows
+     the rail (that 150px IS the pill reserve, and .rail::before is positioned
+     against the padding box, so the fence slides in with it). The labels are
+     never hidden — they just change shape — which is what keeps this on the
+     right side of "the rail must always be readable". */
+  .rail.is-hero{padding-left:0}
+  .rail.is-hero a{flex-direction:column;justify-content:center;gap:4px;padding:0}
+  .rail.is-hero a::before{display:none}
+  .rail.is-hero .dot{width:34px;height:34px}
+  .rail.is-hero .rail-label{position:static;transform:none;background:none;border:0;
+    box-shadow:none;min-width:0;width:78px;padding:0;font-size:10px;
+    letter-spacing:.04em;line-height:1.25}
+  .rail.is-hero a:hover .rail-label,
+  .rail.is-hero a.is-active .rail-label{transform:none;box-shadow:none}
 }
 /* COMPACT MODE — the pill strip doesn't fit, so the label drops underneath
    its planet and shrinks to a caption. Still always visible: the whole point
@@ -498,7 +521,7 @@ a{color:var(--accent)}
    overflow to reposition. Making the image wider than its box and pulling it
    back with a negative margin is what creates that overflow. --shift is the
    one number to tune. */
-.hero-half-b{--shift:22%}
+.hero-half-b{--shift:43%}
 .hero-half-b img{object-position:center 38%;
   width:calc(100% + var(--shift));max-width:none;margin-left:calc(-1 * var(--shift))}
 /* The seam drawn as a thin blue rule — the same gradient the section dividers
@@ -3513,6 +3536,8 @@ var railSections=['about','selected','projects','education','experience','life',
   .map(function(id){ return document.getElementById(id); });
 var heroMedia=document.getElementById('heroMedia');
 var heroEl=document.querySelector('.hero');
+var railItems=Array.prototype.slice.call(document.querySelectorAll('.rail ol li'));
+var railHeroOn=false;
 var toTop=document.getElementById('toTop');
 var ticking=false;
 var lastY=window.scrollY, flameLvl=0, tiltLvl=0;
@@ -3661,9 +3686,31 @@ function onFrame(){
     heroMedia.style.transform='translateY('+(y*0.28)+'px)';
   }
   if(toTop) toTop.classList.toggle('show', y > window.innerHeight*0.9);
-  // over the hero the rail wears its narrow form; the pills grow back once
-  // the reader is half a hero down
-  if(railEl && heroEl) railEl.classList.toggle('is-narrow', y < heroEl.offsetHeight*0.5);
+  /* THE RAIL OVER THE HERO. Two separate things, on purpose:
+     - .is-hero on the rail swaps it to the stacked narrow form while the
+       reader is still on the hero;
+     - .on-hero PER ITEM turns that item light, and is decided by whether that
+       item's own midpoint is above the hero's bottom edge. The rail is centred
+       on the viewport and the hero is 68vh, so its bottom items sit on white
+       paper even at scroll 0 — one class for the whole rail would make those
+       invisible. `railHeroOn` stops us measuring eight rects every frame once
+       the hero has gone: we clear the classes once and then skip. */
+  if(railEl && heroEl){
+    var heroBottom=heroEl.getBoundingClientRect().bottom;
+    railEl.classList.toggle('is-hero', y < heroEl.offsetHeight*0.5);
+    if(heroBottom>0){
+      for(var ri=0;ri<railItems.length;ri++){
+        var rr=railItems[ri].getBoundingClientRect();
+        railItems[ri].classList.toggle('on-hero', rr.top+rr.height/2 < heroBottom);
+      }
+      if(railPct) railPct.classList.toggle('on-hero', railPct.getBoundingClientRect().bottom < heroBottom);
+      railHeroOn=true;
+    }else if(railHeroOn){
+      for(var rj=0;rj<railItems.length;rj++) railItems[rj].classList.remove('on-hero');
+      if(railPct) railPct.classList.remove('on-hero');
+      railHeroOn=false;
+    }
+  }
 
   /* ANIMATIONS 1 + 2 — flame length and rocket lean, both driven by scroll
      VELOCITY rather than position. Each is an exponential glide toward its
