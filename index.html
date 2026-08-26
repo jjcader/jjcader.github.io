@@ -262,10 +262,15 @@ a{color:var(--accent)}
    carries .on-hero only while its own midpoint is above the hero's bottom
    edge, so Contact, which never reaches the photo, is never touched. The JS
    sets the class; every transition is here. */
-.rail li.on-hero .dot{color:#fff;opacity:1;padding:4px;border-radius:50%;
-  background-color:rgba(9,15,23,.5);
-  -webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
-  box-shadow:0 3px 12px -5px rgba(0,0,0,.6)}
+/* A bigger disc than the planet needs, so the glyph reads as sitting ON
+   something rather than being outlined against the photo — and a heavier
+   stroke, because a 1.4px hairline disappears over a busy image. */
+.rail li.on-hero .dot{color:#fff;opacity:1;width:46px;height:46px;padding:8px;
+  border-radius:50%;background-color:rgba(9,15,23,.62);
+  border:1px solid rgba(255,255,255,.16);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  box-shadow:0 4px 14px -5px rgba(0,0,0,.65)}
+.rail li.on-hero .dot svg{stroke-width:1.75}
 .rail li.on-hero .rail-label,
 .rail li.on-hero a:hover .rail-label,
 .rail li.on-hero a.is-active .rail-label{color:#fff;opacity:1;padding:3px 7px;
@@ -291,6 +296,7 @@ a{color:var(--accent)}
    The 50% default is what shows if the JS never runs. */
 .rail::before{content:"";position:absolute;right:100%;top:50%;margin-right:16px;
   width:2px;height:min(100vh,980px);transform:translateY(-50%);
+  transition:opacity .45s var(--ease);
   background:linear-gradient(180deg,transparent 0%,
     var(--accent-2) 6%,
     var(--accent) var(--rail-pos,50%),
@@ -358,9 +364,11 @@ a{color:var(--accent)}
    space. */
 .rail .dot{width:36px;height:36px;flex:0 0 auto;display:grid;place-items:center;
   color:var(--ink-2);opacity:.8;background-color:transparent;
+  border:1px solid transparent;
   transition:color .3s var(--ease),opacity .3s var(--ease),
     transform .3s var(--ease),filter .3s var(--ease),
-    background-color .45s var(--ease),padding .45s var(--ease)}
+    background-color .45s var(--ease),padding .45s var(--ease),
+    width .45s var(--ease),height .45s var(--ease),border-color .45s var(--ease)}
 .rail .dot svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:1.4;
   stroke-linecap:round;stroke-linejoin:round}
 .rail a:hover{color:var(--ink)}
@@ -430,8 +438,17 @@ a{color:var(--accent)}
      hidden — they change shape — which is what keeps this on the right side of
      "the rail must always be readable". */
   .rail.is-hero{padding-left:0;transition:padding-left .45s var(--ease)}
+  /* the fence is there to separate the rail from page content; over a
+     photograph it has nothing to separate, and the stacked labels overhang it */
+  .rail.is-hero::before{opacity:0}
   .rail.is-hero a::before{display:none}
-  .rail.is-hero .rail-label{right:calc(50% - 43px);margin-right:0;width:86px;
+  /* Right-aligned to the planet's own right edge rather than centred on it.
+     Centred, an 86px label reached 25px past the dot — through the 20px gap
+     and into the gauge column, so the pills sat on the rocket's track. Growing
+     leftwards instead keeps the whole gauge clear; the label overhangs the
+     rail's left edge into empty photo, which is why .rail::before steps aside
+     below. */
+  .rail.is-hero .rail-label{right:0;margin-right:0;width:86px;
     padding:0;font-size:10px;letter-spacing:.04em;line-height:1.25;
     background-color:transparent;border-color:transparent;box-shadow:0 0 0 transparent;
     transform:translateY(-50%) translateY(-34px)}
@@ -1503,13 +1520,19 @@ section{overflow:hidden;overflow:clip}
 /* The location tag FLOATS on the photograph, bottom-left. A band across the
    foot of the card eats picture; a chip sits on it. Orange pin on a dark veil
    is a graphic, not text, which is why it may use --accent-warm. */
-.strip-cap{position:absolute;left:8px;bottom:8px;z-index:2;
-  display:inline-flex;align-items:center;gap:5px;max-width:calc(100% - 16px);
-  font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.05em;
+/* Sized DOWN from --fs-meta: this is the one mono label on the site that is
+   not read against paper but sits on top of a photograph at card scale, and
+   at 13px with 10px of padding the chip ran nearly the full width of a
+   portrait card and read as a band rather than a tag. 11px is still the
+   documented floor for mono metadata, and white 600-weight on a dark blurred
+   chip has far more contrast than that floor was written for. */
+.strip-cap{position:absolute;left:7px;bottom:7px;z-index:2;
+  display:inline-flex;align-items:center;gap:4px;max-width:calc(100% - 14px);
+  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em;
   text-transform:uppercase;color:#fff;white-space:nowrap;overflow:hidden;
-  background:rgba(10,16,24,.58);border-radius:999px;padding:5px 10px 5px 8px;
+  background:rgba(10,16,24,.58);border-radius:999px;padding:3px 8px 3px 6px;
   backdrop-filter:blur(5px);text-shadow:0 1px 3px rgba(0,0,0,.45)}
-.strip-cap .ic{width:13px;height:13px;flex:0 0 auto;color:var(--accent-warm)}
+.strip-cap .ic{width:11px;height:11px;flex:0 0 auto;color:var(--accent-warm)}
 @media (max-width:860px){
   /* one column: each chapter's text goes back above its photos, the pair
      unstacks, and the hero drops its fixed height so nothing letterboxes */
