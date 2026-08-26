@@ -326,6 +326,12 @@ clauses. Heads without a note (`#about`, Education, Experience) take no
 terminal punctuation, which is why the site is inconsistent about it on
 purpose.
 
+**Every outbound link on the page carries `target="_blank" rel="noopener"`,
+and the `.links-label` reads "Link" or "Links" depending on how many are in
+that block.** The singular/plural is per entry and hand-maintained — adding a
+second link to an entry means changing its label too. The CV PDF opens in a new
+tab for the same reason; internal `#section` anchors and `mailto:` never do.
+
 ⚠ `.section-note` still exists as a **block** rule, because `#contact`'s line
 under the email box is a real standalone `<p>` using it. The inline behaviour
 lives in `.section-sub .section-note`, which strips the block properties and

@@ -1884,7 +1884,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <li><span class="k">Languages</span><span class="v">PL · EN · DE · FR</span></li>
         </ul>
         <div class="socials">
-          <a href="https://www.linkedin.com/in/jedrzejcader/"><svg class="ic"><use href="#i-linkedin"/></svg> LinkedIn</a>
+          <a href="https://www.linkedin.com/in/jedrzejcader/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-linkedin"/></svg> LinkedIn</a>
           <a href="mailto:jcader@ethz.ch"><svg class="ic mail-ic" viewBox="0 0 24 24"><use href="#i-mail-box"/><use class="flap" href="#i-mail-flap"/></svg> Email</a>
           <!-- Add Instagram: <a href="..."><svg class="ic"><use href="#i-instagram"/></svg> Instagram</a> -->
         </div>
@@ -2171,9 +2171,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
             <div class="links-block">
-            <p class="links-label">Links</p>
+            <p class="links-label">Link</p>
             <ul class="entry-links">
-              <li><a href="#">About LCRT <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="https://www.nasa.gov/solar-system/lunar-crater-radio-telescope-illuminating-the-cosmic-dark-ages/" target="_blank" rel="noopener">About LCRT <svg class="ic"><use href="#i-external"/></svg></a></li>
             </ul>
           </div>
           </div>
@@ -2212,8 +2212,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
-              <li><a href="https://aris-space.ch">ARIS <svg class="ic"><use href="#i-external"/></svg></a></li>
-              <li><a href="#">Project HERMES <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="https://aris-space.ch" target="_blank" rel="noopener">ARIS <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="https://aris-space.ch/our-projects/hermes-2025/" target="_blank" rel="noopener">Project HERMES <svg class="ic"><use href="#i-external"/></svg></a></li>
             </ul>
           </div>
           </div>
@@ -2253,8 +2253,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
-              <li><a href="https://aris-space.ch">ARIS <svg class="ic"><use href="#i-external"/></svg></a></li>
-              <li><a href="#">Project HELIOS <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="https://aris-space.ch" target="_blank" rel="noopener">ARIS <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="https://aris-space.ch/helios-2024/" target="_blank" rel="noopener">Project HELIOS <svg class="ic"><use href="#i-external"/></svg></a></li>
             </ul>
           </div>
           </div>
@@ -2282,10 +2282,10 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p>I built a test stand for measuring micropump performance at pd|z, ETH's product
                development group — and had to design and build the pump first, because there
                wasn't one to build the stand around.</p>
-            <p>The pump went through four generations of casing, and standardising the whole
-               assembly on M8 screws got it apart and back together in five minutes instead of
-               an hour, which is the difference between testing one impeller in a day and
-               testing four.</p>
+            <p>The pump went through four generations of casing before you could even get the
+               impeller back out of it. It runs at 10,000 rpm, and the stand reads inlet and
+               outlet pressure and mass flow while you throttle the outlet — which is what draws
+               the head-against-flow curve that tells you whether an impeller is any good.</p>
             <p>My favourite part was working out why the shaft seal kept destroying itself: a
                quarter of a millimetre of misalignment. Corrected that and it ran for hours. The
                printed casing eventually started spraying water through its own walls, which is
@@ -2294,9 +2294,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
           <div class="links-block">
-            <p class="links-label">Links</p>
+            <p class="links-label">Link</p>
             <ul class="entry-links">
-              <li><a href="#">pd|z, ETH Zürich <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="https://pdz.ethz.ch/" target="_blank" rel="noopener">pd|z, ETH Zürich <svg class="ic"><use href="#i-external"/></svg></a></li>
             </ul>
           </div>
           </div>
@@ -2317,14 +2317,15 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2024 · Bachelor's thesis</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Two upgrades to a cryogenic ball valve, both only possible if you print it …</span>
+            <span class="entry-summary">Cryogenic ball valves on rocket engines freeze shut, jam, and refuse to throttle …</span>
           </span>
         </button>
         <div class="entry-body" id="e5"><div><div class="entry-content">
           <div>
-            <p>Two upgrades to a cryogenic ball valve, both only possible if you print it. I
-               took the brief from ARIS's PROMETHEUS test stand, where the valves jammed, froze
-               and couldn't throttle the engine — a clear weak point worth designing out.</p>
+            <p>Cryogenic ball valves on rocket engines freeze shut, jam, and refuse to throttle.
+               They are also bulky and slow to cool, and between them those faults have ended
+               more than one test campaign. My thesis was two upgrades to that valve, both only
+               possible if you print it.</p>
             <p>The first morphs the port from a circle into the V and back, instead of cutting
                a V into a sphere. Smoothing the transition alone changed nothing, but opening
                the port out to match the pipe's area took the pressure drop across a fully open
@@ -2332,15 +2333,16 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p>The second runs a cooling channel through the valve walls, filled with a printed
                lattice. Thirty seconds into pre-cooling, a standard valve has a 96°C gradient
                across the ball. Mine has three, and the final design is 18.5% lighter.</p>
-            <p>The hardest number in the thesis was the viscosity of liquid oxygen. The best
-               source is from 1971.</p>
+            <p>This is also where I properly learned CFD — meshing, turbulence models, boundary
+               conditions, and how much of a simulation's credibility rests on validating it
+               against something you already know the answer to.</p>
             <p class="shot-cap"><span>Top:</span> </p>
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
           <div class="links-block">
-            <p class="links-label">Links</p>
+            <p class="links-label">Link</p>
             <ul class="entry-links">
-              <li><a href="https://www.advanced-manufacturing.ethz.ch">Advanced Manufacturing Lab, ETH Zürich <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="https://www.advanced-manufacturing.ethz.ch" target="_blank" rel="noopener">Advanced Manufacturing Lab, ETH Zürich <svg class="ic"><use href="#i-external"/></svg></a></li>
             </ul>
           </div>
           </div>
@@ -2379,9 +2381,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p class="shot-cap"><span>Left:</span> </p>
             <p class="shot-cap"><span>Right:</span> </p>
             <div class="links-block">
-            <p class="links-label">Links</p>
+            <p class="links-label">Link</p>
             <ul class="entry-links">
-              <li><a href="#">MIT STAR Lab <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="https://aeroastro.mit.edu/starlab/" target="_blank" rel="noopener">MIT STAR Lab <svg class="ic"><use href="#i-external"/></svg></a></li>
             </ul>
           </div>
           </div>
@@ -2405,21 +2407,26 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         <div class="entry-body" id="e7"><div><div class="entry-content">
           <div>
             <p>A research project at ETH on whether a drone swarm can arrange itself to fly in
-               its own wake. A drone drags a cone of downwash behind it, which costs anything
-               following it energy, and two cones of upwash either side, which give it back for
+               its own wake. A drone drags a cone of downwash behind it that costs anything
+               following it energy, and two cones of upwash either side that give it back for
                free.</p>
-            <p>We ran our own CFD to pin the shape down, modelled it as a field with Gaussian
-               falloff, then built three distributed controllers — no central computer, each
-               drone using only its neighbours' positions.</p>
-            <p>All three converge. Gradient-based control runs in 0.01 seconds an iteration and
-               is light enough to fly on the drone; model predictive control finds the better
-               formation almost every time, at 2.1 seconds. The useful result is that we now
-               know what each one costs.</p>
+            <p>The point of the project is that the control is distributed. There is no central
+               computer and no drone that knows where everyone else is — each one sees only its
+               neighbours and decides for itself, which is the only version that scales past a
+               handful of drones and the only version that survives losing one mid-flight.</p>
+            <p>We ran our own CFD to pin down the shape of the wake, modelled it as a field with
+               Gaussian falloff, and built three controllers against it: a linear case simple
+               enough to solve on paper, a gradient-based one, and distributed model predictive
+               control.</p>
+            <p>All three converge. The gradient controller runs in 0.01 seconds an iteration and
+               is light enough to fly on board; MPC finds the better formation almost every time,
+               at 2.1 seconds. I came out of it having properly learned distributed control
+               theory — how you prove a set of independent agents will settle at all.</p>
             <p class="shot-cap"><span>Top:</span> </p>
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
             <div class="links-block">
-            <p class="links-label">Links</p>
+            <p class="links-label">Link</p>
             <ul class="entry-links">
               <li><a href="#">Read the paper <svg class="ic"><use href="#i-external"/></svg></a></li>
             </ul>
@@ -2453,9 +2460,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p class="shot-cap"><span>Left:</span> </p>
             <p class="shot-cap"><span>Right:</span> </p>
             <div class="links-block">
-            <p class="links-label">Links</p>
+            <p class="links-label">Link</p>
             <ul class="entry-links">
-              <li><a href="https://www.treehacks.com">TreeHacks <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="https://www.treehacks.com" target="_blank" rel="noopener">TreeHacks <svg class="ic"><use href="#i-external"/></svg></a></li>
             </ul>
           </div>
           </div>
@@ -2473,13 +2480,14 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2021–2022 · ETH Innovation Project</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Four of us built a snack-shooting robot for a robotics course at ETH …</span>
+            <span class="entry-summary">Four of us built a snack-shooting robot for a robotics course at ETH, at the peak of the pandemic …</span>
           </span>
         </button>
         <div class="entry-body" id="e8"><div><div class="entry-content">
           <div>
-            <p>Four of us built a snack-shooting robot for a robotics course at ETH. Deeply
-               unserious problem, entirely serious engineering.</p>
+            <p>Four of us built a snack-shooting robot for a robotics course at ETH, at the
+               peak of the pandemic — the brief we set ourselves was something fun to have at
+               home, since home was where everyone was.</p>
             <p>The course was really about building one object as a team: a lot of CAD, a lot of
                iterating, and learning to hand a design to someone else and have it still fit
                when it came back.</p>
@@ -2517,9 +2525,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
             <div class="links-block">
-            <p class="links-label">Links</p>
+            <p class="links-label">Link</p>
             <ul class="entry-links">
-              <li><a href="https://polana.ch">polana.ch <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="https://polana.ch" target="_blank" rel="noopener">polana.ch <svg class="ic"><use href="#i-external"/></svg></a></li>
             </ul>
           </div>
           </div>
@@ -2552,10 +2560,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
           <div class="links-block">
-            <p class="links-label">Links</p>
+            <p class="links-label">Link</p>
             <ul class="entry-links">
-              <li><a href="https://eyp.org">About the EYP <svg class="ic"><use href="#i-external"/></svg></a></li>
-              <li><a href="#">Placeholder — second link <svg class="ic"><use href="#i-external"/></svg></a></li>
+              <li><a href="https://eyp.org" target="_blank" rel="noopener">About the EYP <svg class="ic"><use href="#i-external"/></svg></a></li>
             </ul>
           </div>
           </div>
@@ -2788,7 +2795,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
   <div class="wrap">
     <div class="section-head">
-      <h2 class="section-name">Education<a class="cv-mini" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
+      <h2 class="section-name">Education<a class="cv-mini" href="assets/cv.pdf" target="_blank" rel="noopener"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
       <p class="section-sub">Where I studied</p>
     </div>
 
@@ -2818,7 +2825,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <li class="tl-row work tl-mark" id="experience">
         <span class="tl-node tl-node-mark" aria-hidden="true"></span>
         <div class="tl-headbox">
-          <h2 class="section-name">Experience<a class="cv-mini" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
+          <h2 class="section-name">Experience<a class="cv-mini" href="assets/cv.pdf" target="_blank" rel="noopener"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
           <p class="section-sub">Where I've worked</p>
         </div>
       </li>
@@ -2929,8 +2936,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           this planet.
         </p>
         <div class="socials" style="margin-top:20px">
-          <a href="https://www.linkedin.com/in/jedrzejcader/"><svg class="ic"><use href="#i-linkedin"/></svg> LinkedIn</a>
-          <a href="https://polana.ch"><svg class="ic"><use href="#i-globe"/></svg> POLANA</a>
+          <a href="https://www.linkedin.com/in/jedrzejcader/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-linkedin"/></svg> LinkedIn</a>
+          <a href="https://polana.ch" target="_blank" rel="noopener"><svg class="ic"><use href="#i-globe"/></svg> POLANA</a>
         </div>
       </div>
       <!-- ============ EDIT ME #12 — THE MESSAGE FORM =====================
@@ -2998,7 +3005,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   <div class="wrap foot-inner">
     <p class="label foot-loc"><svg class="ic"><use href="#i-pin"/></svg> Zürich, Switzerland</p>
     <div class="foot-links">
-      <a href="https://www.linkedin.com/in/jedrzejcader/" aria-label="LinkedIn"><svg class="ic"><use href="#i-linkedin"/></svg></a>
+      <a href="https://www.linkedin.com/in/jedrzejcader/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg class="ic"><use href="#i-linkedin"/></svg></a>
       <a href="mailto:jcader@ethz.ch" aria-label="Email"><svg class="ic mail-ic" viewBox="0 0 24 24"><use href="#i-mail-box"/><use class="flap" href="#i-mail-flap"/></svg></a>
     </div>
     <p class="label foot-credit">© 2026 Jędrzej Cader<span>Designed and built from scratch · no template</span></p>
