@@ -1296,20 +1296,15 @@ section{overflow:hidden;overflow:clip}
 .shotbox img{width:100%;height:100%;object-fit:cover}
 .shotbox .label{font-size:9.5px;line-height:1.5}
 .chapter-media:hover .shotbox{border-color:color-mix(in srgb,var(--accent-warm) 45%,var(--rule))}
-/* HERO — one big landscape with two more stacked beside it. It was a 2x2 next
-   to the hero, which was wrong twice over: FIVE children in a four-slot grid
-   pushed the last two into an implicit third row that the fixed height squeezed
-   to nothing, and even correctly placed, cells that size are too small to put a
-   photograph in. Three photos at ~3:2 and ~16:9 beat five at stamp size.
-   Children override .shotbox's aspect-ratio because here the grid sets the
-   shape, not the box. */
-.m-hero{display:grid;grid-template-columns:1.72fr 1fr;grid-template-rows:1fr 1fr;
-  gap:10px;height:calc(var(--h) * 2.1)}
-.m-hero > .shotbox{aspect-ratio:auto}
-.m-hero > :first-child{grid-row:1 / -1}
-/* ROW — N across, each a real photograph shape rather than a fixed-height
-   letterbox. The row's height falls out of the aspect ratio, so adding a fourth
-   photo makes the row shorter instead of squashing anything. */
+/* ROW — the only photo layout left, and every chapter uses it. N across, each
+   a real photograph shape rather than a fixed-height letterbox: the row's
+   height falls out of the aspect ratio, so adding a fourth photo makes the row
+   SHORTER instead of squashing anything.
+   Adventure used to get a hero treatment — one big photo with two stacked
+   beside it, at twice this height. It was dropped on the grounds that it
+   highlighted Adventure more than it deserved. Three equal 4:3 photos across
+   the full width land at almost exactly the Travelling band's height, so the
+   two full-width chapters now read as peers. */
 .m-row{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px}
 .m-row.port .shotbox{aspect-ratio:3/4}
 /* SCROLL — the old full-bleed Snapshots marquee, now contained inside a
@@ -1348,9 +1343,6 @@ section{overflow:hidden;overflow:clip}
   /* one column: each chapter's text goes back above its photos, the pair
      unstacks, and the hero drops its fixed height so nothing letterboxes */
   .chapter,.chapter-pair{grid-template-columns:1fr;gap:14px}
-  .m-hero{grid-template-columns:1fr 1fr;grid-template-rows:auto;height:auto}
-  .m-hero > .shotbox{aspect-ratio:4/3}
-  .m-hero > :first-child{grid-row:auto;grid-column:1 / -1;aspect-ratio:16/9}
   .m-row{grid-auto-flow:row;grid-template-columns:1fr 1fr}
 }
 
@@ -2729,9 +2721,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
     <div class="chapters reveal">
 
-      <!-- ADVENTURE — one big photo plus two beside it. Adding a fourth means
-           adding a third grid row and lengthening the block; do NOT just add a
-           fifth <div>, it lands in an implicit row with no height. -->
+      <!-- ADVENTURE — three across, full width. A fourth photo is one more
+           .shotbox; the row re-divides itself and gets shorter. -->
       <article class="chapter">
         <div>
           <p class="chapter-cat">Adventure</p>
@@ -2739,10 +2730,10 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <p class="chapter-blurb">EDIT ME — where it started, where it ended, and the one
              thing that went wrong.</p>
         </div>
-        <div class="chapter-media m-hero">
-            <div class="shotbox"><span class="label">images/balkans-1.jpg</span></div>
-            <div class="shotbox"><span class="label">images/balkans-2.jpg</span></div>
-            <div class="shotbox"><span class="label">images/balkans-3.jpg</span></div>
+        <div class="chapter-media m-row">
+          <div class="shotbox"><span class="label">images/balkans-1.jpg</span></div>
+          <div class="shotbox"><span class="label">images/balkans-2.jpg</span></div>
+          <div class="shotbox"><span class="label">images/balkans-3.jpg</span></div>
         </div>
       </article>
 
