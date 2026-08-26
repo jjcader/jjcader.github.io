@@ -1803,6 +1803,27 @@ Live in `images/`, referenced relatively. Expected names include `hero.jpg`,
 `eyp-1..3`, `teaching-1..3`, `swimming-1..3`, `balkans-1..3`, `puzzles-1..3`,
 and `strip-1..8`.
 
+**The Everything + mosaic photographs are in** (28 files, `jpl-*` through
+`valves-*`), resized to a 1600px long side at quality 82, EXIF stripped, and
+wired up with real `width`/`height` and a real `--ar` per box. The whole set
+went 47MB → 2.9MB. Still outstanding: `hero.jpg`, `og-card.jpg`, `teaching-1`,
+and everything `#life` needs.
+
+⚠ **Every one of those `<img>` tags carries `alt=""`.** That is a deliberate
+placeholder, not a decision — an empty alt makes a screen reader skip the image
+silently, which is the least-bad holding state, but these are content
+photographs and every one needs a real description. `EDIT ME` in an alt would
+be read aloud, which is why it isn't there. The `.shot-cap` caption lines are
+empty for the same reason.
+
+⚠ **ImageMagick is not installed on the Linux machine** and `sudo apt install`
+was not run. The resize pipeline used Pillow instead, which is already there —
+open, `ImageOps.exif_transpose`, LANCZOS down to 1600, save at quality 82 with
+`optimize` and no `exif=` argument (that last omission is what strips the
+metadata). `exif_transpose` matters: a phone photo can be stored rotated with
+an orientation flag, and a browser that honours the flag and a `width`/`height`
+attribute that does not will disagree about the shape.
+
 **Resize before committing.** Max ~1600px on the long side, under ~400KB:
 
 ```bash

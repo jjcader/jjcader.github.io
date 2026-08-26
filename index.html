@@ -1230,7 +1230,9 @@ section{overflow:hidden;overflow:clip}
    object-fit:cover stays as a safety net for when --ar is a rounding away from
    the file's true ratio: then it trims a pixel, not a head. */
 .shots{display:flex;flex-direction:column;gap:8px}
-.shot-row{display:flex;gap:8px}
+/* A row normally fills the column; --w narrows it, for the case where a single
+   leftover photo would otherwise be blown up to full width and go soft. */
+.shot-row{display:flex;gap:8px;width:var(--w,100%)}
 .shot{--ar:1.5;flex:var(--ar) 1 0;aspect-ratio:var(--ar);
   background:var(--paper-2);border:1px solid var(--rule);overflow:hidden;
   display:grid;place-items:center;text-align:center;padding:8px}
@@ -2103,8 +2105,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
            data-target must match an entry id further down. -->
       <button class="tile t-wide" data-target="e2">
         <div class="tile-media split">
-          <div class="tile-half"><span class="label">images/jpl-1.jpg</span></div>
-          <div class="tile-half"><span class="label">images/jpl-2.jpg</span></div>
+          <div class="tile-half"><img src="images/jpl-1.jpg" alt="" decoding="async" width="1600" height="896"></div>
+          <div class="tile-half"><img src="images/jpl-2.jpg" alt="" decoding="async" width="1574" height="1356"></div>
         </div>
         <div class="tile-body">
           <div class="tile-meta">2025 · NASA JPL · PASADENA, CA</div>
@@ -2115,7 +2117,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         </div>
       </button>
       <button class="tile t-narrow" data-target="e1">
-        <div class="tile-media"><div class="tile-ph"><span class="label">images/mit-1.jpg</span></div></div>
+        <div class="tile-media"><img src="images/mit-1.jpg" alt="" loading="lazy" decoding="async" width="662" height="286"></div>
         <div class="tile-body">
           <div class="tile-meta">2026 · MIT · Cambridge, MA</div>
           <div class="tile-title">Master's thesis at MIT — work in progress</div>
@@ -2124,7 +2126,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         </div>
       </button>
       <button class="tile t-narrow" data-target="e11">
-        <div class="tile-media"><div class="tile-ph"><span class="label">images/polana-1.jpg</span></div></div>
+        <div class="tile-media"><img src="images/polana-1.jpg" alt="" loading="lazy" decoding="async" width="1105" height="582"></div>
         <div class="tile-body">
           <div class="tile-meta">2023–present · POLANA · ZÜRICH, CH</div>
           <div class="tile-title">POLANA — building an organisation of 200+</div>
@@ -2135,8 +2137,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       </button>
       <button class="tile t-wide" data-target="e12">
         <div class="tile-media split">
-          <div class="tile-half"><span class="label">images/eyp-1.jpg</span></div>
-          <div class="tile-half"><span class="label">images/eyp-2.jpg</span></div>
+          <div class="tile-half"><img src="images/eyp-1.jpg" alt="" loading="lazy" decoding="async" width="1035" height="751"></div>
+          <div class="tile-half"><img src="images/eyp-2.jpg" alt="" loading="lazy" decoding="async" width="1600" height="900"></div>
         </div>
         <div class="tile-body">
           <div class="tile-meta">2018–present · European Youth Parliament · EUROPE</div>
@@ -2271,11 +2273,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.78"><span class="label">images/jpl-1.jpg</span></div>
+              <div class="shot" style="--ar:1.786"><img src="images/jpl-1.jpg" alt="" loading="lazy" decoding="async" width="1600" height="896"></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:1.0"><span class="label">images/jpl-2.jpg</span></div>
-              <div class="shot" style="--ar:1.0"><span class="label">images/jpl-3.jpg</span></div>
+              <div class="shot" style="--ar:1.161"><img src="images/jpl-2.jpg" alt="" loading="lazy" decoding="async" width="1574" height="1356"></div>
+              <div class="shot" style="--ar:1.254"><img src="images/jpl-3.jpg" alt="" loading="lazy" decoding="async" width="681" height="543"></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2314,8 +2316,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.0"><span class="label">images/hermes-1.jpg</span></div>
-              <div class="shot" style="--ar:1.0"><span class="label">images/hermes-2.jpg</span></div>
+              <div class="shot" style="--ar:1.008"><img src="images/hermes-1.jpg" alt="" loading="lazy" decoding="async" width="800" height="794"></div>
+              <div class="shot" style="--ar:0.732"><img src="images/hermes-2.jpg" alt="" loading="lazy" decoding="async" width="487" height="665"></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2356,11 +2358,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.78"><span class="label">images/micropump-1.jpg</span></div>
+              <div class="shot" style="--ar:1.572"><img src="images/micropump-1.jpg" alt="" loading="lazy" decoding="async" width="514" height="327"></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:1.0"><span class="label">images/micropump-2.jpg</span></div>
-              <div class="shot" style="--ar:1.0"><span class="label">images/micropump-3.jpg</span></div>
+              <div class="shot" style="--ar:1.229"><img src="images/micropump-2.jpg" alt="" loading="lazy" decoding="async" width="559" height="455"></div>
+              <div class="shot" style="--ar:1.327"><img src="images/micropump-3.jpg" alt="" loading="lazy" decoding="async" width="527" height="397"></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2402,11 +2404,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.78"><span class="label">images/helios-1.jpg</span></div>
+              <div class="shot" style="--ar:2.32"><img src="images/helios-1.jpg" alt="" loading="lazy" decoding="async" width="1074" height="463"></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:1.0"><span class="label">images/helios-2.jpg</span></div>
-              <div class="shot" style="--ar:1.0"><span class="label">images/helios-3.jpg</span></div>
+              <div class="shot" style="--ar:1.033"><img src="images/helios-2.jpg" alt="" loading="lazy" decoding="async" width="624" height="604"></div>
+              <div class="shot" style="--ar:0.75"><img src="images/helios-3.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2452,11 +2454,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.78"><span class="label">images/valves-1.jpg</span></div>
+              <div class="shot" style="--ar:2.53"><img src="images/valves-1.jpg" alt="" loading="lazy" decoding="async" width="1212" height="479"></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:1.0"><span class="label">images/valves-2.jpg</span></div>
-              <div class="shot" style="--ar:1.0"><span class="label">images/valves-3.jpg</span></div>
+              <div class="shot" style="--ar:2.012"><img src="images/valves-2.jpg" alt="" loading="lazy" decoding="async" width="1326" height="659"></div>
+              <div class="shot" style="--ar:1.249"><img src="images/valves-3.jpg" alt="" loading="lazy" decoding="async" width="492" height="394"></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2496,7 +2498,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.78"><span class="label">images/mit-1.jpg</span></div>
+              <div class="shot" style="--ar:2.315"><img src="images/mit-1.jpg" alt="" loading="lazy" decoding="async" width="662" height="286"></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2530,9 +2532,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
                is light enough to fly on board; MPC finds the better formation almost every time,
                at 2.1 seconds. I came out of it having properly learned distributed control
                theory — how you prove a set of independent agents will settle at all.</p>
-            <p class="shot-cap"><span>Top:</span> </p>
-            <p class="shot-cap"><span>Bottom left:</span> </p>
-            <p class="shot-cap"><span>Bottom right:</span> </p>
+            <p class="shot-cap"><span>Top left:</span> </p>
+            <p class="shot-cap"><span>Top right:</span> </p>
+            <p class="shot-cap"><span>Bottom:</span> </p>
             <div class="links-block">
             <p class="links-label">Link</p>
             <ul class="entry-links">
@@ -2542,11 +2544,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.78"><span class="label">images/swarm-1.jpg</span></div>
+              <div class="shot" style="--ar:1.163"><img src="images/swarm-1.jpg" alt="" loading="lazy" decoding="async" width="507" height="436"></div>
+              <div class="shot" style="--ar:1.333"><img src="images/swarm-2.jpg" alt="" loading="lazy" decoding="async" width="500" height="375"></div>
             </div>
-            <div class="shot-row">
-              <div class="shot" style="--ar:1.0"><span class="label">images/swarm-2.jpg</span></div>
-              <div class="shot" style="--ar:1.0"><span class="label">images/swarm-3.jpg</span></div>
+            <div class="shot-row" style="--w:52%">
+              <div class="shot" style="--ar:1.21"><img src="images/swarm-3.jpg" alt="" loading="lazy" decoding="async" width="381" height="315"></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2580,8 +2582,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.0"><span class="label">images/hackathon-1.jpg</span></div>
-              <div class="shot" style="--ar:1.0"><span class="label">images/hackathon-2.jpg</span></div>
+              <div class="shot" style="--ar:1.108"><img src="images/hackathon-1.jpg" alt="" loading="lazy" decoding="async" width="1188" height="1072"></div>
+              <div class="shot" style="--ar:1.333"><img src="images/hackathon-2.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1200"></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2616,8 +2618,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.0"><span class="label">images/snackbot-1.jpg</span></div>
-              <div class="shot" style="--ar:1.0"><span class="label">images/snackbot-2.jpg</span></div>
+              <div class="shot" style="--ar:1.049"><img src="images/snackbot-1.jpg" alt="" loading="lazy" decoding="async" width="319" height="304"></div>
+              <div class="shot" style="--ar:0.975"><img src="images/snackbot-2.jpg" alt="" loading="lazy" decoding="async" width="422" height="433"></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2662,11 +2664,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.78"><span class="label">images/polana-1.jpg</span></div>
+              <div class="shot" style="--ar:1.899"><img src="images/polana-1.jpg" alt="" loading="lazy" decoding="async" width="1105" height="582"></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:1.0"><span class="label">images/polana-2.jpg</span></div>
-              <div class="shot" style="--ar:1.0"><span class="label">images/polana-3.jpg</span></div>
+              <div class="shot" style="--ar:0.75"><img src="images/polana-2.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <div class="shot" style="--ar:1.064"><img src="images/polana-3.jpg" alt="" loading="lazy" decoding="async" width="795" height="747"></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2701,11 +2703,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.78"><span class="label">images/eyp-1.jpg</span></div>
+              <div class="shot" style="--ar:1.378"><img src="images/eyp-1.jpg" alt="" loading="lazy" decoding="async" width="1035" height="751"></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:1.0"><span class="label">images/eyp-2.jpg</span></div>
-              <div class="shot" style="--ar:1.0"><span class="label">images/eyp-3.jpg</span></div>
+              <div class="shot" style="--ar:1.778"><img src="images/eyp-2.jpg" alt="" loading="lazy" decoding="async" width="1600" height="900"></div>
+              <div class="shot" style="--ar:1.5"><img src="images/eyp-3.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1067"></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
