@@ -206,9 +206,8 @@ is grown by the same half-gear (`calc(var(--sec-pad) + var(--gear-size)/2)`)
 so the rule ends up at exactly the y it always sat at and nothing else on the
 page moves.
 
-So: about→selected, selected→projects, projects→strip, strip→education,
-education→experience, experience→contact, contact→footer. Seven dividers,
-seven gears, one each — and a new section gets both for free. **The rule to
+So: about→selected, selected→projects, projects→education, education→life,
+life→contact, contact→footer. Six dividers, six gears, one each — and a new section gets both for free. **The rule to
 preserve: never anchor either pseudo-element to a block's TOP.** `footer` has
 no divider of its own (`#contact` draws it) and `section:first-of-type` needs
 no exception any more, because the hero→about boundary is simply nobody's
@@ -491,13 +490,14 @@ re-check that the content's right edge still lands left of the rail.
    under the quote, not shortening either of the two paragraphs beneath.
 4. **`#selected`** — "Highlights": mosaic of four featured cards (image + caption).
 5. **`#projects`** — "Everything": three category cards, then three grouped lists of entries.
-6. **`#life`** — "Life": fun-stuff cards (image + caption, some text-only),
-   with the photo strip as a band at its foot.
-7. **`#education`** — owns the whole timeline: one spine, education left,
+6. **`#education`** — owns the whole timeline: one spine, education left,
    experience right, reverse-chronological, with `#experience` as an anchor
    partway down it. Then the CV strip.
-8. *(no separate experience section — see the timeline in §5)*
-9. **`#contact`** — a click-to-reveal email box and the message form side by
+8. **`#life`** — "Life": four photo chapters. It sits **after** the timeline
+   and before Contact, moved there so the work sections run uninterrupted; the
+   trade is that hobbies are now the last thing before the contact form.
+9. *(no separate experience section — see the timeline in §5)*
+10. **`#contact`** — a click-to-reveal email box and the message form side by
    side, plus socials.
 10. **Footer** — location, centred icon links (under the divider gear),
     copyright plus a "no template" credit.
@@ -871,8 +871,11 @@ both `ol` and `.rail-gauge` to fill that height regardless of mode, and
 not the gaps. The vertical gaps are now only a *floor*; space-between supplies
 the real spacing, so changing them no longer changes the track's length at all.
 
-**The rail carries SEVEN items** (About / Highlights / Everything / Life /
-Experience / Education / Contact). Adding `#life` broke the previous budget and
+**The rail carries SEVEN items** (About / Highlights / Everything / Education /
+Experience / Life / Contact). ⚠ **Document order, nav, rail `<ol>` and
+`railSections` must all list them in the SAME order** — moving `#life` below the
+timeline meant editing all four, and the `idx` loop compares measured section
+positions against that array, so a mismatch points the rocket at the wrong dot. Adding `#life` broke the previous budget and
 this is the thing to re-check whenever a section is added: at
 `min(66vh,560px)` with 20px/16px gaps, seven items needed 470px and overflowed
 at every viewport under ~780px tall. The shipped values —
@@ -1316,7 +1319,7 @@ exception going forward, not the default.
 | `#about` | `deco-orbit-about` *(warm)* |
 | `#selected` | `deco-orbit`, `deco-orbit-sm` *(warm)*, `deco-telescope` *(warm)*, `deco-drone` |
 | `#projects` | `deco-traj` *(warm)*, `deco-orbit-2` *(warm)*, `deco-orbit-left`, `deco-rocket-b`, `deco-orbit-mid`, `deco-robot` *(warm)*, `deco-waves-proj` |
-| `#life` | `deco-orbit-life`, `deco-waves-top` |
+| `#life` | `deco-orbit-life`, `deco-waves-top` — moved with the section; its wave is now separated from `#contact`'s by the whole contact section |
 | `#education` | `deco-orbit-4`, `deco-rocket`, `deco-orbit-3` *(warm)*, `deco-traj-2` *(warm)* |
 | `#contact` | `deco-waves`, `deco-orbit-contact` *(warm)* |
 

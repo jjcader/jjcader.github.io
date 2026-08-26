@@ -1801,9 +1801,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <a href="#about">About</a>
       <a href="#selected">Highlights</a>
       <a href="#projects">Everything</a>
-      <a href="#life">Life</a>
       <a href="#education">Education</a>
       <a href="#experience">Experience</a>
+      <a href="#life">Life</a>
       <a href="#contact">Contact</a>
     </nav>
     <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="nav">Menu</button>
@@ -1818,9 +1818,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <li><a href="#about"><span class="rail-label">About</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-saturn"/></svg></span></a></li>
       <li><a href="#selected"><span class="rail-label">Highlights</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-moon"/></svg></span></a></li>
       <li><a href="#projects"><span class="rail-label">Everything</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-banded"/></svg></span></a></li>
-      <li><a href="#life"><span class="rail-label">Life</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-satellite"/></svg></span></a></li>
       <li><a href="#education"><span class="rail-label">Education</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-cratered"/></svg></span></a></li>
       <li><a href="#experience"><span class="rail-label">Experience</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-saturn-2"/></svg></span></a></li>
+      <li><a href="#life"><span class="rail-label">Life</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-satellite"/></svg></span></a></li>
       <li><a href="#contact"><span class="rail-label">Contact</span><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#p-twin"/></svg></span></a></li>
     </ol>
     <div class="rail-gauge">
@@ -2685,7 +2685,156 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   </div>
 </section>
 
-<!-- ============ EDIT ME #8 — FUN STUFF & LIFE =======================
+
+<!-- ============ EDIT ME #9 — EDUCATION + EXPERIENCE ================
+     ONE timeline, two threads. Work hangs off the left of the spine, study off
+     the right, and the whole thing runs in reverse-chronological order — which
+     is the point: it shows ARIS and ETH overlapping, which two separate lists
+     could never say.
+     Spacing is NOT to scale. Rows are evenly spaced regardless of how many
+     years they span; a true scale would leave a large hole between 2016 and
+     2020 and squash everything recent together.
+     To add an entry: copy an <li class="tl-row work"> or ".. edu"> and drop it
+     in at the right chronological position. Nothing is indexed by position.
+     ================================================================= -->
+<section id="education">
+  <div class="deco deco-orbit-4" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="170"/><circle cx="200" cy="200" r="104"/>
+    <ellipse cx="200" cy="200" rx="170" ry="54" transform="rotate(-30 200 200)"/>
+    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
+    <circle cx="330" cy="248" r="5" fill="currentColor" stroke="none"/>
+    <g class="orbiter"><use href="#d-satellite" x="185" y="79" width="30" height="30"/></g>
+  </svg></div>
+  <!-- Sits in the gap the two threads leave in the middle of the timeline,
+       where one side has cards and the other doesn't. If the row order changes
+       enough to close that gap, move or drop this rather than letting it sit
+       behind a card. -->
+  <div class="deco deco-orbit-tl" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="188"/><circle cx="200" cy="200" r="128"/><circle cx="200" cy="200" r="68"/>
+    <ellipse cx="200" cy="200" rx="188" ry="64" transform="rotate(-27 200 200)"/>
+    <circle cx="200" cy="200" r="7" fill="currentColor" stroke="none"/>
+    <circle cx="118" cy="316" r="5" fill="currentColor" stroke="none"/>
+    <g class="orbiter"><g transform="rotate(90 200 72)"><use href="#d-rocket" x="177" y="49" width="46" height="46"/></g></g>
+    <g class="orbiter rev"><use href="#d-satellite" x="186" y="118" width="28" height="28"/></g>
+  </svg></div>
+  <div class="deco deco-rocket" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#d-rocket"/></svg></div>
+  <div class="deco deco-orbit-3 warm" aria-hidden="true"><svg viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="182"/><circle cx="200" cy="200" r="120"/>
+    <ellipse cx="200" cy="200" rx="182" ry="62" transform="rotate(22 200 200)"/>
+    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
+    <g class="orbiter"><use href="#d-satellite" x="185" y="65" width="30" height="30"/></g>
+  </svg></div>
+  <div class="deco deco-traj-2 warm" aria-hidden="true"><svg viewBox="0 0 200 260">
+    <path d="M14 246C52 224 92 176 116 118 132 78 138 40 136 12"/>
+    <circle cx="14" cy="246" r="4" fill="currentColor" stroke="none"/>
+    <circle cx="136" cy="12" r="5"/>
+  </svg></div>
+
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="section-name">Education<a class="cv-mini" href="assets/cv.pdf" target="_blank" rel="noopener"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
+      <p class="section-sub">Where I studied</p>
+    </div>
+
+    <ol class="tl">
+      <li class="tl-row edu">
+        <span class="tl-node" aria-hidden="true"></span>
+        <div class="tl-card">
+          <span class="tl-when">2025 — 2026</span>
+          <h3 class="tl-role">Master's thesis</h3>
+          <span class="tl-org">MIT · Cambridge, MA</span>
+          <p>Space-weather-aware satellite trajectory optimisation, at the MIT Star Lab with ETH Space Geodesy.</p>
+        </div>
+      </li>
+      <li class="tl-row edu">
+        <span class="tl-node" aria-hidden="true"></span>
+        <div class="tl-card">
+          <span class="tl-when">2024 — present</span>
+          <h3 class="tl-role">MSc Mechanical Engineering</h3>
+          <span class="tl-org">ETH · Zürich, CH</span>
+          <p>Robotics, design and aerospace — distributed drone control and an aerospace micropump testbed.</p>
+        </div>
+      </li>
+      <!-- The Experience heading sits INSIDE the timeline, on the work side and
+           directly above the first work card, so its gap to that card matches
+           the Education head's gap to the first education card. Its id is the
+           rail's Experience target: two headings, one object. -->
+      <li class="tl-row work tl-mark" id="experience">
+        <span class="tl-node tl-node-mark" aria-hidden="true"></span>
+        <div class="tl-headbox">
+          <h2 class="section-name">Experience<a class="cv-mini" href="assets/cv.pdf" target="_blank" rel="noopener"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
+          <p class="section-sub">Where I've worked</p>
+        </div>
+      </li>
+      <li class="tl-row work">
+        <span class="tl-node" aria-hidden="true"></span>
+        <div class="tl-card">
+          <span class="tl-when">2025</span>
+          <h3 class="tl-role">Researcher</h3>
+          <span class="tl-org">NASA JPL · Pasadena, CA</span>
+          <p>Visiting Student Researcher, nine months in the Robotics Group, building the signal processing, orbital simulation and foreground extraction pipelines.</p>
+        </div>
+      </li>
+      <li class="tl-row work">
+        <span class="tl-node" aria-hidden="true"></span>
+        <div class="tl-card">
+          <span class="tl-when">2024 — present</span>
+          <h3 class="tl-role">Head Coach &amp; Technical Advisor</h3>
+          <span class="tl-org">ARIS · Zürich, CH</span>
+          <p>Leading the coaching and technical advisory team for HERMES, the flagship bi-liquid rocket project.</p>
+        </div>
+      </li>
+      <li class="tl-row edu">
+        <span class="tl-node" aria-hidden="true"></span>
+        <div class="tl-card">
+          <span class="tl-when">2020 — 2024</span>
+          <h3 class="tl-role">BSc Mechanical Engineering</h3>
+          <span class="tl-org">ETH · Zürich, CH</span>
+          <p>Focus on robotics, design and control. Bachelor's thesis on additively manufactured cryogenic ball valves.</p>
+        </div>
+      </li>
+      <li class="tl-row work">
+        <span class="tl-node" aria-hidden="true"></span>
+        <div class="tl-card">
+          <span class="tl-when">2023 — 2024</span>
+          <h3 class="tl-role">Mechanical Engineer</h3>
+          <span class="tl-org">ARIS · Zürich, CH</span>
+          <p>Propellant supply engineer on the HELIOS liquid rocket engine test stand, and lead on the cryogenic valve system.</p>
+        </div>
+      </li>
+      <li class="tl-row work">
+        <span class="tl-node" aria-hidden="true"></span>
+        <div class="tl-card">
+          <span class="tl-when">2023</span>
+          <h3 class="tl-role">Engineering &amp; Workshop Intern</h3>
+          <span class="tl-org">SOMET · Wrocław, PL</span>
+          <p>CAD and CAM for manual and CNC manufacturing, plus hands-on stainless steel workshop time.</p>
+        </div>
+      </li>
+      <li class="tl-row edu">
+        <span class="tl-node" aria-hidden="true"></span>
+        <div class="tl-card">
+          <span class="tl-when">2016 — 2020</span>
+          <h3 class="tl-role">A-Levels</h3>
+          <span class="tl-org">Hull's School · Zürich, CH</span>
+          <p>Founded the Debate Society; finalist in the Swiss Mathematics and Physics Olympiads.</p>
+        </div>
+      </li>
+    </ol>
+
+    <!-- EDIT ME — the compact CV strip -->
+    <div class="cv-strip reveal" style="margin-top:clamp(32px,4vw,52px)">
+      <div>
+        <p class="label">The formal version</p>
+        <p class="skills">The full CV. Tools (EDIT ME — LIST HERE), languages, detailed
+           roles, and more.</p>
+      </div>
+      <a class="cv-dl" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Download CV</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EDIT ME #10 — FUN STUFF & LIFE ======================
      Four chapters, and each one's LAYOUT is chosen for how many photographs it
      has, not for tidiness:
        .m-row       N photos across, each 4:3   — Adventure
@@ -2850,154 +2999,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         </article>
       </div>
 
-    </div>
-  </div>
-</section>
-
-<!-- ============ EDIT ME #9 — EDUCATION + EXPERIENCE ================
-     ONE timeline, two threads. Work hangs off the left of the spine, study off
-     the right, and the whole thing runs in reverse-chronological order — which
-     is the point: it shows ARIS and ETH overlapping, which two separate lists
-     could never say.
-     Spacing is NOT to scale. Rows are evenly spaced regardless of how many
-     years they span; a true scale would leave a large hole between 2016 and
-     2020 and squash everything recent together.
-     To add an entry: copy an <li class="tl-row work"> or ".. edu"> and drop it
-     in at the right chronological position. Nothing is indexed by position.
-     ================================================================= -->
-<section id="education">
-  <div class="deco deco-orbit-4" aria-hidden="true"><svg viewBox="0 0 400 400">
-    <circle cx="200" cy="200" r="170"/><circle cx="200" cy="200" r="104"/>
-    <ellipse cx="200" cy="200" rx="170" ry="54" transform="rotate(-30 200 200)"/>
-    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
-    <circle cx="330" cy="248" r="5" fill="currentColor" stroke="none"/>
-    <g class="orbiter"><use href="#d-satellite" x="185" y="79" width="30" height="30"/></g>
-  </svg></div>
-  <!-- Sits in the gap the two threads leave in the middle of the timeline,
-       where one side has cards and the other doesn't. If the row order changes
-       enough to close that gap, move or drop this rather than letting it sit
-       behind a card. -->
-  <div class="deco deco-orbit-tl" aria-hidden="true"><svg viewBox="0 0 400 400">
-    <circle cx="200" cy="200" r="188"/><circle cx="200" cy="200" r="128"/><circle cx="200" cy="200" r="68"/>
-    <ellipse cx="200" cy="200" rx="188" ry="64" transform="rotate(-27 200 200)"/>
-    <circle cx="200" cy="200" r="7" fill="currentColor" stroke="none"/>
-    <circle cx="118" cy="316" r="5" fill="currentColor" stroke="none"/>
-    <g class="orbiter"><g transform="rotate(90 200 72)"><use href="#d-rocket" x="177" y="49" width="46" height="46"/></g></g>
-    <g class="orbiter rev"><use href="#d-satellite" x="186" y="118" width="28" height="28"/></g>
-  </svg></div>
-  <div class="deco deco-rocket" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#d-rocket"/></svg></div>
-  <div class="deco deco-orbit-3 warm" aria-hidden="true"><svg viewBox="0 0 400 400">
-    <circle cx="200" cy="200" r="182"/><circle cx="200" cy="200" r="120"/>
-    <ellipse cx="200" cy="200" rx="182" ry="62" transform="rotate(22 200 200)"/>
-    <circle cx="200" cy="200" r="6" fill="currentColor" stroke="none"/>
-    <g class="orbiter"><use href="#d-satellite" x="185" y="65" width="30" height="30"/></g>
-  </svg></div>
-  <div class="deco deco-traj-2 warm" aria-hidden="true"><svg viewBox="0 0 200 260">
-    <path d="M14 246C52 224 92 176 116 118 132 78 138 40 136 12"/>
-    <circle cx="14" cy="246" r="4" fill="currentColor" stroke="none"/>
-    <circle cx="136" cy="12" r="5"/>
-  </svg></div>
-
-  <div class="wrap">
-    <div class="section-head">
-      <h2 class="section-name">Education<a class="cv-mini" href="assets/cv.pdf" target="_blank" rel="noopener"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
-      <p class="section-sub">Where I studied</p>
-    </div>
-
-    <ol class="tl">
-      <li class="tl-row edu">
-        <span class="tl-node" aria-hidden="true"></span>
-        <div class="tl-card">
-          <span class="tl-when">2025 — 2026</span>
-          <h3 class="tl-role">Master's thesis</h3>
-          <span class="tl-org">MIT · Cambridge, MA</span>
-          <p>Space-weather-aware satellite trajectory optimisation, at the MIT Star Lab with ETH Space Geodesy.</p>
-        </div>
-      </li>
-      <li class="tl-row edu">
-        <span class="tl-node" aria-hidden="true"></span>
-        <div class="tl-card">
-          <span class="tl-when">2024 — present</span>
-          <h3 class="tl-role">MSc Mechanical Engineering</h3>
-          <span class="tl-org">ETH · Zürich, CH</span>
-          <p>Robotics, design and aerospace — distributed drone control and an aerospace micropump testbed.</p>
-        </div>
-      </li>
-      <!-- The Experience heading sits INSIDE the timeline, on the work side and
-           directly above the first work card, so its gap to that card matches
-           the Education head's gap to the first education card. Its id is the
-           rail's Experience target: two headings, one object. -->
-      <li class="tl-row work tl-mark" id="experience">
-        <span class="tl-node tl-node-mark" aria-hidden="true"></span>
-        <div class="tl-headbox">
-          <h2 class="section-name">Experience<a class="cv-mini" href="assets/cv.pdf" target="_blank" rel="noopener"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
-          <p class="section-sub">Where I've worked</p>
-        </div>
-      </li>
-      <li class="tl-row work">
-        <span class="tl-node" aria-hidden="true"></span>
-        <div class="tl-card">
-          <span class="tl-when">2025</span>
-          <h3 class="tl-role">Researcher</h3>
-          <span class="tl-org">NASA JPL · Pasadena, CA</span>
-          <p>Visiting Student Researcher, nine months in the Robotics Group, building the signal processing, orbital simulation and foreground extraction pipelines.</p>
-        </div>
-      </li>
-      <li class="tl-row work">
-        <span class="tl-node" aria-hidden="true"></span>
-        <div class="tl-card">
-          <span class="tl-when">2024 — present</span>
-          <h3 class="tl-role">Head Coach &amp; Technical Advisor</h3>
-          <span class="tl-org">ARIS · Zürich, CH</span>
-          <p>Leading the coaching and technical advisory team for HERMES, the flagship bi-liquid rocket project.</p>
-        </div>
-      </li>
-      <li class="tl-row edu">
-        <span class="tl-node" aria-hidden="true"></span>
-        <div class="tl-card">
-          <span class="tl-when">2020 — 2024</span>
-          <h3 class="tl-role">BSc Mechanical Engineering</h3>
-          <span class="tl-org">ETH · Zürich, CH</span>
-          <p>Focus on robotics, design and control. Bachelor's thesis on additively manufactured cryogenic ball valves.</p>
-        </div>
-      </li>
-      <li class="tl-row work">
-        <span class="tl-node" aria-hidden="true"></span>
-        <div class="tl-card">
-          <span class="tl-when">2023 — 2024</span>
-          <h3 class="tl-role">Mechanical Engineer</h3>
-          <span class="tl-org">ARIS · Zürich, CH</span>
-          <p>Propellant supply engineer on the HELIOS liquid rocket engine test stand, and lead on the cryogenic valve system.</p>
-        </div>
-      </li>
-      <li class="tl-row work">
-        <span class="tl-node" aria-hidden="true"></span>
-        <div class="tl-card">
-          <span class="tl-when">2023</span>
-          <h3 class="tl-role">Engineering &amp; Workshop Intern</h3>
-          <span class="tl-org">SOMET · Wrocław, PL</span>
-          <p>CAD and CAM for manual and CNC manufacturing, plus hands-on stainless steel workshop time.</p>
-        </div>
-      </li>
-      <li class="tl-row edu">
-        <span class="tl-node" aria-hidden="true"></span>
-        <div class="tl-card">
-          <span class="tl-when">2016 — 2020</span>
-          <h3 class="tl-role">A-Levels</h3>
-          <span class="tl-org">Hull's School · Zürich, CH</span>
-          <p>Founded the Debate Society; finalist in the Swiss Mathematics and Physics Olympiads.</p>
-        </div>
-      </li>
-    </ol>
-
-    <!-- EDIT ME — the compact CV strip -->
-    <div class="cv-strip reveal" style="margin-top:clamp(32px,4vw,52px)">
-      <div>
-        <p class="label">The formal version</p>
-        <p class="skills">The full CV. Tools (EDIT ME — LIST HERE), languages, detailed
-           roles, and more.</p>
-      </div>
-      <a class="cv-dl" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Download CV</a>
     </div>
   </div>
 </section>
@@ -3355,7 +3356,7 @@ var railRocket=document.getElementById('railRocket');
 var railTrack=document.querySelector('.rail-track');
 var railDots=Array.prototype.slice.call(document.querySelectorAll('.rail ol .dot'));
 /* same order as the rail's <ol> */
-var railSections=['about','selected','projects','life','education','experience','contact']
+var railSections=['about','selected','projects','education','experience','life','contact']
   .map(function(id){ return document.getElementById(id); });
 var heroMedia=document.getElementById('heroMedia');
 var toTop=document.getElementById('toTop');
