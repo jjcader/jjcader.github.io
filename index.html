@@ -938,6 +938,14 @@ section{overflow:hidden;overflow:clip}
 .tile-media img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
 .tile:hover .tile-media img{transform:scale(1.05)}
 .tile-ph{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:12px}
+/* A .t-wide tile is 7 of 12 columns against .t-narrow's 5, so a single photo in
+   one has to be cropped to about 3:1 — a letterbox no camera ever produced.
+   Splitting it in two gives each half ~3:2, which is a shape a photograph is
+   actually taken at. Only the wide tiles carry .split; the narrow ones are
+   close enough to 2:1 to live with one image. */
+.tile-media.split{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.tile-half{position:relative;overflow:hidden;background:var(--paper-2);
+  display:grid;place-items:center;text-align:center;padding:10px}
 .tile-body{display:flex;flex-direction:column;flex:1 1 auto;
   padding:clamp(13px,1.2vw,17px) clamp(15px,1.4vw,20px) clamp(13px,1.2vw,16px)}
 .tile-meta{font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.11em;
@@ -2074,7 +2082,10 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
            what the work was, without having to click through to the entry.
            data-target must match an entry id further down. -->
       <button class="tile t-wide" data-target="e2">
-        <div class="tile-media"><div class="tile-ph"><span class="label">images/jpl-1.jpg</span></div></div>
+        <div class="tile-media split">
+          <div class="tile-half"><span class="label">images/jpl-1.jpg</span></div>
+          <div class="tile-half"><span class="label">images/jpl-2.jpg</span></div>
+        </div>
         <div class="tile-body">
           <div class="tile-meta">2025 · NASA JPL · PASADENA, CA</div>
           <div class="tile-title">Working at NASA to place a telescope on the far side of the moon.</div>
@@ -2103,7 +2114,10 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
         </div>
       </button>
       <button class="tile t-wide" data-target="e12">
-        <div class="tile-media"><div class="tile-ph"><span class="label">images/eyp-1.jpg</span></div></div>
+        <div class="tile-media split">
+          <div class="tile-half"><span class="label">images/eyp-1.jpg</span></div>
+          <div class="tile-half"><span class="label">images/eyp-2.jpg</span></div>
+        </div>
         <div class="tile-body">
           <div class="tile-meta">2018–present · European Youth Parliament · EUROPE</div>
           <div class="tile-title">Organising and leading conferences of 100+ people debating about Europe</div>
