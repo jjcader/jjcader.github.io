@@ -2274,17 +2274,29 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2025 · Semester thesis</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Built the testbed that lays the foundation for aerospace pump research …</span>
+            <span class="entry-summary">Built a test stand for measuring micropump performance at pd|z, ETH's product development group …</span>
           </span>
         </button>
         <div class="entry-body" id="e6"><div><div class="entry-content">
           <div>
-            <p>Built the testbed that lays the foundation for aerospace pump research at ARIS
-               and ETH. Infrastructure work — the sort nobody cites but everybody uses.</p>
-               <p>Used agile development and iterative design methods to develop and test a 
-                micropump and build a test stand around it. Learned important principles in product design
-                and product development with iterative design evolutioon principles. Honed CAD and CAM skills, and system assembly skills. 
-               </p>
+            <p>Built a test stand for measuring micropump performance at pd|z, ETH's product
+               development group, and had to design and build the pump first, because there
+               wasn't one to build the stand around.</p>
+            <p>The pump went through four generations of casing. The first had flanges that
+               made it impossible to get the impeller back out once it was in. Everything was
+               FDM-printed in PLA on a Prusa MK4 and a Bambu P1S, and standardising the whole
+               assembly on M8 screws took it apart and back together in five minutes instead
+               of an hour — which is the difference between testing one impeller a day and
+               testing four. The finished stand measures inlet and outlet pressure, mass flow
+               and rotational speed to ISO 9906, with the pressure sensors calibrated against
+               a three-metre standing water column.</p>
+            <p>Two things nearly killed it. The shaft lip seal ground its way into the printed
+               shaft and destroyed itself in the process — 0.25mm of misalignment, which took
+               a long time to find and a lubricant and a re-print to fix. And PLA turns out to
+               be water-permeable even above 40% infill, so past a certain pressure the pump
+               stopped leaking at the joints and started spraying through its own walls. It
+               reached 0–10 L/min and 0.4 bar, and the honest recommendation at the end of the
+               thesis is to machine the next casing out of metal.</p>
             <p class="shot-cap"><span>Top:</span> </p>
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
@@ -2344,11 +2356,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
       <article class="entry" data-open="false">
         <button class="entry-head" aria-expanded="false" aria-controls="e1">
-          <span class="entry-title">Master's thesis at MIT</span>
+          <span class="entry-title">Space weather based satellite trajectory optimisation - Master's thesis at MIT</span>
           <span class="entry-meta">2026 · Cambridge, MA</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Writing my ETH master's thesis at MIT …</span>
+            <span class="entry-summary">Writing my master's thesis at the MIT Star Lab in collaboration with…</span>
           </span>
         </button>
         <div class="entry-body" id="e1"><div><div class="entry-content">
@@ -2378,13 +2390,28 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2025 · ETH research project</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Wake-based analysis and distributed control of a drone swarm …</span>
+            <span class="entry-summary">Four of us at ETH, on whether a drone swarm can arrange itself to fly in its own wake …</span>
           </span>
         </button>
         <div class="entry-body" id="e7"><div><div class="entry-content">
           <div>
-            <p>Wake-based analysis and distributed control of a drone swarm — using the
-               aerodynamic mess each drone leaves behind as information the others can act on.</p>
+            <p>Four of us at ETH, on whether a drone swarm can arrange itself to fly in its
+               own wake. A drone in forward flight drags a cone of downwash behind it, which
+               costs anything following it energy, and two cones of upwash either side, which
+               give that energy back for free. Birds worked this out some time ago.</p>
+            <p>We ran our own CFD to pin the shape down — a truncated cone trailing a drone
+               at 12 m/s and 20° of pitch — and modelled it as a scalar field with Gaussian
+               falloff, so every point in the air behind a drone carries a number saying how
+               much you want to be there. Then three controllers, all distributed: no central
+               computer, each drone using only where its neighbours are.</p>
+            <p>The comparison is the interesting part. Gradient-based control runs in 0.01
+               seconds an iteration and would fit on the drone, but it settles into local
+               maxima — the swarm lands in a formation that is better rather than best. Model
+               predictive control finds the good formation almost every time and takes 2.1
+               seconds an iteration, which is about two hundred times too slow to fly. Neither
+               of those is finished, which is the useful result.</p>
+            <p>EDIT ME — which of the three methods were yours. The paper doesn't say who did
+               what, and on a four-author project that is the one thing worth stating.</p>
             <p class="shot-cap"><span>Top:</span> </p>
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
