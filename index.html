@@ -533,11 +533,20 @@ a{color:var(--accent)}
      --zoom  1 = the photo exactly fills the panel's width. Higher crops in.
      --pan   how far left, as a per-cent of the panel's width.
    The pan cannot exceed (zoom - 1) × 100%, or the image's right edge lifts off
-   the panel's right edge and leaves a bare strip. At the maximum the photo's
-   own right edge sits under the rail, which is the point: the rail should
-   obscure the edge of the picture, not the middle of it. */
-.hero-half-b{--zoom:1.22;--pan:22%}
-.hero-half-b img{object-position:center 38%;
+   the panel's right edge and leaves a bare strip.
+
+   Both are back at rest for the current photo, because the FRAMING IS IN THE
+   FILE: hero-5.jpg is cropped to exactly the field of view this panel wants —
+   the figure at 5-30% of the frame, the meatball at 32-68%, and the sign's
+   lettering from 72% out to the edge, which is the part the rail sits on. That
+   is deliberate. Cropping in the file rather than zooming in CSS means the
+   panel shows the photo at roughly 1:1 instead of upscaling it, so re-crop the
+   file when the framing needs to change rather than winding --zoom up.
+   object-position is left-biased so that when a narrower window crops the
+   panel horizontally, it eats the lettering under the rail and never the
+   figure. */
+.hero-half-b{--zoom:1;--pan:0%}
+.hero-half-b img{object-position:20% center;
   width:calc(100% * var(--zoom));max-width:none;margin-left:calc(-1 * var(--pan))}
 /* The seam drawn as a thin blue rule — the same gradient the section dividers
    and the rail's separator use, so the hero belongs to the same system. */
@@ -2008,7 +2017,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 <div class="hero">
   <div class="hero-media" id="heroMedia">
     <div class="hero-half hero-half-a"><img src="images/hero-3.jpg" alt="Looking back at the camera at dusk, with a lit pier and the coastline behind." decoding="async" width="1600" height="1067"></div>
-    <div class="hero-half hero-half-b"><img src="images/hero-2.jpg" alt="Standing in front of the NASA meatball logo at the Jet Propulsion Laboratory." decoding="async" width="900" height="1200"></div>
+    <div class="hero-half hero-half-b"><img src="images/hero-5.jpg" alt="Standing at the Jet Propulsion Laboratory entrance sign, beside the NASA meatball." decoding="async" width="649" height="624"></div>
     <div class="hero-seam" aria-hidden="true"></div>
   </div>
   <div class="hero-veil"></div>
