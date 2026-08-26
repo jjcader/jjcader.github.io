@@ -2245,8 +2245,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
               fun I have ever had while engineering. Sure, it was terrifying when one wrong move meant that 
               liquid oxygen at -184degC will explode in your face, but it was incredibly rewarding when the engine finally 
               fired. I was responsible for propellant supply, which means designing and maintaining the fuel and 
-              oxidiser supply lines. 
-            </p>
+              oxidiser supply lines. In the end the engine delivered 665 N of thrust
+              at 26.7 bar chamber pressure, and held a twenty-second burn.</p>
             <p class="shot-cap"><span>Top:</span> </p>
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
@@ -2274,23 +2274,22 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2025 · Semester thesis</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Built a test stand for measuring micropump performance at pd|z, ETH's product development group …</span>
+            <span class="entry-summary">I built a test stand for measuring micropump performance at pd|z, ETH's product development group …</span>
           </span>
         </button>
         <div class="entry-body" id="e6"><div><div class="entry-content">
           <div>
-            <p>Built a test stand for measuring micropump performance at pd|z, ETH's product
-               development group, and had to design and build the pump first, because there
+            <p>I built a test stand for measuring micropump performance at pd|z, ETH's product
+               development group — and had to design and build the pump first, because there
                wasn't one to build the stand around.</p>
-            <p>The pump went through four generations of casing, all FDM-printed in PLA, and
-               standardising the assembly on M8 screws took it apart and back together in five
-               minutes instead of an hour. It measures inlet and outlet pressure, mass flow and
-               speed to ISO 9906.</p>
-            <p>Two things nearly killed it. The shaft lip seal ground its way into the printed
-               shaft and destroyed itself — 0.25mm of misalignment. And PLA stays water-permeable
-               above 40% infill, so past a certain pressure the pump stopped leaking at the joints
-               and started spraying through its own walls. It reached 10 L/min and 0.4 bar; the
-               next casing should be metal.</p>
+            <p>The pump went through four generations of casing, and standardising the whole
+               assembly on M8 screws got it apart and back together in five minutes instead of
+               an hour, which is the difference between testing one impeller in a day and
+               testing four.</p>
+            <p>My favourite part was working out why the shaft seal kept destroying itself: a
+               quarter of a millimetre of misalignment. Corrected that and it ran for hours. The
+               printed casing eventually started spraying water through its own walls, which is
+               a fairly persuasive argument for machining the next one.</p>
             <p class="shot-cap"><span>Top:</span> </p>
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
@@ -2318,21 +2317,21 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2024 · Bachelor's thesis</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Two changes to a cryogenic ball valve, both only possible if you print it …</span>
+            <span class="entry-summary">Two upgrades to a cryogenic ball valve, both only possible if you print it …</span>
           </span>
         </button>
         <div class="entry-body" id="e5"><div><div class="entry-content">
           <div>
-            <p>Two changes to a cryogenic ball valve, both only possible if you print it. The
-               brief came from ARIS's PROMETHEUS test stand, where the valves jammed, froze
-               and couldn't throttle the engine.</p>
-            <p>First, morph the port from a circle into the V and back, instead of cutting a V
-               into a sphere. Smoothing the transition alone changed nothing; opening the port
-               out to match the pipe's area took the pressure drop across a fully open valve
-               from 0.9 kPa to zero.</p>
-            <p>Second, a cooling channel through the valve walls, filled with a printed
+            <p>Two upgrades to a cryogenic ball valve, both only possible if you print it. I
+               took the brief from ARIS's PROMETHEUS test stand, where the valves jammed, froze
+               and couldn't throttle the engine — a clear weak point worth designing out.</p>
+            <p>The first morphs the port from a circle into the V and back, instead of cutting
+               a V into a sphere. Smoothing the transition alone changed nothing, but opening
+               the port out to match the pipe's area took the pressure drop across a fully open
+               valve from 0.9 kPa to zero.</p>
+            <p>The second runs a cooling channel through the valve walls, filled with a printed
                lattice. Thirty seconds into pre-cooling, a standard valve has a 96°C gradient
-               across the ball; the jacketed one has three. The final design is 18.5% lighter.</p>
+               across the ball. Mine has three, and the final design is 18.5% lighter.</p>
             <p>The hardest number in the thesis was the viscosity of liquid oxygen. The best
                source is from 1971.</p>
             <p class="shot-cap"><span>Top:</span> </p>
@@ -2371,11 +2370,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div>
             <p>Writing my master's thesis at the MIT Star Lab in collaboration with ETH Space Geodesy. 
               The focus of the research is to optimise satellite trajectory control and maneuvering using a space-weather 
-              aware machine learning models.
+              aware machine learning models. Yearly we lose dozens of satellites due to solar activity.
             </p>
-            <p>This means first developing a machine learning prediction model for
+            <p>Solving this means first developing a machine learning prediction model for
               space weather phenomena, such as iono and thermospheric coupling effects following solar storms, 
-            and taking that data to compute orbital parameters such as drag. This </p>
+            and taking that data to compute orbital parameters such as drag. This is to be then plugged into the satellite trajectory
+          controllers, and the goal is to reduce satellite loss and improve control.</p>
             <p class="shot-cap"><span>Left:</span> </p>
             <p class="shot-cap"><span>Right:</span> </p>
             <div class="links-block">
@@ -2399,22 +2399,22 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2025 · ETH research project</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">Four of us at ETH, on whether a drone swarm can arrange itself to fly in its own wake …</span>
+            <span class="entry-summary">A research project at ETH on whether a drone swarm can arrange itself to fly in its own wake …</span>
           </span>
         </button>
         <div class="entry-body" id="e7"><div><div class="entry-content">
           <div>
-            <p>Four of us at ETH, on whether a drone swarm can arrange itself to fly in its own
-               wake. A drone drags a cone of downwash behind it, which costs anything following
-               it energy, and two cones of upwash either side, which give it back for free.</p>
+            <p>A research project at ETH on whether a drone swarm can arrange itself to fly in
+               its own wake. A drone drags a cone of downwash behind it, which costs anything
+               following it energy, and two cones of upwash either side, which give it back for
+               free.</p>
             <p>We ran our own CFD to pin the shape down, modelled it as a field with Gaussian
                falloff, then built three distributed controllers — no central computer, each
                drone using only its neighbours' positions.</p>
-            <p>The comparison is the result. Gradient-based control runs in 0.01 seconds an
-               iteration and would fit on the drone, but settles into local maxima. Model
-               predictive control finds the right formation almost every time, at 2.1 seconds
-               an iteration — two hundred times too slow to fly.</p>
-            <p>EDIT ME — which of the three methods were yours.</p>
+            <p>All three converge. Gradient-based control runs in 0.01 seconds an iteration and
+               is light enough to fly on the drone; model predictive control finds the better
+               formation almost every time, at 2.1 seconds. The useful result is that we now
+               know what each one costs.</p>
             <p class="shot-cap"><span>Top:</span> </p>
             <p class="shot-cap"><span>Bottom left:</span> </p>
             <p class="shot-cap"><span>Bottom right:</span> </p>
@@ -2440,16 +2440,16 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2026 · Hackathon</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">An agentic assistant that reads what scientists are working on and tells them who else in the room they should meet …</span>
+            <span class="entry-summary">An agentic assistant called APERTA, built by four of us at TreeHacks …</span>
           </span>
         </button>
         <div class="entry-body" id="e18"><div><div class="entry-content">
           <div>
-            <p>An agentic assistant that reads what scientists are working on and tells them
-               who else in the room they should meet. Conferences are supposed to be where
-               research collaborations start, and mostly they are a lot of people standing
-               near each other not doing that.</p>
-            <p>EDIT ME — team size, what you built, whether it placed.</p>
+            <p>An agentic assistant called APERTA, built by four of us at TreeHacks. It records
+               a conference or a meeting when you tell it to, turns what it heard into a network
+               of who is working on what, and answers questions against it afterwards.</p>
+            <p>The real gain was learning agentic programming — getting a model to plan, call
+               tools and act rather than just answer.</p>
             <p class="shot-cap"><span>Left:</span> </p>
             <p class="shot-cap"><span>Right:</span> </p>
             <div class="links-block">
@@ -2473,13 +2473,16 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="entry-meta">2021–2022 · ETH Innovation Project</span>
           <span class="entry-toggle" aria-hidden="true">+</span>
           <span class="entry-brief">
-            <span class="entry-summary">A desktop snack dispenser robot, built in a team of four …</span>
+            <span class="entry-summary">Four of us built a snack-shooting robot for a robotics course at ETH …</span>
           </span>
         </button>
         <div class="entry-body" id="e8"><div><div class="entry-content">
           <div>
-            <p>A desktop snack dispenser robot, built in a team of four. Deeply unserious
-               problem, entirely serious engineering.</p>
+            <p>Four of us built a snack-shooting robot for a robotics course at ETH. Deeply
+               unserious problem, entirely serious engineering.</p>
+            <p>The course was really about building one object as a team: a lot of CAD, a lot of
+               iterating, and learning to hand a design to someone else and have it still fit
+               when it came back.</p>
             <p class="shot-cap"><span>Left:</span> </p>
             <p class="shot-cap"><span>Right:</span> </p>
           </div>
