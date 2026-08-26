@@ -1584,27 +1584,36 @@ strong and two thin.
 
 | Category | Media class | What it is |
 |---|---|---|
-| Adventure | `.m-hero` | one big landscape + two stacked beside it — three |
+| Adventure | `.m-row` | three across, each 4:3, full width |
 | Travelling | `.m-scroll` | the contained marquee — any number |
 | Sport | `.m-row.port` | N across, each 3:4 |
 | Sitting still | `.m-row.port` | N across, each 3:4 |
 
-⚠ **`.m-hero` held five photos in a four-slot grid and it was broken.** Two
-columns × two rows, with the hero spanning both rows of column one, leaves
-exactly two slots; children four and five auto-placed into an **implicit third
-row** that the block's fixed height squeezed to nothing. It looked like "the
-bottom row is too thin" and it was really "those photos are outside the grid".
-Three photos is now the shape — and even placed correctly, four cells that size
-are too small to put a photograph in. **If Adventure needs more, add a grid row
-and lengthen the block; never just add another `<div>`.**
+**There is exactly one photo layout, `.m-row`, plus the marquee.** Adventure
+briefly had a `.m-hero` — one big landscape with two stacked beside it, at
+twice the height — and it went through two failures worth not repeating.
+
+⚠ First it held **five photos in a four-slot grid**: two columns × two rows
+with the hero spanning both rows of column one leaves exactly two free slots,
+so children four and five auto-placed into an **implicit third row** that the
+block's fixed height squeezed to nothing. It read as "the bottom row is too
+thin"; it was really "those photos are outside the grid". **A fixed-height grid
+with an explicit row count silently swallows any extra child — count the slots
+before adding one.**
+
+Then, cut to three photos and made shorter on request, it stopped working for a
+second reason: **at ~260px tall against a ~1080px media column, a two-column
+split makes the big photo 2.6:1.** That is a panorama, not a photograph. Three
+equal 4:3 photos across the full width land at almost exactly the Travelling
+band's height, so the two full-width chapters now read as peers — which was the
+point of levelling Adventure down. **If a hero ever comes back, its height and
+its column ratio have to be derived together, or the shapes go wrong.**
 
 **Every photo box carries a real photographic aspect ratio** — `4/3` by
-default, `3/4` under `.m-row.port`, `16/9` for a hero on narrow screens.
+default, `3/4` under `.m-row.port`.
 `.m-row` deliberately has **no fixed height**: the height falls out of the
 aspect ratio, so adding a fourth photo makes the row *shorter* rather than
-squashing the pictures. `.m-hero`'s children override `.shotbox`'s
-`aspect-ratio` to `auto`, because there the grid sets the shape.
-
+squashing the pictures. 
 **Travelling's cards alternate `.land` (4:3) and `.port` (3:4)** so the band
 reads as a camera roll rather than a product grid. The shared height lives on
 `.strip-track`, not on the card, which is what lets each card's *width* come
@@ -1626,8 +1635,8 @@ full-width row each. That is worth ~200px, and it says "these two are the minor
 ones" without a word of explanation.
 
 **Every media block sizes off one variable, `--h`, so no chapter can balloon as
-photos are added.** The section runs ~1100px of chapters against the ~620px the
-old four cards plus the strip took — deliberately larger, because it is carried
+photos are added.** The section runs ~850–970px of chapters against the ~620px
+the old four cards plus the strip took — deliberately larger, because it is carried
 by photographs. **If Life ever needs to be shorter, change `--h` — never the
 individual blocks.**
 
