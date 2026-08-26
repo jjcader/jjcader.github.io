@@ -1611,10 +1611,19 @@ strong and two thin.
 
 | Category | Media class | What it is |
 |---|---|---|
-| Adventure | `.m-row` | three across, each 4:3, full width |
+| Adventure | `.m-row` | three across, full width |
 | Travelling | `.m-scroll` | the contained marquee — any number |
-| Sport | `.m-row.port` | N across, each 3:4 |
-| Sitting still | `.m-row.port` | N across, each 3:4 |
+| Sport | `.m-row` | three across, full width |
+| Sitting still | `.m-row` | three across, full width |
+
+**Every row is now `--ar`-driven and every chapter is full width.** `.m-row.port`
+and the `.chapter-pair` band are both gone. The pair existed to save ~200px by
+putting Sport and Sitting still side by side, and it stopped working the moment
+the real photographs arrived: those two turned out to be mostly *landscape*, and
+three landscape photos in a half-width column come out 119px tall. Row height is
+whatever the aspect ratios give you, so **the lever for a shorter row is MORE
+photos in it, not fewer** — three 4:3 photos across 1035px are 254px tall, four
+are 190px. Life now runs ~1280px of chapters.
 
 **There is exactly one photo layout, `.m-row`, plus the marquee.** Adventure
 briefly had a `.m-hero` — one big landscape with two stacked beside it, at
@@ -1641,10 +1650,13 @@ default, `3/4` under `.m-row.port`.
 `.m-row` deliberately has **no fixed height**: the height falls out of the
 aspect ratio, so adding a fourth photo makes the row *shorter* rather than
 squashing the pictures. 
-**Travelling's cards alternate `.land` (4:3) and `.port` (3:4)** so the band
-reads as a camera roll rather than a product grid. The shared height lives on
-`.strip-track`, not on the card, which is what lets each card's *width* come
-from its own aspect ratio.
+**Travelling's cards each carry their own `--ar`**, so the band reads as a
+camera roll rather than a product grid — the `.land`/`.port` classes are gone,
+since real photos are not all 4:3 or 3:4 (two of the eight are 9:16). The shared
+height lives on `.strip-track`, not on the card, which is what lets each card's
+*width* come from its own aspect ratio. Their `alt` is deliberately empty: each
+card is a `<figure>` whose `<figcaption>` is the location pin, and that caption
+is already the image's text alternative.
 
 **The location tag floats ON the photograph** — `.strip-cap` is
 `position:absolute` bottom-left, a pill with a `#i-pin` glyph, not a band
@@ -1823,6 +1835,13 @@ open, `ImageOps.exif_transpose`, LANCZOS down to 1600, save at quality 82 with
 metadata). `exif_transpose` matters: a phone photo can be stored rotated with
 an orientation flag, and a browser that honours the flag and a `width`/`height`
 attribute that does not will disagree about the shape.
+
+⚠ **The hero photograph is portrait (1200×1600) in a full-bleed landscape
+band.** At 1920px wide the browser scales it to 1920×2560 and shows a 620px
+slice — about a quarter of the frame, upscaled 60%. `object-position:center 48%`
+picks the slice that keeps the sign and the figure, but the real fix is a
+landscape shot at 2400px or wider. This is the one image on the site where the
+source shape is wrong for its container.
 
 **Resize before committing.** Max ~1600px on the long side, under ~400KB:
 
