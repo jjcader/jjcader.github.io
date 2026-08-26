@@ -247,7 +247,8 @@ a{color:var(--accent)}
    rail unusable as navigation. */
 .rail-label{transition:opacity .4s var(--ease),transform .4s var(--ease),
   color .45s var(--ease),background-color .45s var(--ease),border-color .45s var(--ease)}
-.rail-pct{transition:color .45s var(--ease),background-color .45s var(--ease),padding .45s var(--ease)}
+.rail-pct{transition:color .45s var(--ease),background-color .45s var(--ease),
+  padding .45s var(--ease),border-color .45s var(--ease)}
 /* OVER THE PHOTOGRAPH, EACH MARKER CARRIES ITS OWN BACKING — a small dark
    disc behind the planet and a matching pill behind the label — rather than a
    veil over the whole picture. White text with a drop shadow was tried first
@@ -263,24 +264,40 @@ a{color:var(--accent)}
    edge, so Contact, which never reaches the photo, is never touched. The JS
    sets the class; every transition is here. */
 /* A bigger disc than the planet needs, so the glyph reads as sitting ON
-   something rather than being outlined against the photo — and a heavier
-   stroke, because a 1.4px hairline disappears over a busy image. */
-.rail li.on-hero .dot{color:#fff;opacity:1;width:46px;height:46px;padding:8px;
-  border-radius:50%;background-color:rgba(9,15,23,.62);
-  border:1px solid rgba(255,255,255,.16);
+   something rather than being outlined against the photo — plus a heavier
+   stroke, because a 1.4px hairline disappears over a busy image.
+
+   ⚠ WHITE ON A TRANSLUCENT DARK CHIP WAS NOT ENOUGH, and the reason is worth
+   keeping: half the hero IS near-black, so a dark chip has nothing to separate
+   it from and white-on-dark reads as white-on-dark-photo — no edge. The chips
+   are now nearly opaque and outlined in --accent-2, which appears nowhere in
+   either photograph, so the outline is what does the work rather than the
+   fill. The rail has to be legible from the first frame; the sign behind it
+   loses that argument. */
+.rail li.on-hero .dot{color:#eafcff;opacity:1;width:48px;height:48px;padding:8px;
+  border-radius:50%;background-color:rgba(6,12,20,.84);
+  border:1.5px solid color-mix(in srgb,var(--accent-2) 62%,transparent);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
-  box-shadow:0 4px 14px -5px rgba(0,0,0,.65)}
-.rail li.on-hero .dot svg{stroke-width:1.75}
+  box-shadow:0 5px 18px -4px rgba(0,0,0,.8)}
+.rail li.on-hero .dot svg{stroke-width:1.95}
 .rail li.on-hero .rail-label,
 .rail li.on-hero a:hover .rail-label,
-.rail li.on-hero a.is-active .rail-label{color:#fff;opacity:1;padding:3px 7px;
-  background-color:rgba(9,15,23,.55);border-color:rgba(255,255,255,.22);
-  -webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
-  box-shadow:0 3px 12px -5px rgba(0,0,0,.55)}
-.rail li.on-hero a.is-active .dot{filter:drop-shadow(0 0 9px rgba(255,255,255,.55))}
-.rail-pct.on-hero{color:#fff;padding:3px 9px;border-radius:999px;
-  background-color:rgba(9,15,23,.55);
-  -webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+.rail li.on-hero a.is-active .rail-label{color:#fff;opacity:1;padding:4px 8px;width:88px;
+  background-color:rgba(6,12,20,.84);
+  border:1.5px solid color-mix(in srgb,var(--accent-2) 52%,transparent);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  box-shadow:0 5px 18px -4px rgba(0,0,0,.7)}
+/* the current section is the one thing that should read as lit rather than
+   merely legible */
+.rail li.on-hero a.is-active .dot{color:#fff;border-color:var(--accent-2);
+  background-color:color-mix(in srgb,var(--accent) 72%,rgba(6,12,20,.95));
+  filter:drop-shadow(0 0 11px color-mix(in srgb,var(--accent-2) 65%,transparent))}
+.rail li.on-hero a.is-active .rail-label{border-color:var(--accent-2);
+  background-color:color-mix(in srgb,var(--accent) 66%,rgba(6,12,20,.95))}
+.rail-pct.on-hero{color:var(--accent-2);padding:4px 10px;border-radius:999px;
+  background-color:rgba(6,12,20,.84);
+  border:1.5px solid color-mix(in srgb,var(--accent-2) 52%,transparent);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 /* hairline that fences the rail off from the page, Jayanth-style: taller and
    more visible than a standard hairline — this is a deliberate section
    divider, not a subtle rule — but still faded at both ends rather than a
@@ -303,6 +320,13 @@ a{color:var(--accent)}
     color-mix(in srgb,var(--accent-2) 42%,transparent) calc(var(--rail-pos,50%) + 10%),
     color-mix(in srgb,var(--accent-2) 42%,transparent) 94%,
     transparent 100%)}
+/* The fence separates the rail from page content; over a photograph there is
+   nothing to separate, and the stacked labels overhang it anyway.
+   ⚠ Deliberately OUTSIDE the mode media queries. It lived inside the 1800px
+   block at first, so it did nothing at all in compact mode — where most people
+   actually are — and the line stayed drawn across the hero. Anything that
+   should hold in BOTH rail modes belongs here, not in a mode block. */
+.rail.is-hero::before{opacity:0}
 /* Absolutely positioned, NOT a block in the rail's flow. `.rail` is centred
    with top:50%/translateY(-50%), which centres its whole box — so while the
    readout was in flow, the thing actually being centred was "readout +
@@ -364,7 +388,7 @@ a{color:var(--accent)}
    space. */
 .rail .dot{width:36px;height:36px;flex:0 0 auto;display:grid;place-items:center;
   color:var(--ink-2);opacity:.8;background-color:transparent;
-  border:1px solid transparent;
+  border:1.5px solid transparent;
   transition:color .3s var(--ease),opacity .3s var(--ease),
     transform .3s var(--ease),filter .3s var(--ease),
     background-color .45s var(--ease),padding .45s var(--ease),
@@ -438,9 +462,6 @@ a{color:var(--accent)}
      hidden — they change shape — which is what keeps this on the right side of
      "the rail must always be readable". */
   .rail.is-hero{padding-left:0;transition:padding-left .45s var(--ease)}
-  /* the fence is there to separate the rail from page content; over a
-     photograph it has nothing to separate, and the stacked labels overhang it */
-  .rail.is-hero::before{opacity:0}
   .rail.is-hero a::before{display:none}
   /* Right-aligned to the planet's own right edge rather than centred on it.
      Centred, an 86px label reached 25px past the dot — through the 20px gap
