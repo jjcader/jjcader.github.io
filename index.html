@@ -1249,13 +1249,28 @@ section{overflow:hidden;overflow:clip}
 /* The chapters reach further right than anything else on the page. Every other
    block stops at .wrap's content edge, which above 1500px sits a long way left
    of the rail — the column is nudged LEFT while the rail is anchored RIGHT, so
-   at 1920px there is ~150px of dead margin beside the photographs. This closes
-   most of it, and is capped so it can never touch the rail: the worst case is
-   ~1800px (where full rail mode starts and --rule-inset jumps to 257px), and
-   even there it leaves ~40px between the last photo and the rail's own vertical
-   rule. Re-derive it if --wrap, --gutter, the 1500px left-shift or the rail's
+   at 1920px that leaves ~150px of dead margin beside the photographs.
+
+   The reach is DERIVED, not guessed. A guessed `4.5vw - 36px` was tried first
+   and very nearly touched the rail at 1400px, because the slack is wildly
+   non-monotonic: it is 30px at 1400, 47px at 1520, 85px at 1800 and 477px at
+   2560, since --rule-inset jumps at 1800 and .wrap's left shift grows with the
+   viewport. Any single vw expression is wrong somewhere. So the term below IS
+   the slack — viewport, minus the rail's inset, minus .wrap's left offset,
+   minus .wrap, plus its gutter — and 40px of it is kept as clearance.
+
+   Only applies at >=1520px. Below that the 900-1519px band already adds 100px
+   of padding-right to .wrap for the rail, and there is no slack left to take.
+   Capped at 120px because the hero block has a FIXED height: let the media
+   column grow without limit and the big photo stops being 3:2 and turns into a
+   letterbox. Re-derive if --wrap, --gutter, the 1500px shift or the rail's
    footprint change. */
-@media (min-width:1100px){.chapters{margin-right:calc(-1 * clamp(0px,4.5vw - 36px,110px))}}
+@media (min-width:1520px){
+  .chapters{margin-right:calc(-1 * clamp(0px,
+    100vw - var(--rule-inset)
+    - max(0px,(100vw - var(--wrap))/2 - clamp(34px,3.4vw,68px))
+    - var(--wrap) + var(--gutter) - 40px, 120px))}
+}
 /* A narrow text column on purpose — this section is carried by photographs, and
    every pixel the paragraph does not need is a pixel the pictures get. */
 .chapter{display:grid;grid-template-columns:clamp(150px,12vw,190px) 1fr;
