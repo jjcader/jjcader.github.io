@@ -1576,30 +1576,52 @@ the next frame's measurement and drift steadily off.
 
 ### Fun stuff & life (`#life`)
 
-**The divider + gear pair belongs to `<section>` only.** When the strip was a
-top-level band it shared those selectors (`section::after,.strip::after`);
-once it moved inside `#life` that produced TWO rules before Experience — one
-across the middle of the snapshots strip and one at the section's real bottom.
-If another block is ever nested inside a section, check it isn't inheriting
-the divider rules.
+**Four chapters, and each one's LAYOUT is chosen by how many photographs that
+category actually has.** The counts are wildly uneven — Travelling unlimited,
+Adventure about five, Sport three or four, the quiet one two or three — and a
+four-up grid of equal cards promises four equal things while delivering one
+strong and two thin.
 
-Sits between `#projects` and `#experience`. It exists because everything else
-on the page is artifacts — nothing showed the person. Hobbies used to be a
-fourth group inside `#projects`; it was pulled out because a list row is the
-wrong shape for "I swam for ten years", and because burying it at the bottom of
-the longest section meant nobody reached it.
+| Category | Media class | What it is |
+|---|---|---|
+| Adventure | `.m-hero` | one big photo + a 2×2 beside it — exactly five |
+| Travelling | `.m-scroll` | the contained marquee — any number |
+| Sport | `.m-row` | N across at one height |
+| Sitting still | `.m-row` | N across at one height |
 
-Cards work like the Highlights mosaic — image on top, caption under — on a
-plain auto-fit grid rather than an uneven one, because these are peers rather
-than a ranked four. **`.life-card.no-photo` drops the image block entirely**
-and gets a tinted panel instead: not everything here has a photograph, and a
-card that admits that reads better than a grey box.
+⚠ **The trap in "give each category a row of photos" is that a row of eight
+makes every photo SMALLER.** Row length buys no prominence; row *height* does.
+So the rich categories get taller blocks and the thin ones get one short row —
+the hierarchy on screen matches the hierarchy of what exists. If a category
+grows, give it a taller block, not a longer row.
 
-**The photo strip now lives at the foot of this section**, and its cards are
-`<figure>`, not buttons. It used to open project entries, which made it a
-third pass over work the mosaic and the list already covered. As photographs
-only it stops competing — and that also removed the reason it was hidden below
-700px, since a marquee nobody taps doesn't need to pause on touch.
+**Sport and Sitting still share one `.chapter-pair` band** rather than taking a
+full-width row each. That is worth ~200px, and it says "these two are the minor
+ones" without a word of explanation.
+
+**Every media block is a fixed height derived from one variable, `--h`, so no
+chapter can balloon as photos are added.** The section is height-budgeted:
+~820px of chapters against the ~620px the old four cards plus the strip took.
+**If Life ever needs to be shorter, change `--h` — never the individual
+blocks.**
+
+**The Snapshots strip is gone as a band; its marquee lives on as Travelling's
+media.** That removed a whole component and its two ugliest rules: the
+full-bleed strip needed `margin-right` at two breakpoints to keep cards out
+from under the fixed rail, and being inside `.wrap` deletes that problem
+entirely. `.strip-track` / `.strip-card` / `.strip-media` / `.strip-cap` are
+kept and reused; `.strip`, `.strip-label` and `.strip-viewport` are deleted.
+⚠ **Both halves of the track must stay identical** — the loop is a
+`translateX(-50%)`, so an odd card count makes it jump.
+
+**`deco-waves-top` was anchored to the strip band's top edge**; with that band
+gone it now sits at `bottom:78px` of `#life` itself, which keeps it the
+required ~40px+ clear of the section divider (see the `.deco-waves-proj` note
+in §6 for why that distance matters).
+
+The old `.life-card` / `.life-grid` CSS and the text-only `.no-photo` variant
+were deleted rather than left dead — this is a file someone reads top to
+bottom.
 
 ### The contact form (`#contact`)
 

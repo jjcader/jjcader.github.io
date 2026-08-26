@@ -676,7 +676,7 @@ section::before{content:"";position:absolute;bottom:0;left:50%;z-index:4;
    symbols carry the attribute on their own paths instead. */
 .deco svg *{vector-effect:non-scaling-stroke}
 .deco.warm{color:var(--accent-warm)}
-section > .wrap,.strip > *{position:relative;z-index:1}
+section > .wrap{position:relative;z-index:1}
 /* clip, not hidden. Both stop decoration bleeding into a horizontal scrollbar,
    but `overflow:hidden` creates a scroll container, and position:sticky inside
    one resolves against THAT box rather than the viewport — which silently
@@ -727,7 +727,10 @@ section{overflow:hidden;overflow:clip}
 .deco-rocket-b svg{transform:rotate(16deg)}
 /* full-bleed wave crests — never two of these near each other on the page */
 .deco-waves{left:0;right:0;bottom:-10px;width:100%;height:170px;opacity:.27}
-.deco-waves-top{left:0;right:0;top:-14px;width:100%;height:104px;opacity:.2}
+/* Was anchored to the photo strip band; that band is gone, so it now sits above
+   #life's own bottom edge. Kept clear of the divider by the same ~40px rule that
+   governs .deco-waves-proj below. */
+.deco-waves-top{left:0;right:0;bottom:78px;width:100%;height:104px;opacity:.2}
 /* THE ONE DIVIDER WITH A WAVE UNDER IT — and the reason that divider kept
    being reported as missing. A full-bleed blue hairline drawn within ~40px of
    a full-bleed blue rule merges with it into one fuzzy band; the eye reads a
@@ -879,7 +882,7 @@ section{overflow:hidden;overflow:clip}
 .about-text p:first-child{font-family:var(--serif);font-size:clamp(17px,1.6vw,23px);
   line-height:1.25;letter-spacing:-.01em;color:var(--ink)}
 /* The one quotation on the page. A left rule rather than a tinted panel: the
-   CV strip and the text-only Life card are already --paper-2 boxes, and a
+   CV strip and the Life photo boxes are already --paper-2 surfaces, and a
    third would read as another UI object instead of as somebody else's voice.
    Serif for the same reason — the face change is what marks the switch from
    Jedrzej's words to Zurbuchen's, and it is why there is no attribution line
@@ -1225,68 +1228,86 @@ section{overflow:hidden;overflow:clip}
   .entry-content{grid-template-columns:1fr}
 }
 
-/* ============ FUN STUFF & LIFE (#life) ============
-   Same card idea as the Highlights mosaic — image on top, caption under — but
-   a plain auto-fit grid, because these are peers rather than a ranked four.
-   .no-photo drops the image block entirely: not everything here has a
-   photograph, and a card that admits that reads better than a grey box. */
-.life-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:clamp(12px,1.4vw,18px)}
-.life-card{position:relative;display:flex;flex-direction:column;overflow:hidden;
-  background:var(--paper);border:1px solid var(--rule);border-radius:3px;
-  transition:transform .4s var(--ease),border-color .3s var(--ease),box-shadow .4s var(--ease)}
-.life-card:hover{transform:translateY(-4px);border-color:var(--accent-warm);
-  box-shadow:0 16px 36px -22px color-mix(in srgb,var(--accent-warm) 60%,transparent)}
-.life-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;z-index:2;
-  background:linear-gradient(180deg,var(--accent-2),var(--accent-warm));
-  transform:scaleY(0);transform-origin:top;transition:transform .38s var(--ease)}
-.life-card:hover::before{transform:scaleY(1)}
-.life-media{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--paper-2);
-  border-bottom:1px solid var(--rule)}
-.life-media img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
-.life-card:hover .life-media img{transform:scale(1.05)}
-/* a text-only card gets a tinted panel instead, so the row still reads as a
-   set rather than as one card with a missing picture */
-.life-card.no-photo{background:var(--paper-2)}
-.life-body{display:flex;flex-direction:column;flex:1 1 auto;
-  padding:clamp(15px,1.5vw,20px) clamp(16px,1.6vw,22px) clamp(16px,1.6vw,21px)}
-.life-meta{font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--accent)}
-.life-title{font-family:var(--serif);font-weight:400;line-height:1.14;margin:7px 0 0;
-  font-size:var(--fs-card-title);letter-spacing:-.015em}
-.life-desc{margin:9px 0 0;color:var(--ink-body);max-width:44ch;
-  font-size:var(--fs-small);line-height:1.55}
+/* ============ FUN STUFF & LIFE (#life) — weighted chapters ============
+   Four categories, and the shape of each one is decided by how many photographs
+   that category actually has, because they are wildly uneven: Travelling has an
+   unlimited supply, Adventure about five, Sport four, and the quiet one two or
+   three. A four-up grid of equal cards promises four equal things and delivers
+   one strong and two thin.
 
-/* ============ PHOTO STRIP — a photo band at the foot of #life ============
-   The cards are <figure>, NOT buttons: the strip used to open project entries,
-   which made it a second navigation surface duplicating the mosaic. It is now
-   only photographs, which also fixes the mobile problem that forced it to be
-   hidden below 700px — a marquee that can't be tapped doesn't need to pause,
-   so there is nothing left to break on touch. */
-/* the wave deco inside the strip is anchored to the strip's own top edge, so
-   it travels with this margin rather than needing its own adjustment */
-.strip{position:relative;overflow:hidden;margin-top:clamp(18px,2vw,28px)}
-.strip-label{color:var(--accent)}
-.strip-viewport{overflow:hidden;padding-block:7px;
-  mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
-/* Keep the marquee's cards from sliding under the fixed rail. The strip is
-   deliberately full-bleed, so this can't be solved with padding — overflow:
-   hidden clips at the padding edge, meaning padding sits INSIDE the visible
-   region and content still shows through it. margin-right, on a width:auto
-   block, actually shrinks the box and therefore its clip boundary. */
-@media (min-width:1800px){.strip-viewport{margin-right:270px}}
-@media (min-width:900px) and (max-width:1799px){.strip-viewport{margin-right:135px}}
+   ⚠ The trap in "just give each category a row of photos" is that a row of
+   eight makes every photo SMALLER. Row length buys no prominence; row HEIGHT
+   does. So the two rich categories get taller blocks and the thin ones get a
+   single short row, and the hierarchy on screen matches the hierarchy of what
+   actually exists.
+
+   Every media block is a FIXED height off one variable, --h, so no chapter can
+   balloon as photos are added — the whole section is height-budgeted to roughly
+   what the old four cards plus the strip occupied. If Life ever needs to be
+   shorter, change --h, not the individual blocks. */
+.chapters{display:flex;flex-direction:column;gap:clamp(22px,2.6vw,36px)}
+/* Text left, photos right — the text column is where a chapter's one paragraph
+   goes, and putting it beside the photos rather than above them costs no
+   vertical space at all. */
+.chapter{display:grid;grid-template-columns:clamp(180px,16vw,240px) 1fr;
+  gap:clamp(18px,2.4vw,38px);align-items:start}
+.chapter-cat{font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0}
+.chapter-title{font-family:var(--serif);font-weight:400;line-height:1.12;margin:8px 0 0;
+  font-size:var(--fs-card-title);letter-spacing:-.015em;color:var(--ink)}
+.chapter-blurb{margin:9px 0 0;color:var(--ink-body);font-size:var(--fs-small);line-height:1.5}
+
+/* The two thin categories SHARE one band rather than taking a full-width row
+   each. That is worth ~200px, and it is also the correct reading: the page
+   order already says these two are the minor ones, and putting them side by
+   side says it again without a word of explanation. */
+.chapter-pair{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,2.4vw,38px)}
+.chapter.compact{grid-template-columns:1fr;gap:12px}
+.chapter-media{--h:clamp(130px,13vw,175px)}
+.shotbox{background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;
+  overflow:hidden;display:grid;place-items:center;text-align:center;padding:8px;
+  transition:border-color .3s var(--ease)}
+.shotbox img{width:100%;height:100%;object-fit:cover}
+.shotbox .label{font-size:9.5px;line-height:1.5}
+.chapter-media:hover .shotbox{border-color:color-mix(in srgb,var(--accent-warm) 45%,var(--rule))}
+/* HERO — one big photo with a 2x2 beside it. Five photographs in a block only
+   half again as tall as a plain row, which is the whole point: prominence
+   without height. The first child spans both rows; the rest fill the 2x2. */
+.m-hero{display:grid;grid-template-columns:1.55fr 1fr;grid-template-rows:1fr 1fr;
+  gap:8px;height:calc(var(--h) * 1.45)}
+.m-hero > :first-child{grid-row:1 / -1}
+/* ROW — N photos across at one fixed height, so two photos and four photos
+   produce a block of exactly the same depth. */
+.m-row{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;height:var(--h)}
+/* SCROLL — the old full-bleed Snapshots marquee, now contained inside a
+   chapter. This is the one layout that does not care how many photographs you
+   add, which is why Travelling gets it. Being inside .wrap also deletes the
+   reason the old strip needed margin-right to dodge the fixed rail. */
+.m-scroll{overflow:hidden;
+  mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
 @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.strip-track{display:flex;gap:14px;width:max-content;animation:marquee 62s linear infinite}
-.strip:hover .strip-track{animation-play-state:paused}
-.strip-card{position:relative;width:clamp(190px,21vw,290px);flex:0 0 auto;overflow:hidden;
+.strip-track{display:flex;gap:10px;width:max-content;animation:marquee 62s linear infinite}
+.m-scroll:hover .strip-track,.m-scroll:focus-within .strip-track{animation-play-state:paused}
+.strip-card{position:relative;width:clamp(140px,13.5vw,190px);flex:0 0 auto;overflow:hidden;
   margin:0;background:var(--paper);border:1px solid var(--rule);border-radius:3px}
 .strip-media{aspect-ratio:4/3;background:var(--paper-2);display:grid;place-items:center;
   text-align:center;padding:10px;overflow:hidden}
 .strip-media img{width:100%;height:100%;object-fit:cover}
+.strip-media .label{font-size:9.5px;line-height:1.5}
 .strip-cap{font-family:var(--mono);font-size:var(--fs-meta);font-weight:500;letter-spacing:.06em;
   text-transform:uppercase;color:var(--ink-2);line-height:1.4;
-  padding:11px 13px;border-top:1px solid var(--rule)}
+  padding:9px 11px;border-top:1px solid var(--rule)}
+@media (max-width:860px){
+  /* one column: the chapter's text goes back above its photos, the pair
+     unstacks, and the fixed heights drop so blocks breathe rather than
+     becoming letterboxes */
+  .chapter,.chapter-pair{grid-template-columns:1fr;gap:14px}
+  .m-hero{grid-template-columns:1fr 1fr;height:auto}
+  .m-hero > *{aspect-ratio:4/3}
+  .m-hero > :first-child{grid-row:auto;grid-column:1 / -1;aspect-ratio:16/9}
+  .m-row{grid-auto-flow:row;grid-template-columns:1fr 1fr;height:auto}
+  .m-row > *{aspect-ratio:4/3}
+}
 
 /* ============ TIMELINE — boxed cards ============ */
 /* ============ THE TIMELINE (#experience + #education) ============
@@ -1588,7 +1609,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
    the content hidden inside collapsed entries. This forces the page into a
    plain document: no chrome, no colour surfaces, everything expanded. */
 @media print{
-  .rail,.to-top,.skip-link,.deco,.strip,.site-header,.hero-orbit,.hero-more,
+  .rail,.to-top,.skip-link,.deco,.m-scroll,.site-header,.hero-orbit,.hero-more,
   .entry-close,.entry-toggle,.msg,.mail-reveal{display:none !important}
   html,body{background:#fff;color:#000;font-size:10.5pt}
   .hero{height:auto;min-height:0;background:none}
@@ -1609,7 +1630,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .entry-content{opacity:1 !important;transform:none !important;
     grid-template-columns:1fr !important}
   .entry-summary{display:none !important}
-  .shots,.tile-media,.life-media{display:none}
+  .shots,.tile-media,.chapter-media{display:none}
   .tl-row{display:block;margin:0 0 8pt}
   .tl::before,.tl-node{display:none}
   .tl-card,.cat,.tile,.life-card,.entry{border-color:#bbb;box-shadow:none;
@@ -2628,12 +2649,14 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 </section>
 
 <!-- ============ EDIT ME #8 — FUN STUFF & LIFE =======================
-     Cards work like the Highlights mosaic: image on top, caption under. NOT
-     every card needs a photo — one with `.life-card.no-photo` drops the image
-     block and runs text-only, which is the point of this section: some of it
-     is a story, not a picture.
-     The scrolling strip at the bottom is for miscellaneous photos that don't
-     belong to any one card.
+     Four chapters, and each one's LAYOUT is chosen for how many photographs it
+     has, not for tidiness:
+       .m-hero   one big photo + a 2x2 beside it   — exactly five
+       .m-row    N photos across at one height     — two to four
+       .m-scroll the marquee, contained            — as many as you like
+     Adding a photo to a .m-row means adding one <div class="shotbox">; the row
+     re-divides itself. The marquee's cards must stay DUPLICATED — the loop is
+     a translateX(-50%), so both halves have to be identical or it jumps.
      ================================================================= -->
 <section id="life">
   <div class="deco deco-orbit-life" aria-hidden="true"><svg viewBox="0 0 400 400">
@@ -2644,6 +2667,14 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     <g class="orbiter"><use href="#d-satellite" x="183" y="71" width="34" height="34"/></g>
   </svg></div>
 
+  <div class="deco deco-waves-top" aria-hidden="true"><svg viewBox="0 0 1200 130" preserveAspectRatio="none">
+    <g class="wave-g">
+      <path d="M-240 40c120 0 120 34 240 34s120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34"/>
+      <path d="M-240 86c120 0 120 34 240 34s120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34"/>
+    </g>
+  </svg></div>
+
+
   <div class="wrap">
     <div class="section-head reveal">
       <h2 class="section-name">Life</h2>
@@ -2651,126 +2682,134 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
          <span class="section-note">More about me, my adventures and my hobbies.</span></p>
     </div>
 
-    <div class="life-grid reveal">
-      <!-- Four categories, one card each, and the .life-meta line IS the category —
-           Sport / Adventure / Puzzles / Travelling. One word each is what makes the
-           four read as a set rather than as four unrelated hobbies. -->
-      <article class="life-card">
-        <div class="life-media"><div class="tile-ph"><span class="label">images/swimming-1.jpg</span></div></div>
-        <div class="life-body">
-          <div class="life-meta">Sport</div>
-          <h3 class="life-title">Ten years swimming for Poland</h3>
-          <p class="life-desc">National titles in 200m butterfly and both relays, and ten years
-             of 5am alarms.</p>
-        </div>
-      </article>
-      <article class="life-card">
-        <div class="life-media"><div class="tile-ph"><span class="label">images/balkans-1.jpg</span></div></div>
-        <div class="life-body">
-          <div class="life-meta">Adventure</div>
-          <h3 class="life-title">500 km across the Balkans on a bicycle</h3>
-          <p class="life-desc">EDIT ME — where it started, where it ended, and the one thing
-             that went wrong.</p>
-        </div>
-      </article>
-      <article class="life-card">
-        <div class="life-media"><div class="tile-ph"><span class="label">images/puzzles-1.jpg</span></div></div>
-        <div class="life-body">
-          <div class="life-meta">Puzzles</div>
-          <h3 class="life-title">Rubik's cubes, chess, and other small puzzles</h3>
-          <p class="life-desc">EDIT ME — best solve time, chess rating, or just why you like
-             them.</p>
-        </div>
-      </article>
-      <article class="life-card">
-        <div class="life-media"><div class="tile-ph"><span class="label">images/travel-1.jpg</span></div></div>
-        <div class="life-body">
-          <div class="life-meta">Travelling</div>
-          <h3 class="life-title">EDIT ME — the trip worth naming</h3>
-          <p class="life-desc">EDIT ME — where you have been, or the one trip that changed
-             something.</p>
-        </div>
-      </article>
-    </div>
-  </div>
+    <div class="chapters reveal">
 
-  <!-- ============ EDIT ME #8 — PHOTO CARDS
-       Each card is clickable. data-target = the entry it opens.
-       Keep both halves of the track identical for a seamless loop.
-       ============================================================ -->
-  <div class="strip" style="position:relative;overflow:hidden">
-    <div class="deco deco-waves-top" aria-hidden="true"><svg viewBox="0 0 1200 130" preserveAspectRatio="none">
-      <g class="wave-g">
-        <path d="M-240 40c120 0 120 34 240 34s120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34"/>
-        <path d="M-240 86c120 0 120 34 240 34s120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34 120-34 240-34 120 34 240 34"/>
-      </g>
-    </svg></div>
+      <article class="chapter">
+        <div>
+          <p class="chapter-cat">Adventure</p>
+          <h3 class="chapter-title">500 km across the Balkans on a bicycle</h3>
+          <p class="chapter-blurb">EDIT ME — where it started, where it ended, and the one
+             thing that went wrong.</p>
+        </div>
+        <div class="chapter-media m-hero">
+            <div class="shotbox"><span class="label">images/balkans-1.jpg</span></div>
+            <div class="shotbox"><span class="label">images/balkans-2.jpg</span></div>
+            <div class="shotbox"><span class="label">images/balkans-3.jpg</span></div>
+            <div class="shotbox"><span class="label">images/balkans-4.jpg</span></div>
+            <div class="shotbox"><span class="label">images/balkans-5.jpg</span></div>
+        </div>
+      </article>
 
-    <div class="wrap" style="margin-bottom:22px">
-      <p class="label strip-label">Snapshots</p>
-    </div>
-    <div class="strip-viewport">
-      <div class="strip-track" id="stripTrack">
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-1.jpg</span></div>
-        <figcaption class="strip-cap">Engine test · ARIS</figcaption>
-      </figure>
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-2.jpg</span></div>
-        <figcaption class="strip-cap">JPL · Pasadena</figcaption>
-      </figure>
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-3.jpg</span></div>
-        <figcaption class="strip-cap">Balkans · 500 km</figcaption>
-      </figure>
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-4.jpg</span></div>
-        <figcaption class="strip-cap">HERMES build</figcaption>
-      </figure>
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-5.jpg</span></div>
-        <figcaption class="strip-cap">EYP · Sassari</figcaption>
-      </figure>
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-6.jpg</span></div>
-        <figcaption class="strip-cap">POLANA</figcaption>
-      </figure>
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-7.jpg</span></div>
-        <figcaption class="strip-cap">MIT · Cambridge</figcaption>
-      </figure>
-      <!-- EXACT duplicate of the seven above. The marquee animates
-           translateX(0 -> -50%), so the track must hold the set twice or the
-           second half of the loop is empty. Keep these in sync. -->
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-1.jpg</span></div>
-        <figcaption class="strip-cap">Engine test · ARIS</figcaption>
-      </figure>
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-2.jpg</span></div>
-        <figcaption class="strip-cap">JPL · Pasadena</figcaption>
-      </figure>
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-3.jpg</span></div>
-        <figcaption class="strip-cap">Balkans · 500 km</figcaption>
-      </figure>
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-4.jpg</span></div>
-        <figcaption class="strip-cap">HERMES build</figcaption>
-      </figure>
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-5.jpg</span></div>
-        <figcaption class="strip-cap">EYP · Sassari</figcaption>
-      </figure>
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-6.jpg</span></div>
-        <figcaption class="strip-cap">POLANA</figcaption>
-      </figure>
-      <figure class="strip-card">
-        <div class="strip-media"><span class="label">images/strip-7.jpg</span></div>
-        <figcaption class="strip-cap">MIT · Cambridge</figcaption>
-      </figure>
+      <article class="chapter">
+        <div>
+          <p class="chapter-cat">Travelling</p>
+          <h3 class="chapter-title">EDIT ME — a line about where you go</h3>
+          <p class="chapter-blurb">EDIT ME — one sentence. The photographs are doing the work
+             here, so this can be short.</p>
+        </div>
+        <!-- As many photos as you like. Both halves of the track must stay identical. -->
+        <div class="chapter-media m-scroll">
+          <div class="strip-track">
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-1.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-2.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-3.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-4.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-5.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-6.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-7.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-8.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-1.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-2.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-3.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-4.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-5.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-6.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-7.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+        <figure class="strip-card">
+          <div class="strip-media"><span class="label">images/travel-8.jpg</span></div>
+          <figcaption class="strip-cap">EDIT ME</figcaption>
+        </figure>
+          </div>
+        </div>
+      </article>
+
+      <!-- The two thin categories share one band. Adding a fourth photo to either
+           is one more .shotbox — the row re-divides itself. -->
+      <div class="chapter-pair">
+        <article class="chapter compact">
+          <div>
+            <p class="chapter-cat">Sport</p>
+            <h3 class="chapter-title">Pool, snow and saltwater</h3>
+            <p class="chapter-blurb">Ten years swimming for Poland — national titles in 200m
+               butterfly and both relays. Snowboarding and surfing since, with less discipline
+               and more enthusiasm.</p>
+          </div>
+          <div class="chapter-media m-row">
+              <div class="shotbox"><span class="label">images/swimming-1.jpg</span></div>
+              <div class="shotbox"><span class="label">images/snowboard-1.jpg</span></div>
+              <div class="shotbox"><span class="label">images/surf-1.jpg</span></div>
+          </div>
+        </article>
+        <article class="chapter compact">
+          <div>
+            <p class="chapter-cat">Sitting still</p>
+            <h3 class="chapter-title">Cubes, chess and whatever I'm reading</h3>
+            <p class="chapter-blurb">EDIT ME — a solve time, an opening you always play, and
+               the book you finished most recently.</p>
+          </div>
+          <div class="chapter-media m-row">
+              <div class="shotbox"><span class="label">images/cubes-1.jpg</span></div>
+              <div class="shotbox"><span class="label">images/chess-1.jpg</span></div>
+              <div class="shotbox"><span class="label">images/books-1.jpg</span></div>
+          </div>
+        </article>
       </div>
+
     </div>
   </div>
 </section>
@@ -2915,9 +2954,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     <div class="cv-strip reveal" style="margin-top:clamp(32px,4vw,52px)">
       <div>
         <p class="label">The formal version</p>
-        <p class="skills">The full CV — every tool I actually use (Siemens NX, ANSYS, Python,
-           MATLAB), languages, detailed roles, and the parts of all this that don't fit
-           on a page.</p>
+        <p class="skills">The full CV. Tools (EDIT ME — LIST HERE), languages, detailed
+           roles, and more.</p>
       </div>
       <a class="cv-dl" href="assets/cv.pdf"><svg class="ic"><use href="#i-download"/></svg> Download CV</a>
     </div>
