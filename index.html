@@ -2019,13 +2019,19 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 /* --- the hero --- */
 @media (max-width:700px){
   .hero{height:min(70vh,560px)}
-  /* The subject sits bottom-left of this frame and the copy sits top-left, so
-     the two collide. object-position cannot separate them: a landscape photo
-     in a portrait box is cropped horizontally only, so there is no vertical
-     room to move. A transform can move it in both axes at once — scale first
-     so the translate never exposes an edge. */
+  /* Horizontal and vertical are moved by DIFFERENT mechanisms here, and mixing
+     them in one transform is what made this take four passes. A landscape
+     photo in a portrait box is cropped horizontally only:
+       - across, object-position does the work — 0% is the photo's own left
+         edge, which is as far left as the subject can possibly go;
+       - down, there is no vertical overflow to position against, so the image
+         is made TALLER than its box (116%). Everything inside scales up and
+         the box shows the upper part of it, which walks the subject down the
+         frame and enlarges him at the same time.
+     A transform doing both at once fights object-position and the result is
+     unpredictable — don't reintroduce one. */
   .hero-half-a{--zoom:1;--pan:0%}
-  .hero-half-a img{object-position:3% center;transform:scale(1.15) translate(0,8%)}
+  .hero-half-a img{object-position:0% center;height:116%;transform:none}
   .hero-copy{inset:0 0 auto 0;padding-top:clamp(12px,3vh,26px);padding-bottom:0}
   .hero-copy > .wrap{padding-left:calc(var(--gutter) + 4vw);padding-right:var(--gutter)}
   .hero-creds{gap:6px}
@@ -2085,24 +2091,30 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .cv-dl .ic{width:15px;height:15px}
   .cv-mini{font-size:9.5px;padding:4px 9px}
 
-  /* CONTACT — it was taking a whole phone screen for a button, three fields
-     and a paragraph. Everything here is about a third of what it was. */
-  .contact-grid{gap:8px}
-  .mail-reveal{padding:7px 10px;gap:7px;font-size:10px}
-  .mail-reveal .ic{width:13px;height:13px}
-  .msg{padding:8px 9px}
-  .msg-head{margin-bottom:6px}
-  .msg-title{font-size:13.5px}
-  .msg-eyebrow{font-size:8.5px}
+  /* CONTACT — the type was already small; what was left was SPACE. Section
+     padding, the head margin, the grid gap, the field gaps, the label margins
+     and the textarea all come down together, because no single one of them was
+     the problem. */
+  #contact{padding-top:22px;padding-bottom:calc(22px + var(--gear-size)/2)}
+  #contact .section-head{margin-bottom:8px}
+  #contact .socials{margin-top:7px}
+  .contact-grid{gap:6px}
+  .mail-reveal{padding:6px 9px;gap:6px;font-size:9.5px}
+  .mail-reveal .ic{width:12px;height:12px}
+  .msg{padding:7px 8px}
+  .msg-head{margin-bottom:4px}
+  .msg-title{font-size:13px;margin:1px 0 0}
+  .msg-eyebrow{font-size:8px}
   .msg-ref{display:none}
-  .msg-grid{gap:5px}
-  .msg-field label{font-size:8.5px;margin-bottom:2px}
-  .msg-field input,.msg-field textarea{padding:5px 8px;font-size:12px}
-  .msg-field textarea{min-height:44px}
-  .msg-send{padding:7px 13px;font-size:10px}
-  #contact .section-note{font-size:11px;margin-top:7px}
-  .socials{gap:6px;margin-top:10px}
-  .socials a{padding:4px 9px;font-size:10px}
+  .msg-grid{gap:4px}
+  .msg-field{margin:0}
+  .msg-field label{font-size:8px;margin-bottom:1px;display:block}
+  .msg-field input,.msg-field textarea{padding:4px 7px;font-size:12px}
+  .msg-field textarea{min-height:38px}
+  .msg-send{padding:6px 12px;font-size:9.5px;margin-top:5px}
+  #contact .section-note{font-size:10.5px;margin-top:5px;line-height:1.4}
+  .socials{gap:5px}
+  .socials a{padding:3px 8px;font-size:9.5px}
   .chapter-title{font-size:16px}
   .chapter-blurb{font-size:12.5px}
 
@@ -4169,50 +4181,60 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
 
 /* THE TRAVELLING BAND — drift plus drag.
    Not part of onFrame(): that loop is scroll-driven and idle whenever the page
-   is still, which is exactly when this needs to run. It has its own rAF, and
-   an IntersectionObserver stops it dead whenever the band is off screen, so
-   nothing spins in the background.
+   is still, which is exactly when this needs to run. It has its own rAF.
+
+   ⚠ THIS BROKE ONCE ON A NAME COLLISION AND IT IS WORTH KNOWING WHY. A later
+   line read `var wrap = el.closest('.m-scrollwrap')`, which — because `var` is
+   hoisted to the top of the function scope — shadowed the wrap() FUNCTION for
+   the whole IIFE. Every wrap() call then threw "wrap is not a function": the
+   rAF chain died on its first frame (no drift, no dots) and the mouse drag
+   threw on every pointermove. Touch still worked, because touch is handled
+   natively and never enters these handlers — which is exactly the symptom that
+   was reported: dead on desktop, fine on a phone. Keep the element variables
+   suffixed so they cannot collide with the helpers.
+
    The drift writes scrollLeft rather than animating a transform, because a
    transform keyframe and native scrolling cannot coexist — you cannot drag
-   something that is being animated out from under you. Both halves of the
-   track are identical, so wrapping at half the scroll width makes the loop
-   seamless in either direction, including when the reader has dragged it
-   backwards past zero. */
+   something that is being animated out from under you. */
 (function(){
   var el=document.querySelector('.m-scroll');
   if(!el) return;
-  var track=el.querySelector('.strip-track');
-  if(!track) return;
-  var running=false, hold=0, raf=null, last=0, dragId=null, startX=0, startLeft=0;
-  /* ⚠ The drift is accumulated in a FLOAT and then assigned, never written as
-     `el.scrollLeft += small`. At 22px/second a frame is ~0.35px, and a browser
-     that stores scrollLeft as an integer rounds that straight back to zero —
-     which is exactly why the band sat still. */
-  var pos=0;
-  var dots=el.parentNode.querySelector('.m-dots');
+  var trackEl=el.querySelector('.strip-track');
+  if(!trackEl) return;
+  var wrapEl=el.parentNode;
+  var dotsEl=wrapEl.querySelector('.m-dots');
   var perSet=Math.round(el.querySelectorAll('.strip-card').length/3)||1;
 
-  function setWidth(){ return track.scrollWidth/3; }
-  /* Three identical copies, and we live in the MIDDLE one. That is what makes
-     it loop in both directions: scrollLeft is clamped at 0 by the browser, so
-     with only two copies there is nothing to the left to wrap into and the
-     reader simply hits the first photo and stops. */
-  function wrap(){
+  var running=false, raf=null, last=0;
+  var dragId=null, startX=0, startLeft=0;
+  var pos=0, ready=false, idleUntil=0, glideTo=null;
+
+  function setWidth(){ return trackEl.scrollWidth/3; }
+  /* Three identical copies, and we live in the MIDDLE one — scrollLeft is
+     clamped at 0 by the browser, so with only two copies there is nothing to
+     the left to wrap into and the reader just hits the first photo and stops. */
+  function reframe(){
     var W=setWidth();
     if(W<=0) return;
     if(pos>=2*W) pos-=W;
     else if(pos<W) pos+=W;
     el.scrollLeft=pos;
   }
-  function sync(){ pos=el.scrollLeft; }
-  /* One dot per photograph, with every photo currently ON SCREEN marked — a
-     single dot would be a lie, because the band shows four or five at a time. */
-  function buildDots(){
-    if(!dots||dots.childNodes.length) return;
-    for(var i=0;i<perSet;i++) dots.appendChild(document.createElement('span'));
+  /* Initialise on first use rather than from start(), so nothing depends on the
+     observer having fired before the reader touches it. */
+  function ensure(){
+    if(ready) return;
+    var W=setWidth();
+    if(W<=0) return;
+    ready=true;
+    if(dotsEl && !dotsEl.childNodes.length)
+      for(var i=0;i<perSet;i++) dotsEl.appendChild(document.createElement('span'));
+    pos=W; el.scrollLeft=pos;
   }
+  /* One dot per photograph, with every photo currently ON SCREEN marked — a
+     single dot would be a lie, the band shows four or five at a time. */
   function paint(){
-    if(!dots||!dots.childNodes.length) return;
+    if(!dotsEl||!dotsEl.childNodes.length) return;
     var W=setWidth(); if(W<=0) return;
     var f=((pos-W)%W+W)%W/W;
     var first=Math.floor(f*perSet);
@@ -4220,78 +4242,86 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
     for(var i=0;i<perSet;i++){
       var on=false;
       for(var k=0;k<span;k++) if((first+k)%perSet===i) on=true;
-      dots.childNodes[i].className=on?'on':'';
+      dotsEl.childNodes[i].className=on?'on':'';
     }
   }
-  /* ⚠ Do NOT write scrollLeft every frame. Doing that made the band
-     unscrollable by any means except our own drag: a wheel, a trackpad or a
-     touch would move it and the next frame would put it straight back. We only
-     write when WE move it, and a scroll listener picks up everything else. */
+  /* Paused by STATE, never by a counter. An enter/leave counter drifts out of
+     balance the first time a leave event is missed — a pointer captured
+     elsewhere, a tap that never lifts — and the drift then stops for good. */
+  function paused(){
+    return dragId!==null || Date.now()<idleUntil ||
+           el.matches(':hover') || el.contains(document.activeElement);
+  }
+  /* ⚠ Do NOT write scrollLeft every frame. That made the band unscrollable by
+     any means but our own drag: a wheel or a touch moved it and the next frame
+     put it straight back. We write only when WE move it; the scroll listener
+     picks up everything else. */
   function step(t){
     if(!running){ raf=null; return; }
     var dt=last?Math.min(64,t-last):16; last=t;
-    if(!hold && dragId===null && !reduced){ pos+=dt*0.022; wrap(); }
+    ensure();
+    if(glideTo!==null){
+      pos+=(glideTo-pos)*Math.min(1,dt/120);
+      if(Math.abs(glideTo-pos)<0.6){ pos=glideTo; glideTo=null; }
+      reframe();
+    } else if(!paused() && !reduced){
+      pos+=dt*0.022; reframe();
+    }
     paint();
     raf=requestAnimationFrame(step);
   }
-  el.addEventListener('scroll',function(){
-    if(dragId!==null) return;
-    if(Math.abs(el.scrollLeft-pos)>1.5){ pos=el.scrollLeft; wrap(); }
-    paint();
-  },{passive:true});
-  function start(){
-    if(running) return;
-    running=true; last=0;
-    buildDots();
-    if(pos<setWidth()){ pos=setWidth(); el.scrollLeft=pos; }
-    raf=requestAnimationFrame(step);
-  }
+  function start(){ if(!running){ running=true; last=0; raf=requestAnimationFrame(step); } }
   function stop(){ running=false; if(raf){ cancelAnimationFrame(raf); raf=null; } }
 
-  el.addEventListener('pointerenter',function(){ hold++; });
-  el.addEventListener('pointerleave',function(){ hold=Math.max(0,hold-1); });
-  el.addEventListener('focusin',function(){ hold++; });
-  el.addEventListener('focusout',function(){ hold=Math.max(0,hold-1); });
+  el.addEventListener('scroll',function(){
+    if(dragId!==null||glideTo!==null) return;
+    if(Math.abs(el.scrollLeft-pos)>1.5){ pos=el.scrollLeft; idleUntil=Date.now()+1200; reframe(); }
+    paint();
+  },{passive:true});
 
   el.addEventListener('pointerdown',function(e){
-    /* touch and pen scroll the element natively — hijacking them would also
-       swallow the vertical page scroll that starts on this band */
+    /* touch and pen scroll natively — hijacking them would also swallow the
+       vertical page scroll that starts on this band */
     if(e.pointerType!=='mouse') return;
     if(e.target.closest && e.target.closest('.m-nav')) return;
     e.preventDefault();
-    sync(); dragId=e.pointerId; startX=e.clientX; startLeft=pos;
+    ensure(); glideTo=null;
+    dragId=e.pointerId; startX=e.clientX; startLeft=pos;
     el.setPointerCapture(dragId); el.classList.add('is-dragging');
   });
   el.addEventListener('pointermove',function(e){
     if(dragId===null||e.pointerId!==dragId) return;
     e.preventDefault();
     pos=startLeft-(e.clientX-startX);
-    wrap(); paint();
+    reframe(); paint();
   });
   ['pointerup','pointercancel'].forEach(function(evt){
     el.addEventListener(evt,function(){
       if(dragId===null) return;
       try{ el.releasePointerCapture(dragId); }catch(err){}
-      dragId=null; el.classList.remove('is-dragging');
+      dragId=null; idleUntil=Date.now()+1000;
+      el.classList.remove('is-dragging');
     });
   });
 
-  var wrap=el.closest ? el.closest('.m-scrollwrap') : null;
-  if(wrap){
-    wrap.querySelectorAll('.m-nav').forEach(function(btn){
-      btn.addEventListener('click',function(){
-        var card=el.querySelector('.strip-card');
-        var by=(card?card.getBoundingClientRect().width+10:220)*2;
-        pos+=btn.classList.contains('m-nav-prev')?-by:by;
-        wrap(); paint();
-      });
+  Array.prototype.forEach.call(wrapEl.querySelectorAll('.m-nav'),function(btn){
+    btn.addEventListener('click',function(){
+      ensure();
+      var card=el.querySelector('.strip-card');
+      var by=(card?card.getBoundingClientRect().width+10:220)*2;
+      glideTo=pos+(btn.classList.contains('m-nav-prev')?-by:by);
+      idleUntil=Date.now()+1200;
+      start();
     });
-  }
+  });
+
+  start();
   if('IntersectionObserver' in window){
     new IntersectionObserver(function(es){
       es.forEach(function(en){ en.isIntersecting ? start() : stop(); });
-    },{rootMargin:'120px'}).observe(el);
-  } else { start(); }
+    },{rootMargin:'200px'}).observe(el);
+  }
+  window.addEventListener('load',function(){ ready=false; ensure(); });
 })();
 
 /* DRAGGING THE ROCKET.
