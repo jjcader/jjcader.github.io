@@ -2026,7 +2026,14 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
 /* --- the hero --- */
 @media (max-width:700px){
-  .hero{height:min(70vh,560px)}
+  /* ⚠ A SHORTER hero is what moves the face left. cover forces the photo to
+     fill the box's HEIGHT, so the shorter the box, the smaller the photo is
+     scaled and the WIDER a slice of it fits across — which both walks the
+     subject (who lives at the photo's left edge) toward the left of the screen
+     and reveals more of the frame on the right. object-position is already at
+     0%, the photo's own edge, so there was nothing left to give there. It also
+     buys ~60px of the vertical space everything else here is fighting for. */
+  .hero{height:min(62vh,500px)}
   /* Horizontal and vertical are moved by DIFFERENT mechanisms here, and mixing
      them in one transform is what made this take four passes. A landscape
      photo in a portrait box is cropped horizontally only:
@@ -2039,7 +2046,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
      A transform doing both at once fights object-position and the result is
      unpredictable — don't reintroduce one. */
   .hero-half-a{--zoom:1;--pan:0%}
-  .hero-half-a img{object-position:0% center;height:116%;transform:none}
+  .hero-half-a img{object-position:0% center;height:110%;transform:none}
   .hero-copy{inset:0 0 auto 0;padding-top:clamp(12px,3vh,26px);padding-bottom:0}
   .hero-copy > .wrap{padding-left:calc(var(--gutter) + 4vw);padding-right:var(--gutter)}
   .hero-creds{gap:6px}
@@ -2125,6 +2132,57 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .socials a{padding:3px 8px;font-size:9.5px}
   .chapter-title{font-size:16px}
   .chapter-blurb{font-size:12.5px}
+
+  /* HIGHLIGHTS — the Learn more pill was costing a whole row per card. It
+     becomes a badge on the photograph's corner, which costs nothing: the tile
+     is already a <button>, so the pill was only ever an affordance, not the
+     control. */
+  .tile{position:relative}
+  .tile-media{height:clamp(110px,30vw,150px)}
+  .tile-body{padding:9px 11px 11px}
+  .tile-desc{margin-top:5px}
+  .tile-go{position:absolute;top:7px;right:7px;z-index:2;margin:0;
+    width:28px;height:28px;padding:0;gap:0;font-size:0;justify-content:center;
+    border-radius:50%;background:rgba(255,253,250,.93);
+    border-color:color-mix(in srgb,var(--accent) 34%,transparent)}
+  .tile-go .ic{width:13px;height:13px}
+
+  /* OPEN ENTRIES — the 3px hover bar sits at left:0 of .entry, and the content
+     had 2px of left padding, so the bar ran straight through the first
+     character of every line. */
+  .entry-head{padding:11px 2px 11px 11px}
+  .entry-content{padding:4px 2px 18px 11px}
+  /* two photographs, side by side, on one row. display:contents dissolves the
+     .shot-row wrappers so every shot becomes a flex item of .shots and the
+     justified sizing still works across them. */
+  .shots{flex-direction:row;gap:6px}
+  .shot-row{display:contents}
+  .shots > .shot-row:nth-child(n+3){display:none}
+  .shots > .shot-row:nth-child(2) > .shot:nth-child(n+2){display:none}
+  .shot .shot-cap{font-size:9px;padding:3px 5px;left:5px;right:5px;bottom:5px;border-radius:5px}
+  /* the links block becomes one line instead of three */
+  .links-block{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;
+    margin-top:9px;padding-top:7px}
+  .entry-content .links-label{margin:0}
+  .entry-links{gap:4px 12px}
+  .entry-links a{font-size:11px;padding-bottom:2px}
+  .entry-close{margin-top:8px;padding:5px 11px;font-size:9.5px;gap:6px}
+
+  /* TIMELINE — four stacked rows per card (year / role / org / blurb) became
+     three: the year and the org are both mono metadata and sit on one line
+     together, which is what they would do on a real CV. */
+  .tl-card{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px}
+  .tl-when{order:1}
+  .tl-org{order:2}
+  .tl-role{order:3;flex:0 0 100%;margin:2px 0 0}
+  .tl-card p{order:4;flex:0 0 100%;margin:3px 0 0}
+
+  /* FOOTER */
+  footer{padding-bottom:16px}
+  .foot-inner{gap:7px 12px}
+  .foot-loc,.foot-credit{font-size:9.5px}
+  .foot-links a{width:30px;height:30px}
+  .foot-links .ic{width:14px;height:14px}
 
   /* smaller still: titles, the divider ornament, the facts table */
   :root{--gear-size:16px}
