@@ -410,9 +410,20 @@ a{color:var(--accent)}
   box-shadow:inset 0 0 0 1px rgba(0,0,0,.03)}
 .rail-fill{position:absolute;left:0;top:0;width:100%;height:0;border-radius:9px;
   background:linear-gradient(180deg,var(--accent-2),var(--accent));transition:height .12s linear}
+/* The rocket is a HANDLE, not just an indicator — pointer-events are restored
+   (the rail itself is pointer-events:none) and it can be dragged to scroll the
+   page. The hit area is widened with ::before rather than by growing the
+   element, because the element's own transform is its centring. */
 .rail-rocket{position:absolute;left:50%;top:0;width:44px;height:44px;
-  transform:translate(-50%,-50%);color:var(--accent);pointer-events:none;
+  transform:translate(-50%,-50%);color:var(--accent);pointer-events:auto;
+  cursor:grab;touch-action:none;
   transition:top .12s linear;filter:drop-shadow(0 2px 10px rgba(16,97,125,.45))}
+.rail-rocket::before{content:"";position:absolute;inset:-10px -16px}
+.rail-rocket:active,.rail.is-dragging .rail-rocket{cursor:grabbing}
+/* while dragging, the position must track the pointer exactly — a 0.12s ease
+   would lag behind the cursor and feel like elastic */
+.rail.is-dragging .rail-rocket{transition:none}
+.rail.is-dragging{cursor:grabbing}
 /* ANIMATION — the rocket leans into the direction of travel (--tilt) and its
    flame stretches with scroll speed (--flame). Both are plain custom
    properties written by onFrame(); the rotation goes on the inner <svg>
@@ -1525,16 +1536,24 @@ section{overflow:hidden;overflow:clip}
    them is cropped, which is the whole point. */
 .m-row{display:flex;gap:10px}
 .m-row .shotbox{flex:var(--ar) 1 0}
-/* SCROLL — the old full-bleed Snapshots marquee, now contained inside a
-   chapter. It is the one layout that does not care how many photographs you
-   add, which is why Travelling gets it. Being inside .wrap also deletes the
-   reason the old strip needed margin-right at two breakpoints to dodge the rail. */
-.m-scroll{overflow:hidden;
+/* A narrower media column for the supporting chapters. Row height falls out
+   of the aspect ratios, so constraining the WIDTH is the only way to make a
+   row shorter without distorting the photographs — a fixed height would. */
+.chapter-media.m-minor{width:64%}
+/* SCROLL — Travelling's band, and the section's main event. It is a REAL
+   horizontal scroller (overflow-x) rather than a CSS marquee, so it can be
+   dragged, flicked on a trackpad or swiped, and it still drifts on its own.
+   The drift is JS writing scrollLeft rather than a transform keyframe,
+   because a transform animation and native scrolling fight each other: you
+   cannot drag something that is being animated out from under you.
+   Both halves of the track stay identical — the drift wraps at half the
+   scroll width, which is what makes the loop seamless in either direction. */
+.m-scroll{overflow-x:auto;overflow-y:hidden;cursor:grab;
+  scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;
   mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
-@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.strip-track{display:flex;gap:10px;width:max-content;height:calc(var(--h) * 1.3);
-  animation:marquee 78s linear infinite}
-.m-scroll:hover .strip-track,.m-scroll:focus-within .strip-track{animation-play-state:paused}
+.m-scroll::-webkit-scrollbar{display:none}
+.m-scroll.is-dragging{cursor:grabbing}
+.strip-track{display:flex;gap:10px;width:max-content;height:calc(var(--h) * 1.85)}
 /* Mixed shapes on purpose — half phone-landscape, half phone-portrait, so the
    band reads as a camera roll rather than a product grid. The card's WIDTH
    comes from its aspect ratio against a shared height, which is why the track
@@ -1566,6 +1585,7 @@ section{overflow:hidden;overflow:clip}
   /* one column: each chapter's text goes back above its photos, the pair
      unstacks, and the hero drops its fixed height so nothing letterboxes */
   .chapter{grid-template-columns:1fr;gap:14px}
+  .chapter-media.m-minor{width:100%}
   .m-row{flex-wrap:wrap}
   .m-row .shotbox{min-width:calc(50% - 5px)}
 }
@@ -2049,7 +2069,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     </ol>
     <div class="rail-gauge">
       <div class="rail-track"><div class="rail-fill" id="railFill"></div></div>
-      <div class="rail-rocket" id="railRocket">
+      <div class="rail-rocket" id="railRocket" title="Drag to scroll">
         <svg viewBox="0 0 24 24">
           <path d="M12 2.4c2.7 2.4 4.2 5.6 4.2 9 0 2-.6 4-1.7 5.6H9.5C8.4 15.4 7.8 13.4 7.8 11.4c0-3.4 1.5-6.6 4.2-9z"/>
           <circle cx="12" cy="9.5" r="1.8"/>
@@ -3151,20 +3171,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
     <div class="chapters reveal">
 
-      <article class="chapter">
-        <div>
-          <p class="chapter-cat">Adventure</p>
-          <h3 class="chapter-title">500 km across the Balkans on a bicycle</h3>
-          <p class="chapter-blurb">We bought second-hand bikes and rode from Croatia to Albania.
-             Fourteen-hour days, scalding heat, unforgettable.</p>
-        </div>
-        <div class="chapter-media m-row">
-            <div class="shotbox" style="--ar:1.334"><img src="images/balkans-1.jpg" alt="Two of us at a roadside table beside the loaded bikes, the Adriatic coast and mountains behind." loading="lazy" decoding="async" width="1600" height="1199"></div>
-            <div class="shotbox" style="--ar:0.75"><img src="images/balkans-2.jpg" alt="Looking down over the Adriatic from a hilltop, a coastal town below and mountains across the bay." loading="lazy" decoding="async" width="1200" height="1600"></div>
-            <div class="shotbox" style="--ar:0.75"><img src="images/balkans-3.jpg" alt="The two second-hand bikes propped against a stone wall outside a hostel." loading="lazy" decoding="async" width="1200" height="1600"></div>
-        </div>
-      </article>
-
       <!-- TRAVELLING — any number of photos, each with its own --ar and a place
            on the pin. BOTH HALVES OF THE TRACK MUST STAY IDENTICAL: the loop is
            a translateX(-50%), so an odd count makes it jump. -->
@@ -3246,29 +3252,29 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
       <article class="chapter">
         <div>
-          <p class="chapter-cat">Sport</p>
-          <h3 class="chapter-title">Snow, saltwater and, once, a pool</h3>
-          <p class="chapter-blurb">Snowboarding and surfing now. Before that, ten years swimming
-             for Poland as a junior — national titles in 200m butterfly and both relays.</p>
+          <p class="chapter-cat">Adventure</p>
+          <h3 class="chapter-title">500 km across the Balkans on a bicycle</h3>
+          <p class="chapter-blurb">We bought second-hand bikes and rode from Croatia to Albania.
+             Fourteen-hour days, scalding heat, unforgettable.</p>
         </div>
-        <div class="chapter-media m-row">
-            <div class="shotbox" style="--ar:1.333"><img src="images/snowboard-1.jpg" alt="Sitting in deep snow in a whiteout with the board still strapped on." loading="lazy" decoding="async" width="1600" height="1200"></div>
-            <div class="shotbox" style="--ar:0.672"><img src="images/surf-1.jpg" alt="Two of us on the beach in wetsuits, holding rented surfboards." loading="lazy" decoding="async" width="400" height="595"></div>
-            <div class="shotbox" style="--ar:1.333"><img src="images/swimming-1.jpg" alt="A rack of swimming medals hanging on their ribbons." loading="lazy" decoding="async" width="1600" height="1200"></div>
+        <div class="chapter-media m-row m-minor">
+            <div class="shotbox" style="--ar:1.334"><img src="images/balkans-1.jpg" alt="Two of us at a roadside table beside the loaded bikes, the Adriatic coast and mountains behind." loading="lazy" decoding="async" width="1600" height="1199"></div>
+            <div class="shotbox" style="--ar:0.75"><img src="images/balkans-2.jpg" alt="Looking down over the Adriatic from a hilltop, a coastal town below and mountains across the bay." loading="lazy" decoding="async" width="1200" height="1600"></div>
+            <div class="shotbox" style="--ar:0.75"><img src="images/balkans-3.jpg" alt="The two second-hand bikes propped against a stone wall outside a hostel." loading="lazy" decoding="async" width="1200" height="1600"></div>
         </div>
       </article>
 
       <article class="chapter">
         <div>
-          <p class="chapter-cat">Sitting still</p>
-          <h3 class="chapter-title">Cubes, chess and whatever I'm reading</h3>
-          <p class="chapter-blurb">Rubik's cubes, best solve ten seconds. In chess I play the
-             Sicilian Dragon and not much else. Currently working through The Witcher saga.</p>
+          <p class="chapter-cat">Sport</p>
+          <h3 class="chapter-title">Snow, saltwater and, once, a pool</h3>
+          <p class="chapter-blurb">Snowboarding and surfing now. Before that, ten years swimming
+             for Poland as a junior — national titles in 200m butterfly and both relays.</p>
         </div>
-        <div class="chapter-media m-row">
-            <div class="shotbox" style="--ar:1.333"><img src="images/cubes-1.jpg" alt="A row of Rubik's cubes and other twisty puzzles lined up along a desk." loading="lazy" decoding="async" width="1600" height="1200"></div>
-            <div class="shotbox"><span class="label">images/chess-1.jpg</span></div>
-            <div class="shotbox" style="--ar:1.333"><img src="images/books-1.jpg" alt="A shelf of the Witcher saga in Polish." loading="lazy" decoding="async" width="1600" height="1200"></div>
+        <div class="chapter-media m-row m-minor">
+            <div class="shotbox" style="--ar:1.333"><img src="images/snowboard-1.jpg" alt="Sitting in deep snow in a whiteout with the board still strapped on." loading="lazy" decoding="async" width="1600" height="1200"></div>
+            <div class="shotbox" style="--ar:0.672"><img src="images/surf-1.jpg" alt="Two of us on the beach in wetsuits, holding rented surfboards." loading="lazy" decoding="async" width="400" height="595"></div>
+            <div class="shotbox" style="--ar:1.333"><img src="images/swimming-1.jpg" alt="A rack of swimming medals hanging on their ribbons." loading="lazy" decoding="async" width="1600" height="1200"></div>
         </div>
       </article>
 
@@ -3863,6 +3869,125 @@ function onFrame(){
   if(flameLvl>0 || tiltLvl!==0) requestFrame();
 }
 function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFrame); } }
+
+/* THE TRAVELLING BAND — drift plus drag.
+   Not part of onFrame(): that loop is scroll-driven and idle whenever the page
+   is still, which is exactly when this needs to run. It has its own rAF, and
+   an IntersectionObserver stops it dead whenever the band is off screen, so
+   nothing spins in the background.
+   The drift writes scrollLeft rather than animating a transform, because a
+   transform keyframe and native scrolling cannot coexist — you cannot drag
+   something that is being animated out from under you. Both halves of the
+   track are identical, so wrapping at half the scroll width makes the loop
+   seamless in either direction, including when the reader has dragged it
+   backwards past zero. */
+(function(){
+  var el=document.querySelector('.m-scroll');
+  if(!el) return;
+  var track=el.querySelector('.strip-track');
+  if(!track) return;
+  var running=false, hold=0, raf=null, last=0, dragId=null, startX=0, startLeft=0;
+
+  function wrap(){
+    var half=track.scrollWidth/2;
+    if(half<=0) return;
+    if(el.scrollLeft>=half) el.scrollLeft-=half;
+    else if(el.scrollLeft<0) el.scrollLeft+=half;
+  }
+  function step(t){
+    if(!running){ raf=null; return; }
+    var dt=last?Math.min(64,t-last):16; last=t;
+    if(!hold && dragId===null && !reduced) el.scrollLeft+=dt*0.022;
+    wrap();
+    raf=requestAnimationFrame(step);
+  }
+  function start(){ if(!running){ running=true; last=0; raf=requestAnimationFrame(step); } }
+  function stop(){ running=false; if(raf){ cancelAnimationFrame(raf); raf=null; } }
+
+  el.addEventListener('pointerenter',function(){ hold++; });
+  el.addEventListener('pointerleave',function(){ hold=Math.max(0,hold-1); });
+  el.addEventListener('focusin',function(){ hold++; });
+  el.addEventListener('focusout',function(){ hold=Math.max(0,hold-1); });
+
+  el.addEventListener('pointerdown',function(e){
+    dragId=e.pointerId; startX=e.clientX; startLeft=el.scrollLeft;
+    el.setPointerCapture(dragId); el.classList.add('is-dragging');
+  });
+  el.addEventListener('pointermove',function(e){
+    if(dragId===null||e.pointerId!==dragId) return;
+    e.preventDefault();
+    el.scrollLeft=startLeft-(e.clientX-startX);
+    wrap();
+  });
+  ['pointerup','pointercancel'].forEach(function(evt){
+    el.addEventListener(evt,function(){
+      if(dragId===null) return;
+      try{ el.releasePointerCapture(dragId); }catch(err){}
+      dragId=null; el.classList.remove('is-dragging');
+    });
+  });
+
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){
+      es.forEach(function(en){ en.isIntersecting ? start() : stop(); });
+    },{rootMargin:'120px'}).observe(el);
+  } else { start(); }
+})();
+
+/* DRAGGING THE ROCKET.
+   onFrame() positions the rocket by interpolating between the DOTS' measured
+   screen positions, deliberately not by page-scroll percentage, because
+   sections have wildly different heights. Dragging therefore has to invert
+   exactly that mapping, not a linear one: map the pointer onto the track,
+   find which pair of dots it falls between, take the fraction, and convert
+   that back into the document position the reader anchor should sit at. A
+   linear "track % -> document %" would put the page somewhere onFrame then
+   disagrees with, and the rocket would jump out from under the cursor. */
+function railScrollFromPointer(clientY){
+  if(!railTrack || railDots.length!==railSections.length) return;
+  var tr=railTrack.getBoundingClientRect();
+  var pos=Math.max(0,Math.min(tr.height, clientY-tr.top));
+  var yNow=window.scrollY, centres=[];
+  for(var i=0;i<railDots.length;i++){
+    var d=railDots[i].getBoundingClientRect();
+    centres[i]=d.top+d.height/2-tr.top;
+  }
+  var k=0;
+  while(k<centres.length-2 && pos>centres[k+1]) k++;
+  var span=centres[k+1]-centres[k];
+  var f=span>0 ? Math.max(0,Math.min(1,(pos-centres[k])/span)) : 0;
+  var a=railSections[k], b=railSections[k+1];
+  if(!a) return;
+  var top=a.getBoundingClientRect().top+yNow;
+  var bottom=b ? b.getBoundingClientRect().top+yNow : top+a.offsetHeight;
+  var readerY=top+(bottom-top)*f;
+  var maxY=document.documentElement.scrollHeight-window.innerHeight;
+  window.scrollTo(0, Math.max(0,Math.min(maxY, readerY-window.innerHeight*0.45)));
+  requestFrame();
+}
+if(railRocket){
+  var railDragId=null;
+  railRocket.addEventListener('pointerdown',function(e){
+    e.preventDefault();
+    railDragId=e.pointerId;
+    railRocket.setPointerCapture(railDragId);
+    if(railEl) railEl.classList.add('is-dragging');
+    endNavJump();
+    railScrollFromPointer(e.clientY);
+  });
+  railRocket.addEventListener('pointermove',function(e){
+    if(railDragId===null || e.pointerId!==railDragId) return;
+    railScrollFromPointer(e.clientY);
+  });
+  ['pointerup','pointercancel'].forEach(function(evt){
+    railRocket.addEventListener(evt,function(e){
+      if(railDragId===null) return;
+      try{ railRocket.releasePointerCapture(railDragId); }catch(err){}
+      railDragId=null;
+      if(railEl) railEl.classList.remove('is-dragging');
+    });
+  });
+}
 window.addEventListener('scroll',requestFrame,{passive:true});
 window.addEventListener('resize',function(){ measureDecos(); measureRailSep(); requestFrame(); });
 requestFrame();
