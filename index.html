@@ -1573,6 +1573,14 @@ section{overflow:hidden;overflow:clip}
 .m-nav-prev{left:8px}
 .m-nav-prev .ic{transform:rotate(180deg)}
 .m-nav-next{right:8px}
+/* A strip gives no sense of how much is left, which is the one thing a wall of
+   photographs needs to tell you. The thumb shows position within ONE set — the
+   track holds three identical copies so it can loop in both directions, so
+   absolute scroll position would be meaningless. */
+.m-prog{position:relative;height:2px;margin-top:10px;border-radius:2px;
+  background:color-mix(in srgb,var(--accent) 14%,transparent);overflow:hidden}
+.m-prog-thumb{position:absolute;top:0;bottom:0;left:0;width:26%;border-radius:2px;
+  background:linear-gradient(90deg,var(--accent-2),var(--accent))}
 /* ⚠ min-width:0 is what makes the scroller scroll. A grid item defaults to
    min-width:auto, i.e. "never shrink below your content", and this one's
    content is a max-content track hundreds of pixels wider than the column —
@@ -1959,10 +1967,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 /* --- the header band does the rail's job: planets, labels, a rocket --- */
 .mrail{display:none}
 @media (max-width:899px){
-  .site-header > .wrap{padding-top:6px;padding-bottom:6px}
-  .brand{font-size:11.5px}
-  .nav-toggle{padding:6px 12px;font-size:11px}
-  .mrail{display:block;padding:0 0 0}
+  .site-header > .wrap{padding-top:3px;padding-bottom:1px;min-height:0}
+  .brand{font-size:10.5px}
+  .nav-toggle{padding:5px 10px;font-size:10px}
+  .status-group,.head-div{display:none}
+  .mrail{display:block}
   /* the labels are the point — this is the only navigation on a phone, and a
      row of unlabelled planets is a puzzle, not a menu */
   .mrail-nav{display:flex;justify-content:space-between;gap:2px;
@@ -1992,6 +2001,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
 /* --- the menu keeps the same seven planets, for people who open it --- */
 .nav-dot{display:none}
+.mob-only{display:none}
 @media (max-width:980px){
   .site-nav{position:absolute;top:100%;inset-inline:0;max-height:calc(100vh - 96px);
     overflow-y:auto}
@@ -2008,7 +2018,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
      room to move. A transform can move it in both axes at once — scale first
      so the translate never exposes an edge. */
   .hero-half-a{--zoom:1;--pan:0%}
-  .hero-half-a img{object-position:center;transform:scale(1.2) translate(-6%,7%)}
+  .hero-half-a img{object-position:4% center;transform:scale(1.14) translate(3%,6%)}
   .hero-copy{inset:0 0 auto 0;padding-top:clamp(12px,3vh,26px);padding-bottom:0}
   .hero-copy > .wrap{padding-left:calc(var(--gutter) + 4vw);padding-right:var(--gutter)}
   .hero-creds{gap:6px}
@@ -2032,17 +2042,16 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .facts li{padding:7px 0}
   .facts .k{min-width:82px}
 
-  /* THE CATEGORY CARDS — three cards that each filled a screen meant three
-     screens of scrolling before the first entry. Two across, no descriptions,
-     so the whole set is one glance. */
-  .cats{grid-template-columns:1fr 1fr;gap:8px}
-  .cat{padding:10px 11px 11px}
-  .cat-n{font-size:9.5px}
-  .cat-ic{width:22px;height:22px;margin-top:8px}
-  .cat-name{font-size:15px;margin-top:6px}
+  /* THE CATEGORY CARDS — one row of three, not a grid: there are exactly
+     three, and a 2x2 with an empty cell reads as something missing. */
+  .cats{grid-template-columns:repeat(3,1fr);gap:6px}
+  .cat{padding:8px 8px 10px}
+  .cat-n{font-size:8.5px;letter-spacing:.08em}
+  .cat-ic{width:18px;height:18px;margin-top:6px}
+  .cat-name{font-size:12px;margin-top:5px;line-height:1.15}
   .cat-desc{display:none}
-  .cat-go{margin-top:10px;padding:5px 10px;font-size:9.5px;gap:6px}
-  .cat-go .ic{width:11px;height:11px}
+  .cat-go{margin-top:8px;padding:4px 7px;font-size:8.5px;gap:4px}
+  .cat-go .ic{width:9px;height:9px}
 
   .entry-head{padding:11px 2px}
   .entry-title{font-size:clamp(16px,4.6vw,19px)}
@@ -2069,15 +2078,45 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .cv-dl .ic{width:15px;height:15px}
   .cv-mini{font-size:9.5px;padding:4px 9px}
 
-  .contact-grid{gap:14px}
-  .mail-reveal{padding:11px 13px;gap:9px}
-  .msg{padding:13px}
-  .msg-title{font-size:17px}
-  .msg-grid{gap:9px}
-  .msg-field input,.msg-field textarea{padding:8px 10px;font-size:13px}
-  .msg-field textarea{min-height:82px}
+  /* CONTACT — it was taking a whole phone screen for a button, three fields
+     and a paragraph. Everything here is about a third of what it was. */
+  .contact-grid{gap:10px}
+  .mail-reveal{padding:9px 11px;gap:8px;font-size:11px}
+  .mail-reveal .ic{width:15px;height:15px}
+  .msg{padding:10px 11px}
+  .msg-head{margin-bottom:8px}
+  .msg-title{font-size:15px}
+  .msg-eyebrow{font-size:9px}
+  .msg-ref{display:none}
+  .msg-grid{gap:7px}
+  .msg-field label{font-size:9px}
+  .msg-field input,.msg-field textarea{padding:6px 9px;font-size:12.5px}
+  .msg-field textarea{min-height:54px}
+  .msg-send{padding:8px 15px;font-size:10.5px}
+  #contact .section-note{font-size:12px;margin-top:10px}
+  .socials a{padding:5px 10px;font-size:10.5px}
   .chapter-title{font-size:16px}
   .chapter-blurb{font-size:12.5px}
+
+  /* smaller still: titles, the divider ornament, the facts table */
+  :root{--gear-size:16px}
+  .section-name{font-size:clamp(17px,5.2vw,22px)}
+  .section-name::before,.section-name::after{width:14px;height:2px}
+  .section-head{margin-bottom:12px}
+  .facts li{padding:5px 0}
+  .facts .k{min-width:70px;font-size:9.5px}
+  .about-grid{gap:0}
+  .about-side{margin-top:10px}
+
+  /* EDUCATION + EXPERIENCE — the timeline interleaves both threads in one
+     chronological order, which only reads correctly when they are on opposite
+     sides of a spine. In one column the inline "Experience" heading lands in
+     the middle of a list that then goes back to a degree, which is simply
+     wrong. On mobile the two headings become one and the inline row is kept
+     only as a scroll anchor, so the rail's Experience link still works. */
+  .mob-only{display:inline}
+  .tl-mark .tl-headbox,.tl-mark .tl-node{display:none}
+  .tl-mark{min-height:0;padding:0;margin:0}
 }
 
 /* --- the timeline stacks on mobile, so the interlock must stop --- */
@@ -3221,8 +3260,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
   <div class="wrap">
     <div class="section-head">
-      <h2 class="section-name">Education<a class="cv-mini" href="assets/cv.pdf" target="_blank" rel="noopener"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
-      <p class="section-sub">Where I studied</p>
+      <h2 class="section-name">Education<span class="mob-only">&nbsp;&amp; Experience</span><a class="cv-mini" href="assets/cv.pdf" target="_blank" rel="noopener"><svg class="ic"><use href="#i-download"/></svg> Full CV</a></h2>
+      <p class="section-sub">Where I studied<span class="mob-only"> and worked</span></p>
     </div>
 
     <ol class="tl">
@@ -3436,10 +3475,43 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
               <div class="strip-media"><img src="images/travel-8.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
               <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Belgrade, Serbia</figcaption>
             </figure>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-1.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Osaka, Japan</figcaption>
+            </figure>
+            <figure class="strip-card" style="--ar:1.333">
+              <div class="strip-media"><img src="images/travel-2.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1200"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Grand Canyon, USA</figcaption>
+            </figure>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-3.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Yosemite, USA</figcaption>
+            </figure>
+            <figure class="strip-card" style="--ar:0.562">
+              <div class="strip-media"><img src="images/travel-4.jpg" alt="" loading="lazy" decoding="async" width="900" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Joshua Tree, USA</figcaption>
+            </figure>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-5.jpg" alt="" loading="lazy" decoding="async" width="768" height="1024"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Sicily, Italy</figcaption>
+            </figure>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-6.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Dubrovnik, Croatia</figcaption>
+            </figure>
+            <figure class="strip-card" style="--ar:0.636">
+              <div class="strip-media"><img src="images/travel-7.jpg" alt="" loading="lazy" decoding="async" width="1017" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Budapest, Hungary</figcaption>
+            </figure>
+            <figure class="strip-card" style="--ar:0.75">
+              <div class="strip-media"><img src="images/travel-8.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Belgrade, Serbia</figcaption>
+            </figure>
           </div>
         </div>
           <button class="m-nav m-nav-prev" type="button" aria-label="Previous photos"><svg class="ic"><use href="#i-arrow-right"/></svg></button>
           <button class="m-nav m-nav-next" type="button" aria-label="Next photos"><svg class="ic"><use href="#i-arrow-right"/></svg></button>
+          <div class="m-prog" aria-hidden="true"><span class="m-prog-thumb"></span></div>
         </div>
       </article>
 
@@ -4096,21 +4168,45 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
   var track=el.querySelector('.strip-track');
   if(!track) return;
   var running=false, hold=0, raf=null, last=0, dragId=null, startX=0, startLeft=0;
+  /* ⚠ The drift is accumulated in a FLOAT and then assigned, never written as
+     `el.scrollLeft += small`. At 22px/second a frame is ~0.35px, and a browser
+     that stores scrollLeft as an integer rounds that straight back to zero —
+     which is exactly why the band sat still. */
+  var pos=0;
+  var prog=el.parentNode.querySelector('.m-prog-thumb');
 
+  function setWidth(){ return track.scrollWidth/3; }
+  /* Three identical copies, and we live in the MIDDLE one. That is what makes
+     it loop in both directions: scrollLeft is clamped at 0 by the browser, so
+     with only two copies there is nothing to the left to wrap into and the
+     reader simply hits the first photo and stops. */
   function wrap(){
-    var half=track.scrollWidth/2;
-    if(half<=0) return;
-    if(el.scrollLeft>=half) el.scrollLeft-=half;
-    else if(el.scrollLeft<0) el.scrollLeft+=half;
+    var W=setWidth();
+    if(W<=0) return;
+    if(pos>=2*W) pos-=W;
+    else if(pos<W) pos+=W;
+    el.scrollLeft=pos;
+  }
+  function sync(){ pos=el.scrollLeft; }
+  function paint(){
+    if(!prog) return;
+    var W=setWidth(); if(W<=0) return;
+    var f=((pos-W)%W+W)%W/W;
+    prog.style.left=(f*(100-26))+'%';
   }
   function step(t){
     if(!running){ raf=null; return; }
     var dt=last?Math.min(64,t-last):16; last=t;
-    if(!hold && dragId===null && !reduced) el.scrollLeft+=dt*0.022;
-    wrap();
+    if(!hold && dragId===null && !reduced) pos+=dt*0.022;
+    wrap(); paint();
     raf=requestAnimationFrame(step);
   }
-  function start(){ if(!running){ running=true; last=0; raf=requestAnimationFrame(step); } }
+  function start(){
+    if(running) return;
+    running=true; last=0;
+    if(pos<setWidth()){ pos=setWidth(); el.scrollLeft=pos; }
+    raf=requestAnimationFrame(step);
+  }
   function stop(){ running=false; if(raf){ cancelAnimationFrame(raf); raf=null; } }
 
   el.addEventListener('pointerenter',function(){ hold++; });
@@ -4121,14 +4217,14 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
   el.addEventListener('pointerdown',function(e){
     if(e.target.closest && e.target.closest('.m-nav')) return;
     e.preventDefault();
-    dragId=e.pointerId; startX=e.clientX; startLeft=el.scrollLeft;
+    sync(); dragId=e.pointerId; startX=e.clientX; startLeft=pos;
     el.setPointerCapture(dragId); el.classList.add('is-dragging');
   });
   el.addEventListener('pointermove',function(e){
     if(dragId===null||e.pointerId!==dragId) return;
     e.preventDefault();
-    el.scrollLeft=startLeft-(e.clientX-startX);
-    wrap();
+    pos=startLeft-(e.clientX-startX);
+    wrap(); paint();
   });
   ['pointerup','pointercancel'].forEach(function(evt){
     el.addEventListener(evt,function(){
@@ -4144,7 +4240,8 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
       btn.addEventListener('click',function(){
         var card=el.querySelector('.strip-card');
         var by=(card?card.getBoundingClientRect().width+10:220)*2;
-        el.scrollBy({left:btn.classList.contains('m-nav-prev')?-by:by,behavior:reduced?'auto':'smooth'});
+        pos+=btn.classList.contains('m-nav-prev')?-by:by;
+        wrap(); paint();
       });
     });
   }
