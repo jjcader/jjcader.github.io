@@ -1383,14 +1383,20 @@ section{overflow:hidden;overflow:clip}
    inside an open entry has to clear that same bar. */
 .entry-content .links-label{font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;
   letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2);margin:0 0 11px}
-/* Photo captions, named for where the shot sits in the grid. Mono like every
-   other caption on the site, and quiet because they label something else on
-   screen rather than being prose — as plain <p> they read as one more
-   paragraph of the entry. The 14px above the first one is the previous
-   paragraph's own bottom margin; they need no top margin of their own. */
-.entry-content .shot-cap{font-family:var(--mono);font-size:var(--fs-meta);font-weight:500;
-  line-height:1.5;color:var(--ink-2);margin:0 0 5px;max-width:54ch}
-.shot-cap span{color:var(--accent);font-weight:600;letter-spacing:.05em}
+/* Photo captions sit ON their own photograph, the same chip the travel band
+   uses. They were a list in the text column keyed to grid POSITION — "Top:",
+   "Bottom left:" — a system that has to be rewritten every time a photo count
+   or a layout changes, and that started saying the wrong thing the moment
+   mobile began showing only the first two photos. A caption attached to its
+   own picture cannot fall out of sync with the layout, and on a phone it
+   costs no vertical space at all. */
+.shot{position:relative}
+.shot .shot-cap{position:absolute;left:7px;right:7px;bottom:7px;z-index:2;
+  font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.03em;
+  line-height:1.3;color:#fff;text-align:left;
+  background:rgba(10,16,24,.62);border-radius:7px;padding:4px 7px;
+  -webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+  text-shadow:0 1px 3px rgba(0,0,0,.45)}
 .entry-links{display:flex;flex-wrap:wrap;gap:10px 22px;padding:0;margin:0;list-style:none}
 /* --fs-small, not --fs-action: these stopped being pills the moment they got a
    label and a rule of their own, so they take the readable-text token rather
@@ -1576,11 +1582,13 @@ section{overflow:hidden;overflow:clip}
 /* One dot per photograph, so the band says how many there are as well as where
    you are. The track holds three identical copies so it can loop both ways,
    which is why the dots are computed per SET rather than from raw scroll. */
-.m-dots{display:flex;justify-content:center;gap:6px;margin-top:11px}
-.m-dots span{width:6px;height:6px;border-radius:50%;
-  background:color-mix(in srgb,var(--accent) 22%,transparent);
+.m-dots{display:flex;justify-content:center;gap:7px;margin-top:11px}
+.m-dots button{width:22px;height:5px;padding:0;border:0;border-radius:3px;cursor:pointer;
+  background:color-mix(in srgb,var(--accent) 20%,transparent);
   transition:background .25s var(--ease),transform .25s var(--ease)}
-.m-dots span.on{background:var(--accent);transform:scale(1.25)}
+.m-dots button:hover{background:color-mix(in srgb,var(--accent) 45%,transparent)}
+.m-dots button.on{background:var(--accent);transform:scaleY(1.5)}
+.m-dots button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 /* ⚠ min-width:0 is what makes the scroller scroll. A grid item defaults to
    min-width:auto, i.e. "never shrink below your content", and this one's
    content is a max-content track hundreds of pixels wider than the column —
@@ -2732,9 +2740,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             separating the signal we indend to measure, which has a strength of 10^-3 Kelvin, from the noisy
            foreground such as galaxies, which can have a strenght of up to 10^5 Kelvin. This discrepancy in orders of magnitude
            discrepancy is like trying to find one specific sand grain on the beach, with the wind blowing.</p>
-            <p class="shot-cap"><span>Top:</span> Render of the LCRT in a lunar crater. Courtesy NASA</p>
-            <p class="shot-cap"><span>Bottom left:</span> RF simulation of the antenna's side lobes</p>
-            <p class="shot-cap"><span>Bottom right:</span> Signal extraction compared across telescope configurations</p>
             <div class="links-block">
             <p class="links-label">Link</p>
             <ul class="entry-links">
@@ -2744,11 +2749,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.786"><img src="images/jpl-1.jpg" alt="Render of the Lunar Crater Radio Telescope: a 350m deployable reflector suspended by wires inside a crater on the far side of the Moon. Courtesy NASA." loading="lazy" decoding="async" width="1600" height="896"></div>
+              <div class="shot" style="--ar:1.786"><img src="images/jpl-1.jpg" alt="Render of the Lunar Crater Radio Telescope: a 350m deployable reflector suspended by wires inside a crater on the far side of the Moon. Courtesy NASA." loading="lazy" decoding="async" width="1600" height="896"><span class="shot-cap">Render of the LCRT in a lunar crater. Courtesy NASA</span></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:1.161"><img src="images/jpl-2.jpg" alt="Radio-frequency simulation of the LCRT antenna, showing its side lobes at four different frequencies." loading="lazy" decoding="async" width="1574" height="1356"></div>
-              <div class="shot" style="--ar:1.254"><img src="images/jpl-3.jpg" alt="Results of the signal processing and retrieval pipeline, comparing signal extraction across several configurations of the telescope." loading="lazy" decoding="async" width="681" height="543"></div>
+              <div class="shot" style="--ar:1.161"><img src="images/jpl-2.jpg" alt="Radio-frequency simulation of the LCRT antenna, showing its side lobes at four different frequencies." loading="lazy" decoding="async" width="1574" height="1356"><span class="shot-cap">RF simulation of the antenna's side lobes</span></div>
+              <div class="shot" style="--ar:1.254"><img src="images/jpl-3.jpg" alt="Results of the signal processing and retrieval pipeline, comparing signal extraction across several configurations of the telescope." loading="lazy" decoding="async" width="681" height="543"><span class="shot-cap">Signal extraction compared across telescope configurations</span></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2775,8 +2780,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p>I led the coaching and advising team for this project, making sure each subteam was getting
               the best advice and guidance it could. Assembling that team of advisors and coaches, and
               attending subsystem reviews to make sure nothing got past us, was a large responsibility.</p>
-            <p class="shot-cap"><span>Left:</span> the engine</p>
-            <p class="shot-cap"><span>Right:</span> the HERMES rocket</p>
             <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
@@ -2787,8 +2790,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.008"><img src="images/hermes-1.jpg" alt="The HERMES bi-liquid rocket engine." loading="lazy" decoding="async" width="800" height="794"></div>
-              <div class="shot" style="--ar:0.732"><img src="images/hermes-2.jpg" alt="The HERMES rocket." loading="lazy" decoding="async" width="487" height="665"></div>
+              <div class="shot" style="--ar:1.008"><img src="images/hermes-1.jpg" alt="The HERMES bi-liquid rocket engine." loading="lazy" decoding="async" width="800" height="794"><span class="shot-cap">the engine</span></div>
+              <div class="shot" style="--ar:0.732"><img src="images/hermes-2.jpg" alt="The HERMES rocket." loading="lazy" decoding="async" width="487" height="665"><span class="shot-cap">the HERMES rocket</span></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2817,9 +2820,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
                quarter of a millimetre of misalignment. Corrected that and it ran for hours. The
                printed casing eventually started spraying water through its own walls, which is
                a fairly persuasive argument for machining the next one.</p>
-            <p class="shot-cap"><span>Top:</span> A CAD render of the pump</p>
-            <p class="shot-cap"><span>Bottom left:</span> The pump's performance curve</p>
-            <p class="shot-cap"><span>Bottom right:</span> The testbed set up</p>
           <div class="links-block">
             <p class="links-label">Link</p>
             <ul class="entry-links">
@@ -2829,11 +2829,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.572"><img src="images/micropump-1.jpg" alt="A CAD render of the micropump." loading="lazy" decoding="async" width="514" height="327"></div>
+              <div class="shot" style="--ar:1.572"><img src="images/micropump-1.jpg" alt="A CAD render of the micropump." loading="lazy" decoding="async" width="514" height="327"><span class="shot-cap">A CAD render of the pump</span></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:1.229"><img src="images/micropump-2.jpg" alt="The micropump's measured performance curve." loading="lazy" decoding="async" width="559" height="455"></div>
-              <div class="shot" style="--ar:1.327"><img src="images/micropump-3.jpg" alt="The assembled micropump testbed." loading="lazy" decoding="async" width="527" height="397"></div>
+              <div class="shot" style="--ar:1.229"><img src="images/micropump-2.jpg" alt="The micropump's measured performance curve." loading="lazy" decoding="async" width="559" height="455"><span class="shot-cap">The pump's performance curve</span></div>
+              <div class="shot" style="--ar:1.327"><img src="images/micropump-3.jpg" alt="The assembled micropump testbed." loading="lazy" decoding="async" width="527" height="397"><span class="shot-cap">The testbed set up</span></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2862,9 +2862,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
               fired. I was responsible for propellant supply, which means designing and maintaining the fuel and 
               oxidiser supply lines. In the end the engine delivered 665 N of thrust
               at 26.7 bar chamber pressure, and held a twenty-second burn.</p>
-            <p class="shot-cap"><span>Top:</span> The HELIOS engine firing</p>
-            <p class="shot-cap"><span>Bottom left:</span> Disassembling a cryogenic ball valve for redesign</p>
-            <p class="shot-cap"><span>Bottom right:</span> Filling the engine with liquid oxygen</p>
             <div class="links-block">
             <p class="links-label">Links</p>
             <ul class="entry-links">
@@ -2875,11 +2872,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:2.32"><img src="images/helios-1.jpg" alt="The HELIOS rocket engine firing on the test stand." loading="lazy" decoding="async" width="1074" height="463"></div>
+              <div class="shot" style="--ar:2.32"><img src="images/helios-1.jpg" alt="The HELIOS rocket engine firing on the test stand." loading="lazy" decoding="async" width="1074" height="463"><span class="shot-cap">The HELIOS engine firing</span></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:1.033"><img src="images/helios-2.jpg" alt="A cryogenic ball valve being disassembled for redesign." loading="lazy" decoding="async" width="624" height="604"></div>
-              <div class="shot" style="--ar:0.75"><img src="images/helios-3.jpg" alt="Filling the engine with liquid oxygen." loading="lazy" decoding="async" width="1200" height="1600"></div>
+              <div class="shot" style="--ar:1.033"><img src="images/helios-2.jpg" alt="A cryogenic ball valve being disassembled for redesign." loading="lazy" decoding="async" width="624" height="604"><span class="shot-cap">Disassembling a cryogenic ball valve for redesign</span></div>
+              <div class="shot" style="--ar:0.75"><img src="images/helios-3.jpg" alt="Filling the engine with liquid oxygen." loading="lazy" decoding="async" width="1200" height="1600"><span class="shot-cap">Filling the engine with liquid oxygen</span></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2913,10 +2910,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p>This is also where I properly learned CFD — meshing, turbulence models, boundary
                conditions, and how much of a simulation's credibility rests on validating it
                against something you already know the answer to.</p>
-            <p class="shot-cap"><span>Top:</span> CFD of flow through a traditional ball valve</p>
-            <p class="shot-cap"><span>Middle left:</span> Dynamic pressure, classic designs against the proposed one</p>
-            <p class="shot-cap"><span>Middle right:</span> Thermal performance of the designs, side by side</p>
-            <p class="shot-cap"><span>Bottom:</span> CAD model of the proposed design</p>
           <div class="links-block">
             <p class="links-label">Link</p>
             <ul class="entry-links">
@@ -2926,14 +2919,14 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:2.53"><img src="images/valves-1.jpg" alt="A CFD simulation of fluid flowing through a traditional ball valve." loading="lazy" decoding="async" width="1212" height="479"></div>
+              <div class="shot" style="--ar:2.53"><img src="images/valves-1.jpg" alt="A CFD simulation of fluid flowing through a traditional ball valve." loading="lazy" decoding="async" width="1212" height="479"><span class="shot-cap">CFD of flow through a traditional ball valve</span></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:1.206"><img src="images/valves-4.jpg" alt="A comparison of dynamic pressure between the classic ball valve designs and the proposed design." loading="lazy" decoding="async" width="416" height="345"></div>
-              <div class="shot" style="--ar:1.249"><img src="images/valves-3.jpg" alt="A side-by-side comparison of the thermal performance of the different valve designs." loading="lazy" decoding="async" width="492" height="394"></div>
+              <div class="shot" style="--ar:1.206"><img src="images/valves-4.jpg" alt="A comparison of dynamic pressure between the classic ball valve designs and the proposed design." loading="lazy" decoding="async" width="416" height="345"><span class="shot-cap">Dynamic pressure, classic designs against the proposed one</span></div>
+              <div class="shot" style="--ar:1.249"><img src="images/valves-3.jpg" alt="A side-by-side comparison of the thermal performance of the different valve designs." loading="lazy" decoding="async" width="492" height="394"><span class="shot-cap">Thermal performance of the designs, side by side</span></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:2.012"><img src="images/valves-2.jpg" alt="A CAD model of the proposed new valve design." loading="lazy" decoding="async" width="1326" height="659"></div>
+              <div class="shot" style="--ar:2.012"><img src="images/valves-2.jpg" alt="A CAD model of the proposed new valve design." loading="lazy" decoding="async" width="1326" height="659"><span class="shot-cap">CAD model of the proposed design</span></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -2963,7 +2956,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
               space weather phenomena, such as iono and thermospheric coupling effects following solar storms, 
             and taking that data to compute orbital parameters such as drag. This is to be then plugged into the satellite trajectory
           controllers, and the goal is to reduce satellite loss and improve control.</p>
-            <p class="shot-cap"><span>Photo:</span> Schematic of the machine-learning framework</p>
             <div class="links-block">
             <p class="links-label">Link</p>
             <ul class="entry-links">
@@ -2973,7 +2965,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:2.315"><img src="images/mit-1.jpg" alt="Schematic of the machine-learning framework used to study storm-time electric ionosphere and thermosphere effects." loading="lazy" decoding="async" width="662" height="286"></div>
+              <div class="shot" style="--ar:2.315"><img src="images/mit-1.jpg" alt="Schematic of the machine-learning framework used to study storm-time electric ionosphere and thermosphere effects." loading="lazy" decoding="async" width="662" height="286"><span class="shot-cap">Schematic of the machine-learning framework</span></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -3007,9 +2999,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
                is light enough to fly on board; MPC finds the better formation almost every time,
                at 2.1 seconds. I came out of it having properly learned distributed control
                theory — how you prove a set of independent agents will settle at all.</p>
-            <p class="shot-cap"><span>Top left:</span> Modelling the drone's wake mathematically</p>
-            <p class="shot-cap"><span>Top right:</span> Gradient-based control converging, 5 drones from 10 starts</p>
-            <p class="shot-cap"><span>Bottom:</span> Optimal convergence of three follower drones</p>
             <div class="links-block">
             <p class="links-label">Link</p>
             <ul class="entry-links">
@@ -3019,11 +3008,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.163"><img src="images/swarm-1.jpg" alt="Modelling a drone's wake, and its downwash and upwash regions, mathematically." loading="lazy" decoding="async" width="507" height="436"></div>
-              <div class="shot" style="--ar:1.333"><img src="images/swarm-2.jpg" alt="Convergence of gradient-based control with five drones from ten random starting positions." loading="lazy" decoding="async" width="500" height="375"></div>
+              <div class="shot" style="--ar:1.163"><img src="images/swarm-1.jpg" alt="Modelling a drone's wake, and its downwash and upwash regions, mathematically." loading="lazy" decoding="async" width="507" height="436"><span class="shot-cap">Modelling the drone's wake mathematically</span></div>
+              <div class="shot" style="--ar:1.333"><img src="images/swarm-2.jpg" alt="Convergence of gradient-based control with five drones from ten random starting positions." loading="lazy" decoding="async" width="500" height="375"><span class="shot-cap">Gradient-based control converging, 5 drones from 10 starts</span></div>
             </div>
             <div class="shot-row" style="--w:64%">
-              <div class="shot" style="--ar:1.21"><img src="images/swarm-3.jpg" alt="A visualisation of the mathematically optimal convergence scenario for three follower drones." loading="lazy" decoding="async" width="381" height="315"></div>
+              <div class="shot" style="--ar:1.21"><img src="images/swarm-3.jpg" alt="A visualisation of the mathematically optimal convergence scenario for three follower drones." loading="lazy" decoding="async" width="381" height="315"><span class="shot-cap">Optimal convergence of three follower drones</span></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -3047,8 +3036,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
                against it afterwards.</p>
             <p>The real gain was learning agentic programming — getting a model to plan, call
                tools and act rather than just answer.</p>
-            <p class="shot-cap"><span>Left:</span> A render of the device, and the network it builds</p>
-            <p class="shot-cap"><span>Right:</span> Sam Altman on agentic AI at TreeHacks</p>
             <div class="links-block">
             <p class="links-label">Link</p>
             <ul class="entry-links">
@@ -3058,8 +3045,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.108"><img src="images/hackathon-1.jpg" alt="A render of the APERTA device alongside the network it builds from a small conference." loading="lazy" decoding="async" width="1188" height="1072"></div>
-              <div class="shot" style="--ar:1.333"><img src="images/hackathon-2.jpg" alt="Sam Altman discussing agentic AI at TreeHacks." loading="lazy" decoding="async" width="1600" height="1200"></div>
+              <div class="shot" style="--ar:1.108"><img src="images/hackathon-1.jpg" alt="A render of the APERTA device alongside the network it builds from a small conference." loading="lazy" decoding="async" width="1188" height="1072"><span class="shot-cap">A render of the device, and the network it builds</span></div>
+              <div class="shot" style="--ar:1.333"><img src="images/hackathon-2.jpg" alt="Sam Altman discussing agentic AI at TreeHacks." loading="lazy" decoding="async" width="1600" height="1200"><span class="shot-cap">Sam Altman on agentic AI at TreeHacks</span></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -3083,8 +3070,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p>The course was really about building one object as a team: a lot of CAD, a lot of
                iterating, and learning to hand a design to someone else and have it still fit
                when it came back.</p>
-            <p class="shot-cap"><span>Left:</span> An early prototype</p>
-            <p class="shot-cap"><span>Right:</span> The promotional snack-shooter photo</p>
             <div class="links-block">
             <p class="links-label">Link</p>
             <ul class="entry-links">
@@ -3094,8 +3079,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.049"><img src="images/snackbot-1.jpg" alt="An early prototype of the snack-shooting robot." loading="lazy" decoding="async" width="319" height="304"></div>
-              <div class="shot" style="--ar:0.975"><img src="images/snackbot-2.jpg" alt="The promotional photo of the finished snack shooter." loading="lazy" decoding="async" width="422" height="433"></div>
+              <div class="shot" style="--ar:1.049"><img src="images/snackbot-1.jpg" alt="An early prototype of the snack-shooting robot." loading="lazy" decoding="async" width="319" height="304"><span class="shot-cap">An early prototype</span></div>
+              <div class="shot" style="--ar:0.975"><img src="images/snackbot-2.jpg" alt="The promotional photo of the finished snack shooter." loading="lazy" decoding="async" width="422" height="433"><span class="shot-cap">The promotional snack-shooter photo</span></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -3128,9 +3113,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
                 academic events. All with the intention of creating and fostering a community, helping people make lasting friendships, 
                 and promoting Polish culture abroad.
               </p>
-            <p class="shot-cap"><span>Top:</span> The helper group at our Christmas Eve event</p>
-            <p class="shot-cap"><span>Bottom left:</span> Making 800 pierogi</p>
-            <p class="shot-cap"><span>Bottom right:</span> A guest lecture by Andrzej Dragan</p>
             <div class="links-block">
             <p class="links-label">Link</p>
             <ul class="entry-links">
@@ -3140,11 +3122,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.899"><img src="images/polana-1.jpg" alt="The helper group at POLANA's Christmas Eve event." loading="lazy" decoding="async" width="1105" height="582"></div>
+              <div class="shot" style="--ar:1.899"><img src="images/polana-1.jpg" alt="The helper group at POLANA's Christmas Eve event." loading="lazy" decoding="async" width="1105" height="582"><span class="shot-cap">The helper group at our Christmas Eve event</span></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:0.75"><img src="images/polana-2.jpg" alt="Making eight hundred pierogi." loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <div class="shot" style="--ar:1.064"><img src="images/polana-3.jpg" alt="A guest lecture by the Polish quantum physicist Andrzej Dragan." loading="lazy" decoding="async" width="795" height="747"></div>
+              <div class="shot" style="--ar:0.75"><img src="images/polana-2.jpg" alt="Making eight hundred pierogi." loading="lazy" decoding="async" width="1200" height="1600"><span class="shot-cap">Making 800 pierogi</span></div>
+              <div class="shot" style="--ar:1.064"><img src="images/polana-3.jpg" alt="A guest lecture by the Polish quantum physicist Andrzej Dragan." loading="lazy" decoding="async" width="795" height="747"><span class="shot-cap">A guest lecture by Andrzej Dragan</span></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -3174,9 +3156,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <p>The connections and the learning that come out of a week like that are hard to
                overstate. Very little else teaches leadership, creativity and confidence at
                that rate.</p>
-            <p class="shot-cap"><span>Top:</span> Summation speech · Trento, 2026</p>
-            <p class="shot-cap"><span>Bottom left:</span> The organising team of a session in Germany</p>
-            <p class="shot-cap"><span>Bottom right:</span> General assembly venue · Ghent, 2024</p>
           <div class="links-block">
             <p class="links-label">Link</p>
             <ul class="entry-links">
@@ -3186,11 +3165,11 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           </div>
           <div class="shots">
             <div class="shot-row">
-              <div class="shot" style="--ar:1.378"><img src="images/eyp-1.jpg" alt="Delivering the summation speech at the Italian National Selection Conference in Trento, 2026." loading="lazy" decoding="async" width="1035" height="751"></div>
+              <div class="shot" style="--ar:1.378"><img src="images/eyp-1.jpg" alt="Delivering the summation speech at the Italian National Selection Conference in Trento, 2026." loading="lazy" decoding="async" width="1035" height="751"><span class="shot-cap">Summation speech · Trento, 2026</span></div>
             </div>
             <div class="shot-row">
-              <div class="shot" style="--ar:1.778"><img src="images/eyp-2.jpg" alt="The organising team of a European Youth Parliament session in Germany." loading="lazy" decoding="async" width="1600" height="900"></div>
-              <div class="shot" style="--ar:1.5"><img src="images/eyp-3.jpg" alt="The general assembly venue for an international forum hosted in Ghent, Belgium, 2024." loading="lazy" decoding="async" width="1600" height="1067"></div>
+              <div class="shot" style="--ar:1.778"><img src="images/eyp-2.jpg" alt="The organising team of a European Youth Parliament session in Germany." loading="lazy" decoding="async" width="1600" height="900"><span class="shot-cap">The organising team of a session in Germany</span></div>
+              <div class="shot" style="--ar:1.5"><img src="images/eyp-3.jpg" alt="The general assembly venue for an international forum hosted in Ghent, Belgium, 2024." loading="lazy" decoding="async" width="1600" height="1067"><span class="shot-cap">General assembly venue · Ghent, 2024</span></div>
             </div>
           </div>
           <button class="entry-close" type="button">Close<span aria-hidden="true">&times;</span></button>
@@ -3217,7 +3196,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
                what you know seems like most of the point of knowing it.</p>
             <p>Explaining something well is also the only reliable proof you actually understand
                it.</p>
-            <p class="shot-cap"><span>Photo:</span> </p>
             <div class="links-block">
             <p class="links-label">Link</p>
             <ul class="entry-links">
@@ -3685,7 +3663,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
       <a href="https://www.linkedin.com/in/jedrzejcader/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg class="ic"><use href="#i-linkedin"/></svg></a>
       <a href="mailto:jcader@ethz.ch" aria-label="Email"><svg class="ic mail-ic" viewBox="0 0 24 24"><use href="#i-mail-box"/><use class="flap" href="#i-mail-flap"/></svg></a>
     </div>
-    <p class="label foot-credit">© 2026 Jędrzej Cader<span>Designed and built from scratch · no template</span></p>
+    <p class="label foot-credit">© 2026 Jędrzej Cader</p>
   </div>
 </footer>
 
@@ -4227,8 +4205,21 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
     var W=setWidth();
     if(W<=0) return;
     ready=true;
-    if(dotsEl && !dotsEl.childNodes.length)
-      for(var i=0;i<perSet;i++) dotsEl.appendChild(document.createElement('span'));
+    if(dotsEl && !dotsEl.childNodes.length){
+      for(var i=0;i<perSet;i++){
+        var b=document.createElement('button');
+        b.type='button';
+        b.setAttribute('aria-label','Photo '+(i+1)+' of '+perSet);
+        b.setAttribute('data-i',i);
+        b.addEventListener('click',function(ev){
+          var n=+ev.currentTarget.getAttribute('data-i'), Wn=setWidth();
+          if(Wn<=0) return;
+          glideTo=Wn+n*(Wn/perSet);
+          idleUntil=Date.now()+1500; start();
+        });
+        dotsEl.appendChild(b);
+      }
+    }
     pos=W; el.scrollLeft=pos;
   }
   /* One dot per photograph, with every photo currently ON SCREEN marked — a
