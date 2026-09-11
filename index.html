@@ -351,7 +351,7 @@ a{color:var(--accent)}
    `ol`'s own gap is deliberately kept SMALL (a floor, not the real spacing —
    space-between supplies the rest) so that if a short viewport shrinks this
    height via the vh term, the content still fits instead of overflowing. */
-.rail-body{display:flex;align-items:stretch;gap:20px;height:min(70vh,580px)}
+.rail-body{display:flex;align-items:stretch;gap:20px;height:min(80vh,680px)}
 .rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;
   justify-content:space-between;gap:10px}
 .rail a{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:16px;
@@ -1539,7 +1539,6 @@ section{overflow:hidden;overflow:clip}
 /* A narrower media column for the supporting chapters. Row height falls out
    of the aspect ratios, so constraining the WIDTH is the only way to make a
    row shorter without distorting the photographs — a fixed height would. */
-.chapter-media.m-minor{width:64%}
 /* SCROLL — Travelling's band, and the section's main event. It is a REAL
    horizontal scroller (overflow-x) rather than a CSS marquee, so it can be
    dragged, flicked on a trackpad or swiped, and it still drifts on its own.
@@ -1553,6 +1552,29 @@ section{overflow:hidden;overflow:clip}
   mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
 .m-scroll::-webkit-scrollbar{display:none}
 .m-scroll.is-dragging{cursor:grabbing}
+/* ⚠ Photographs have native drag-and-drop, which hijacks pointerdown and kills
+   the pointer capture — which is exactly why dragging only worked in the gaps
+   BETWEEN cards. Making the card's contents inert hands every pointer event
+   straight to the scroller. */
+.m-scroll .strip-card,.m-scroll .strip-card *{-webkit-user-drag:none;user-select:none}
+.m-scroll img{pointer-events:none}
+/* Dragging is not discoverable on its own, so the band also gets real buttons.
+   They sit on the band's own edges rather than outside it, because the chapter
+   text column is to the left and there is nowhere to put them. */
+.m-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;
+  width:38px;height:38px;display:grid;place-items:center;cursor:pointer;
+  border-radius:50%;border:1px solid var(--rule-blue);background:var(--paper);
+  color:var(--accent);box-shadow:0 6px 18px -10px rgba(0,0,0,.45);
+  transition:background .25s var(--ease),color .25s var(--ease),
+    border-color .25s var(--ease),transform .25s var(--ease)}
+.m-nav:hover{background:var(--warm-soft);color:var(--accent-warm-ink);
+  border-color:var(--accent-warm);transform:translateY(-50%) scale(1.06)}
+.m-nav .ic{width:17px;height:17px}
+.m-nav-prev{left:8px}
+.m-nav-prev .ic{transform:rotate(180deg)}
+.m-nav-next{right:8px}
+.chapter-media.m-scroll{position:static}
+.chapter .m-scrollwrap{position:relative}
 .strip-track{display:flex;gap:10px;width:max-content;height:calc(var(--h) * 1.85)}
 /* Mixed shapes on purpose — half phone-landscape, half phone-portrait, so the
    band reads as a camera roll rather than a product grid. The card's WIDTH
@@ -1585,7 +1607,6 @@ section{overflow:hidden;overflow:clip}
   /* one column: each chapter's text goes back above its photos, the pair
      unstacks, and the hero drops its fixed height so nothing letterboxes */
   .chapter{grid-template-columns:1fr;gap:14px}
-  .chapter-media.m-minor{width:100%}
   .m-row{flex-wrap:wrap}
   .m-row .shotbox{min-width:calc(50% - 5px)}
 }
@@ -3180,6 +3201,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <h3 class="chapter-title">Most of the world I have yet to see</h3>
           <p class="chapter-blurb">These are some of the highlights so far.</p>
         </div>
+        <div class="m-scrollwrap">
         <div class="chapter-media m-scroll">
           <div class="strip-track">
             <figure class="strip-card" style="--ar:0.75">
@@ -3248,19 +3270,8 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             </figure>
           </div>
         </div>
-      </article>
-
-      <article class="chapter">
-        <div>
-          <p class="chapter-cat">Adventure</p>
-          <h3 class="chapter-title">500 km across the Balkans on a bicycle</h3>
-          <p class="chapter-blurb">We bought second-hand bikes and rode from Croatia to Albania.
-             Fourteen-hour days, scalding heat, unforgettable.</p>
-        </div>
-        <div class="chapter-media m-row m-minor">
-            <div class="shotbox" style="--ar:1.334"><img src="images/balkans-1.jpg" alt="Two of us at a roadside table beside the loaded bikes, the Adriatic coast and mountains behind." loading="lazy" decoding="async" width="1600" height="1199"></div>
-            <div class="shotbox" style="--ar:0.75"><img src="images/balkans-2.jpg" alt="Looking down over the Adriatic from a hilltop, a coastal town below and mountains across the bay." loading="lazy" decoding="async" width="1200" height="1600"></div>
-            <div class="shotbox" style="--ar:0.75"><img src="images/balkans-3.jpg" alt="The two second-hand bikes propped against a stone wall outside a hostel." loading="lazy" decoding="async" width="1200" height="1600"></div>
+          <button class="m-nav m-nav-prev" type="button" aria-label="Previous photos"><svg class="ic"><use href="#i-arrow-right"/></svg></button>
+          <button class="m-nav m-nav-next" type="button" aria-label="Next photos"><svg class="ic"><use href="#i-arrow-right"/></svg></button>
         </div>
       </article>
 
@@ -3271,10 +3282,24 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <p class="chapter-blurb">Snowboarding and surfing now. Before that, ten years swimming
              for Poland as a junior — national titles in 200m butterfly and both relays.</p>
         </div>
-        <div class="chapter-media m-row m-minor">
+        <div class="chapter-media m-row">
             <div class="shotbox" style="--ar:1.333"><img src="images/snowboard-1.jpg" alt="Sitting in deep snow in a whiteout with the board still strapped on." loading="lazy" decoding="async" width="1600" height="1200"></div>
             <div class="shotbox" style="--ar:0.672"><img src="images/surf-1.jpg" alt="Two of us on the beach in wetsuits, holding rented surfboards." loading="lazy" decoding="async" width="400" height="595"></div>
             <div class="shotbox" style="--ar:1.333"><img src="images/swimming-1.jpg" alt="A rack of swimming medals hanging on their ribbons." loading="lazy" decoding="async" width="1600" height="1200"></div>
+        </div>
+      </article>
+
+      <article class="chapter">
+        <div>
+          <p class="chapter-cat">Adventure</p>
+          <h3 class="chapter-title">500 km across the Balkans on a bicycle</h3>
+          <p class="chapter-blurb">We bought second-hand bikes and rode from Croatia to Albania.
+             Fourteen-hour days, scalding heat, unforgettable.</p>
+        </div>
+        <div class="chapter-media m-row">
+            <div class="shotbox" style="--ar:1.334"><img src="images/balkans-1.jpg" alt="Two of us at a roadside table beside the loaded bikes, the Adriatic coast and mountains behind." loading="lazy" decoding="async" width="1600" height="1199"></div>
+            <div class="shotbox" style="--ar:0.75"><img src="images/balkans-2.jpg" alt="Looking down over the Adriatic from a hilltop, a coastal town below and mountains across the bay." loading="lazy" decoding="async" width="1200" height="1600"></div>
+            <div class="shotbox" style="--ar:0.75"><img src="images/balkans-3.jpg" alt="The two second-hand bikes propped against a stone wall outside a hostel." loading="lazy" decoding="async" width="1200" height="1600"></div>
         </div>
       </article>
 
@@ -3341,6 +3366,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <div>
             <span class="msg-eyebrow">Direct line</span>
             <h3 class="msg-title">Send me something</h3>
+            <div class="shotbox" style="--ar:1.333"><img src="images/balkans-4.jpg" alt="A fourth frame from the ride across the Balkans." loading="lazy" decoding="async" width="1600" height="1200"></div>
+            <div class="shotbox"><span class="label">images/snowboard-2.jpg</span></div>
+            <div class="shotbox"><span class="label">images/surf-2.jpg</span></div>
           </div>
           <span class="msg-ref" aria-hidden="true">MSG · 01</span>
         </div>
@@ -3910,6 +3938,8 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
   el.addEventListener('focusout',function(){ hold=Math.max(0,hold-1); });
 
   el.addEventListener('pointerdown',function(e){
+    if(e.target.closest && e.target.closest('.m-nav')) return;
+    e.preventDefault();
     dragId=e.pointerId; startX=e.clientX; startLeft=el.scrollLeft;
     el.setPointerCapture(dragId); el.classList.add('is-dragging');
   });
@@ -3927,6 +3957,16 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
     });
   });
 
+  var wrap=el.closest ? el.closest('.m-scrollwrap') : null;
+  if(wrap){
+    wrap.querySelectorAll('.m-nav').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var card=el.querySelector('.strip-card');
+        var by=(card?card.getBoundingClientRect().width+10:220)*2;
+        el.scrollBy({left:btn.classList.contains('m-nav-prev')?-by:by,behavior:reduced?'auto':'smooth'});
+      });
+    });
+  }
   if('IntersectionObserver' in window){
     new IntersectionObserver(function(es){
       es.forEach(function(en){ en.isIntersecting ? start() : stop(); });
