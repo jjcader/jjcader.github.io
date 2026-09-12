@@ -1024,6 +1024,11 @@ section{overflow:hidden;overflow:clip}
 /* blue-tinted rules rather than the warm --rule: this little table is the
    first structured thing on the page and its lines now rhyme with the
    section dividers and the rail */
+/* display:contents dissolves the wrapper, so on desktop .facts is still a
+   direct child of .about-side and nothing about that column changes. The
+   portrait only exists below 640px (see the mobile block). */
+.facts-wrap{display:contents}
+.facts-photo{display:none}
 .facts{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-blue)}
 .facts li{position:relative;display:flex;gap:12px;align-items:baseline;
   padding:10px 4px 10px 0;border-bottom:1px solid var(--rule-blue);
@@ -1209,11 +1214,21 @@ section{overflow:hidden;overflow:clip}
    look interactive before the cursor arrives. */
 .cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
   gap:clamp(12px,1.3vw,18px)}
-.cat{position:relative;overflow:hidden;display:flex;flex-direction:column;
+/* THREE ROWS, NOT FIVE. The card was a stack — number, icon, title,
+   description, pill — five bands of which two said almost nothing, and three
+   of them across the top of a section whose job is to get you *past* it. It is
+   now a grid: the icon sits BESIDE the title on one row, and the entry count
+   shares the pill's row at the far end instead of owning a line of its own.
+   That is ~110px off the section on desktop and ~35px on a phone, with nothing
+   removed but whitespace. */
+.cat{position:relative;overflow:hidden;display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  grid-template-areas:"ic name" "desc desc" "go go";
+  column-gap:13px;row-gap:10px;align-items:center;
   text-align:left;font:inherit;color:inherit;cursor:pointer;
   background:var(--paper);border:2px solid color-mix(in srgb,var(--accent) 30%,var(--rule));
   border-radius:6px;box-shadow:0 10px 26px -22px color-mix(in srgb,var(--accent) 70%,transparent);
-  padding:clamp(20px,2vw,26px) clamp(18px,1.8vw,24px) clamp(16px,1.6vw,20px);
+  padding:clamp(15px,1.5vw,20px) clamp(15px,1.5vw,20px) clamp(13px,1.3vw,17px);
   transition:.28s var(--ease);
   /* --cat-hue defaults to the house accent; everything blue inside a card
      reads from this one variable, so recolouring is a one-line change. */
@@ -1224,28 +1239,31 @@ section{overflow:hidden;overflow:clip}
 .cat:hover{border-color:var(--accent-warm);background:var(--paper-2);transform:translateY(-4px);
   box-shadow:0 22px 42px -22px color-mix(in srgb,var(--accent-warm) 75%,transparent)}
 .cat:hover::before{transform:scaleY(1)}
-.cat-n{font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.14em;
+/* Shares the pill's row at the far end, so it costs no vertical space at all.
+   It cannot go in a corner instead: an absolutely-positioned number would
+   overlap the title on the narrow cards. */
+.cat-n{grid-area:go;justify-self:end;align-self:center;
+  font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.1em;
   text-transform:uppercase;color:var(--ink-3)}
 /* the icon sits in a tinted disc so it reads as a button glyph, not a bullet */
-.cat-ic{width:26px;height:26px;color:var(--cat-hue);margin-top:14px;
-  box-sizing:content-box;padding:11px;border-radius:50%;background:var(--accent-soft);
+.cat-ic{grid-area:ic;width:21px;height:21px;color:var(--cat-hue);margin:0;
+  box-sizing:content-box;padding:9px;border-radius:50%;background:var(--accent-soft);
   transition:color .28s var(--ease),background .28s var(--ease),transform .28s var(--ease)}
 .cat:hover .cat-ic{color:var(--accent-warm-ink);background:var(--warm-soft);transform:scale(1.08)}
-.cat-name{font-family:var(--serif);font-size:clamp(22px,2.1vw,29px);line-height:1.12;
-  letter-spacing:-.015em;margin:14px 0 0}
-/* Bottom margin, not padding-top on .cat-go — same reason as .tile-desc. */
-.cat-desc{font-size:var(--fs-small);color:var(--ink-2);margin:9px 0 18px;line-height:1.5}
+.cat-name{grid-area:name;font-family:var(--serif);font-size:clamp(19px,1.8vw,26px);line-height:1.12;
+  letter-spacing:-.015em;margin:0}
+.cat-desc{grid-area:desc;font-size:var(--fs-small);color:var(--ink-2);margin:0;line-height:1.5}
 /* margin-top:auto pins it to the card's bottom edge, so the four "Jump" lines
    sit on one baseline regardless of how long each description runs */
 /* A filled pill, not a line of text. "Jump" (moves you down the page) and
    "Open" (expands something in place) are different actions, and the two
    card types were only distinguishable by an 11px word — the affordance now
    carries as much weight as the word does. */
-.cat-go{align-self:flex-start;display:inline-flex;align-items:center;gap:9px;
-  margin-top:auto;margin-bottom:0;
+.cat-go{grid-area:go;justify-self:start;align-self:center;
+  display:inline-flex;align-items:center;gap:9px;margin:0;
   font-family:var(--mono);font-size:var(--fs-meta);font-weight:600;letter-spacing:.12em;
   text-transform:uppercase;color:var(--paper);background:var(--cat-hue);
-  border-radius:999px;padding:9px 17px;
+  border-radius:999px;padding:8px 15px;
   transition:background .3s var(--ease),gap .3s var(--ease),transform .3s var(--ease)}
 .cat-go .ic{width:14px;height:14px}
 .cat:hover .cat-go{background:var(--accent-warm-ink);gap:14px;transform:translateY(2px)}
@@ -1618,6 +1636,13 @@ section{overflow:hidden;overflow:clip}
    blue-at-rest / warm-on-interaction move like every other clickable panel */
 .m-scroll .strip-card{transition:border-color .25s var(--ease)}
 .m-scroll .strip-card:hover{border-color:var(--accent-warm)}
+/* EVERY photograph that opens says so. zoom-in rather than a plain hand,
+   because it names the action instead of only claiming "clickable" — and the
+   band underneath still shows grab/grabbing, which is the other thing you can
+   do with it. A .ph card has no photograph in it and stays inert. */
+.strip-card,.shot,.shotbox,.facts-photo{cursor:zoom-in}
+.strip-card.ph,.shotbox.ph{cursor:default}
+.m-scroll.is-dragging .strip-card{cursor:grabbing}
 .m-scroll img{pointer-events:none}
 /* Dragging is not discoverable on its own, so the band also gets real buttons.
    They sit on the band's own edges rather than outside it, because the chapter
@@ -1668,6 +1693,8 @@ section{overflow:hidden;overflow:clip}
   overflow:hidden;margin:0;
   background:var(--paper-2);border:1px solid var(--rule);border-radius:3px}
 .strip-card img{width:100%;height:100%;object-fit:cover;display:block}
+.strip-card .label{position:absolute;inset:0;display:grid;place-items:center;
+  text-align:center;padding:10px;font-size:9.5px;line-height:1.5}
 /* The location tag FLOATS on the photograph, bottom-left. A band across the
    foot of the card eats picture; a chip sits on it. Orange pin on a dark veil
    is a graphic, not text, which is why it may use --accent-warm. */
@@ -2058,7 +2085,16 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .header-inner{height:auto;min-height:0;gap:8px;padding-top:5px;padding-bottom:3px}
   .brand{font-size:10.5px}
   .nav-toggle{padding:5px 10px;font-size:10px}
-  .status-group,.head-div{display:none}
+  .head-div{display:none}
+  /* The pill comes back on a phone — there is room beside the brand, and "now
+     at" is the single most useful thing the header can say to someone who has
+     just landed. It is allowed to shrink (flex:0 1 auto + min-width:0) so it
+     can never push the menu button off the edge; below 400px there genuinely
+     is not room for 34 characters and it goes again. */
+  .status-group{display:none;margin-left:10px;min-width:0}
+  .status{font-size:8px;letter-spacing:.04em;padding:3px 8px;gap:5px;
+    overflow:hidden;white-space:nowrap}
+  .status .pulse{width:5px;height:5px}
   .mrail{display:block}
   /* the labels are the point — this is the only navigation on a phone, and a
      row of unlabelled planets is a puzzle, not a menu */
@@ -2078,14 +2114,20 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .mrail-track::before{content:"";position:absolute;inset:-9px 0;cursor:pointer}
   .mrail-fill{position:absolute;left:0;top:0;bottom:0;width:0;
     background:linear-gradient(90deg,var(--accent-2),var(--accent))}
-  .mrail-rocket{position:absolute;top:50%;left:0;width:26px;height:26px;padding:0;
-    transform:translate(-50%,-50%);border:0;background:var(--paper);border-radius:50%;
+  /* ⚠ No disc behind it. A 26px paper circle riding a 3px track sits on top of
+     whatever is underneath the header — most often a group heading — and
+     punched a hole through the words. The rocket is now bare, like the
+     desktop one, and stays legible against text by carrying a paper-coloured
+     halo in the filter below rather than a solid background. */
+  .mrail-rocket{position:absolute;top:50%;left:0;width:24px;height:24px;padding:0;
+    transform:translate(-50%,-50%);border:0;background:none;
     color:var(--accent);cursor:grab;touch-action:none;z-index:4;overflow:visible;
-    box-shadow:0 2px 10px -4px rgba(16,97,125,.5);transition:left .12s linear}
+    transition:left .12s linear}
   /* rotated 90deg so the rocket flies the way the page moves, which puts the
      flame BEHIND it, over the part of the track already covered */
   .mrail-rocket svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:1.5;
-    transform:rotate(90deg);overflow:visible}
+    transform:rotate(90deg);overflow:visible;
+    filter:drop-shadow(0 0 1.5px var(--paper)) drop-shadow(0 0 3px var(--paper))}
   /* Shared transform-origin in view-box units, not a percentage: the two paths
      have different bounding boxes, so under transform-box:fill-box the same
      "50% 0" would mean two different points and the core would creep out of
@@ -2098,6 +2140,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .mrail-rocket .flame{fill:var(--accent-warm)}
   .mrail-rocket .flame-core{fill:color-mix(in srgb,var(--accent-warm) 55%,var(--paper))}
   .mrail.is-dragging .mrail-rocket{transition:none;cursor:grabbing}
+}
+
+/* the pill needs ~200px beside the brand and the menu button; a 375px phone
+   does not have it, a 440px one does */
+@media (min-width:400px) and (max-width:899px){
+  .status-group{display:flex;flex:0 1 auto}
 }
 
 /* --- the menu keeps the same seven planets, for people who open it --- */
@@ -2149,9 +2197,19 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
      So `height` is the single framing dial. 100% put his head too high; 114%
      lands the top of his head level with the credential chips, at the cost of
-     being ~14% larger than the smallest it can be. --- and because a bigger
-     photograph is a wider one, the left crop grows with it to keep him at the
-     same x (20% at 114%, it was 14% at 100%). Move the two together. */
+     being ~14% larger than the smallest it can be.
+
+     ════ HAND-TUNING THIS: THE ONLY TWO NUMBERS ARE ON THE NEXT LINE ════
+       height  DOWN + BIGGER together. +1% moves him ~2px down and makes him
+               ~1% larger. Below 100% a gap opens at the bottom of the panel.
+       margin-left / width  LEFT. They are one number with two names and must
+               move together: width is always (100 - margin-left)%, so -21% /
+               121% crops one more per cent off the left and shifts him ~4px
+               left. Going the other way, -19% / 119% moves him right.
+       A BIGGER `height` PUSHES HIM RIGHT, because a taller photograph is a
+       wider one — so if you raise height, raise the crop by about a third as
+       much to hold his x (114 -> 118 wants -20% -> -21.5%).
+     ═══════════════════════════════════════════════════════════════════ */
   .hero-half-a{--zoom:1;--pan:0%}
   .hero-half-a img{object-position:0% center;height:114%;transform:none;
     width:120%;margin-left:-20%}
@@ -2183,18 +2241,40 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .about-text p:first-child{font-size:clamp(14px,4vw,16px)}
   .about-text p{font-size:13px}
   .about-quote{font-size:12.5px}
-  .facts li{padding:7px 0}
-  .facts .k{min-width:82px}
+  /* THE TABLE SHRINKS AND GAINS A PORTRAIT BESIDE IT. The rows were set at
+     14.5px against 13px body prose, which made the least important block on
+     the page the loudest. Narrowing the column also does the thing that makes
+     room for the photograph: "Poland · Ireland · Switzerland · USA" wraps to
+     two lines, which is roughly the height the portrait needs.
+     The photograph keeps its own square shape and is cropped by
+     object-position rather than being stretched to the table's height —
+     object-position:8% keeps the figure and most of the meatball in frame
+     whatever height the rows end up at. */
+  .facts-wrap{display:flex;align-items:flex-start;gap:10px}
+  .facts{flex:1 1 auto;min-width:0}
+  .facts-photo{display:block;flex:0 0 auto;align-self:stretch;
+    width:clamp(88px,25vw,124px);height:auto;object-fit:cover;object-position:8% center;
+    border:1px solid var(--rule-blue);border-radius:4px;background:var(--paper-2)}
+  .facts li{padding:6px 0}
+  .facts .k{flex:0 0 62px;min-width:0;font-size:9px;letter-spacing:.08em}
+  .facts .v{font-size:12.5px;line-height:1.35}
+  .facts li:hover{padding-left:0}
 
   /* THE CATEGORY CARDS — one row of three, not a grid: there are exactly
-     three, and a 2x2 with an empty cell reads as something missing. */
+     three, and a 2x2 with an empty cell reads as something missing.
+     Two rows here, not three: the description is gone and so is the entry
+     count. At ~130px of card width there is not room for a Jump pill AND a
+     15-character count on one line, and the count is the less useful of the
+     two — the group heading a screen below carries it anyway. The title gets
+     the space instead, because on a phone the title IS the card. */
   .cats{grid-template-columns:repeat(3,1fr);gap:6px}
-  .cat{padding:8px 8px 10px}
-  .cat-n{font-size:8.5px;letter-spacing:.08em}
-  .cat-ic{width:14px;height:14px;margin-top:6px;padding:7px}
-  .cat-name{font-size:12px;margin-top:5px;line-height:1.15}
+  .cat{padding:9px 8px;border-width:1.5px;column-gap:7px;row-gap:8px;
+    grid-template-areas:"ic name" "go go"}
+  .cat-n{display:none}
+  .cat-ic{width:13px;height:13px;padding:6px}
+  .cat-name{font-size:13px;line-height:1.14}
   .cat-desc{display:none}
-  .cat-go{margin-top:8px;padding:4px 7px;font-size:8.5px;gap:4px}
+  .cat-go{padding:4px 8px;font-size:8.5px;gap:4px}
   .cat-go .ic{width:9px;height:9px}
 
   .entry-head{padding:11px 2px}
@@ -2334,13 +2414,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .foot-links a{width:30px;height:30px}
   .foot-links .ic{width:14px;height:14px}
 
-  /* smaller still: titles, the divider ornament, the facts table */
+  /* smaller still: titles and the divider ornament. (The facts table's own
+     sizes live with the portrait block above — don't add a second set here,
+     which is what happened before and quietly undid it.) */
   :root{--gear-size:16px}
   .section-name{font-size:clamp(17px,5.2vw,22px)}
   .section-name::before,.section-name::after{width:14px;height:2px}
   .section-head{margin-bottom:12px}
-  .facts li{padding:5px 0}
-  .facts .k{min-width:70px;font-size:9.5px}
   .about-grid{gap:0}
   .about-side{margin-top:10px}
 
@@ -2388,29 +2468,42 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   padding:clamp(14px,4vw,40px);touch-action:none;overscroll-behavior:contain}
 .lb-back{position:absolute;inset:0;background:rgba(8,14,20,.86);
   -webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+/* 90vw, not 92, so the close button can hang 16px outside the top-right
+   corner and still clear the viewport edge on a 360px phone. Change one and
+   check the other. */
 .lb-fig{position:relative;z-index:1;margin:0;
-  width:min(92vw,900px,calc(78vh * var(--ar,1.5)));aspect-ratio:var(--ar,1.5);height:auto;
+  width:min(90vw,880px,calc(76vh * var(--ar,1.5)));aspect-ratio:var(--ar,1.5);height:auto;
   animation:lb-in .26s var(--ease)}
 .lb-fig img{width:100%;height:100%;object-fit:contain;display:block;border-radius:6px;
   box-shadow:0 30px 80px -34px rgba(0,0,0,.85)}
-/* the location pill comes across unchanged — same class, one size up, because
-   it is now sitting on a photograph several times larger */
-.lb-cap{left:12px;bottom:12px;font-size:12.5px;padding:5px 12px 5px 9px;max-width:calc(100% - 24px)}
-.lb-cap .ic{width:13px;height:13px}
-/* The close control is the one thing that must never be hunted for, so it is a
-   solid disc at the overlay's own corner rather than a bare glyph on the
-   photograph — it cannot be clipped by a tall picture and it cannot land on a
-   pale part of one. */
-.lb-x{position:absolute;top:clamp(10px,2.5vw,24px);right:clamp(10px,2.5vw,24px);z-index:2;
-  width:44px;height:44px;padding:0;display:grid;place-items:center;cursor:pointer;
+/* ⚠ Deliberately NOT .strip-cap. The band's pill is uppercase and nowrap,
+   which is right for "Osaka, Japan" and wrong for an entry caption like
+   "RF simulation of the antenna's side lobes" — and both kinds of photograph
+   open into this same overlay. So the lightbox caption is its own style:
+   sentence case, wrapping, and the pin glyph only when the photograph brought
+   one with it. */
+.lb-cap{position:absolute;left:12px;bottom:12px;z-index:2;
+  display:inline-flex;align-items:flex-start;gap:6px;max-width:calc(100% - 24px);
+  font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.03em;
+  line-height:1.35;color:#fff;text-align:left;
+  background:rgba(10,16,24,.66);border-radius:8px;padding:6px 11px;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  text-shadow:0 1px 3px rgba(0,0,0,.45)}
+.lb-cap .ic{width:13px;height:13px;flex:0 0 auto;margin-top:1px;color:var(--accent-warm)}
+/* The close control sits on the photograph's OWN top-right corner, half off the
+   edge, so it reads as belonging to the picture rather than to the screen. It
+   is a solid disc rather than a bare glyph because it must never have to be
+   hunted for against a pale part of a photograph. */
+.lb-x{position:absolute;top:-16px;right:-16px;z-index:3;
+  width:40px;height:40px;padding:0;display:grid;place-items:center;cursor:pointer;
   border-radius:50%;border:1px solid var(--rule-blue);background:var(--paper);
   color:var(--ink);box-shadow:0 10px 30px -12px rgba(0,0,0,.7);
   transition:background .25s var(--ease),color .25s var(--ease),
     border-color .25s var(--ease),transform .25s var(--ease)}
-.lb-x svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;
+.lb-x svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;
   stroke-linecap:round}
 .lb-x:hover{background:var(--warm-soft);color:var(--accent-warm-ink);
-  border-color:var(--accent-warm);transform:scale(1.06)}
+  border-color:var(--accent-warm);transform:scale(1.08)}
 @keyframes lb-in{from{opacity:0;transform:scale(.965)}to{opacity:1;transform:none}}
 
 /* ============ BACK TO TOP ============ */
@@ -2703,14 +2796,21 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
              table that avoids saying where he studies to dodge duplication is
              a worse table. Hometown and Lived in are the rows nothing else on
              the page carries. -->
-        <ul class="facts reveal">
-          <li><span class="k">Name</span><span class="v">Jędrzej Cader</span></li>
-          <li><span class="k">Age</span><span class="v">24</span></li>
-          <li><span class="k">Hometown</span><span class="v">Wrocław, Poland</span></li>
-          <li><span class="k">Based in</span><span class="v">Zürich, Switzerland</span></li>
-          <li><span class="k">Lived in</span><span class="v">Poland · Ireland · Switzerland · USA</span></li>
-          <li><span class="k">Languages</span><span class="v">PL · EN · DE · FR</span></li>
-        </ul>
+        <!-- The wrapper is display:contents on desktop, so it changes nothing
+             there; below 640px it becomes a flex row and the portrait sits
+             beside the table. The photograph is the JPL sign shot, which is
+             otherwise unused on a phone — .hero-half-b is hidden below 700px. -->
+        <div class="facts-wrap">
+          <ul class="facts reveal">
+            <li><span class="k">Name</span><span class="v">Jędrzej Cader</span></li>
+            <li><span class="k">Age</span><span class="v">24</span></li>
+            <li><span class="k">Hometown</span><span class="v">Wrocław, Poland</span></li>
+            <li><span class="k">Based in</span><span class="v">Zürich, Switzerland</span></li>
+            <li><span class="k">Lived in</span><span class="v">Poland · Ireland · Switzerland · USA</span></li>
+            <li><span class="k">Languages</span><span class="v">PL · EN · DE · FR</span></li>
+          </ul>
+          <img class="facts-photo" src="images/hero-5.jpg" alt="Standing at the Jet Propulsion Laboratory entrance sign, beside the NASA meatball." loading="lazy" decoding="async" width="649" height="624">
+        </div>
         <div class="socials">
           <a href="https://www.linkedin.com/in/jedrzejcader/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-linkedin"/></svg> LinkedIn</a>
           <a href="mailto:jcader@ethz.ch"><svg class="ic mail-ic" viewBox="0 0 24 24"><use href="#i-mail-box"/><use class="flap" href="#i-mail-flap"/></svg> Email</a>
@@ -3705,6 +3805,12 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
             <figure class="strip-card"><img src="images/snowboard-1.jpg" alt="Sitting in deep snow in a whiteout with the board still strapped on." loading="lazy" decoding="async" width="1600" height="1200"></figure>
             <figure class="strip-card"><img src="images/surf-1.jpg" alt="Two of us on the beach in wetsuits, holding rented surfboards." loading="lazy" decoding="async" width="400" height="595"></figure>
             <figure class="strip-card"><img src="images/swimming-1.jpg" alt="A rack of swimming medals hanging on their ribbons." loading="lazy" decoding="async" width="1600" height="1200"></figure>
+            <!-- Placeholders. A card with no <img> is inert: it never opens and
+                 it does not get the magnifier cursor. Replace the whole line
+                 with a real one when the file arrives — .ph and the --ar go
+                 with it, since --ar is then computed from the file. -->
+            <figure class="strip-card ph" style="--ar:1.333"><span class="label">images/snowboard-2.jpg</span></figure>
+            <figure class="strip-card ph" style="--ar:1.333"><span class="label">images/surf-2.jpg</span></figure>
           </div>
         </div>
           <button class="m-nav m-nav-prev" type="button" aria-label="Previous photos"><svg class="ic"><use href="#i-arrow-right"/></svg></button>
@@ -3854,11 +3960,13 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   <div class="lb-back" data-close></div>
   <figure class="lb-fig">
     <img id="lbImg" alt="">
-    <figcaption class="strip-cap lb-cap" id="lbCap" hidden></figcaption>
+    <figcaption class="lb-cap" id="lbCap" hidden></figcaption>
+    <!-- inside the figure, so it rides the photograph's own top-right corner
+         rather than the screen's — the picture is what you are closing -->
+    <button class="lb-x" id="lbX" type="button" aria-label="Close photograph">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
   </figure>
-  <button class="lb-x" id="lbX" type="button" aria-label="Close photograph">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-  </button>
 </div>
 
 <button class="to-top" id="toTop" aria-label="Back to top"><svg class="ic"><use href="#i-rocket"/></svg><span>Top</span></button>
@@ -3899,14 +4007,39 @@ document.querySelectorAll('.entry').forEach(function(entry){
    It closes the OTHERS rather than toggling anything, so the entry you just
    clicked is never fighting this. */
 var soloEntries=window.matchMedia('(max-width:899px)');
+/* Returns how much page height is about to disappear ABOVE `keep`, which is
+   what the scroll below has to compensate for — see revealEntry(). Entries
+   closing below it move nothing. Measured before the collapse renders, so the
+   rects are still the pre-animation ones, which is exactly what we want: the
+   figure is "how much taller the page is right now than it will be". */
 function closeOtherEntries(keep){
-  if(!soloEntries.matches) return;
+  if(!soloEntries.matches) return 0;
+  var shrinkAbove=0, keepTop=keep.getBoundingClientRect().top;
   document.querySelectorAll('.entry[data-open="true"]').forEach(function(other){
     if(other===keep) return;
+    var body=other.querySelector('.entry-body');
+    if(body && other.getBoundingClientRect().top<keepTop)
+      shrinkAbove+=body.getBoundingClientRect().height;
     other.dataset.open='false';
     var h=other.querySelector('.entry-head');
     if(h) h.setAttribute('aria-expanded','false');
   });
+  return shrinkAbove;
+}
+/* OPENING AN ENTRY BRINGS IT TO THE TOP OF THE SCREEN, on narrow screens.
+   Without this, opening an entry that happened to be near the bottom of the
+   viewport put three paragraphs and two photographs below the fold and gave no
+   sign that anything had happened — the one interaction the section is built
+   around looked broken.
+   The header's height is MEASURED rather than assumed: it is content-driven on
+   a phone (brand row + the rail's planets + the track), so any hard-coded
+   number here would drift the next time that changes. */
+function revealEntry(head, shrinkAbove){
+  if(!soloEntries.matches) return;
+  var hdr=document.querySelector('.site-header');
+  var off=(hdr?hdr.getBoundingClientRect().height:0)+8;
+  var top=head.getBoundingClientRect().top+window.scrollY-(shrinkAbove||0)-off;
+  window.scrollTo({top:Math.max(0,top),behavior:reduced?'auto':'smooth'});
 }
 
 /* 1 — expand / collapse entries, plus the ignition ring (see .igniting).
@@ -3919,7 +4052,7 @@ document.querySelectorAll('.entry-head').forEach(function(btn){
     var entry=btn.closest('.entry'), open=entry.dataset.open==='true';
     entry.dataset.open=String(!open);
     btn.setAttribute('aria-expanded',String(!open));
-    if(!open) closeOtherEntries(entry);
+    if(!open) revealEntry(btn, closeOtherEntries(entry));
     if(reduced) return;
     entry.classList.remove('igniting','closing');
     void entry.offsetWidth;
@@ -3956,9 +4089,14 @@ function openEntry(id){
   if(!body) return;
   var entry=body.closest('.entry');
   entry.dataset.open='true';
-  entry.querySelector('.entry-head').setAttribute('aria-expanded','true');
-  closeOtherEntries(entry);
-  entry.scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'});
+  var head=entry.querySelector('.entry-head');
+  head.setAttribute('aria-expanded','true');
+  var shrink=closeOtherEntries(entry);
+  /* Narrow screens land the head just under the header rather than centring
+     the entry: centring an entry that is now a screen and a half tall puts its
+     own title off the top. */
+  if(soloEntries.matches) revealEntry(head, shrink);
+  else entry.scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'});
   entry.classList.add('flash');
   setTimeout(function(){ entry.classList.remove('flash'); },1300);
 }
@@ -4666,26 +4804,35 @@ Array.prototype.forEach.call(document.querySelectorAll('.m-scroll'),function(el)
   window.addEventListener('resize',function(){ ready=false; ensure(); paint(); });
 });
 
-/* OPENING A PHOTOGRAPH FROM A BAND.
-   Shared by every .m-scroll, and by desktop as well as touch — it is one
-   component and there is no reason a mouse should get less of it.
+/* OPENING A PHOTOGRAPH.
+   EVERY photograph on the page opens, not just the bands': the entry photos,
+   Adventure's row, both bands and the About portrait. The three that do not are
+   the hero (it is the page's backdrop, not a picture in a gallery), the mosaic
+   tiles (they are buttons that open an entry — a second meaning would be worse
+   than none) and the entry thumbnails (tapping one opens its entry, which shows
+   the same photograph full size anyway).
 
-   ⚠ THE HARD PART IS NOT OPENING, IT IS NOT OPENING. Every band is also a
+   ⚠ ONE DELEGATED HANDLER ON document, IN THE CAPTURE PHASE, rather than a
+   listener per band. Capture runs document -> target, so this sees pointerdown
+   BEFORE anything on the way down can stop propagation or call
+   setPointerCapture — which matters, because the band's own drag handler does
+   exactly that, and after a capture is taken every later event retargets to the
+   band itself. Per-band listeners also made the behaviour depend on the order
+   two scripts happened to bind in, which is not something to rely on.
+
+   ⚠ THE HARD PART IS NOT OPENING, IT IS NOT OPENING. A band is also a
    drag/swipe surface, so "the pointer went down on a photograph and came back
-   up on it" is true of a swipe as well as of a tap. Three things separate
-   them, and all three are needed:
-     - the card is captured on POINTERDOWN, before anything can retarget. The
-       mouse drag calls setPointerCapture on the band, which retargets every
-       later event to the band itself — so by pointerup, e.target is no longer
-       the photograph and asking then would always come back empty.
-     - any movement over ~7px in either axis disqualifies the gesture. A tap
-       does not travel; a flick does, from its first frame.
-     - pointercancel counts as movement. That is the event a touch scroll fires
-       when the browser takes the gesture over, and it arrives INSTEAD of
-       pointerup — so a swipe is doubly excluded: it is cancelled, and it moved.
-   `click` is deliberately not used at all: the band calls preventDefault() on
+   up on it" is true of a swipe as well as of a tap. Three things separate them
+   and all three are needed:
+     - the node is captured on POINTERDOWN, before any retargeting;
+     - movement over ~7px in either axis disqualifies the gesture — a tap does
+       not travel, a flick does, from its first frame;
+     - pointercancel counts as movement. That is what a touch scroll fires when
+       the browser takes the gesture over, and it arrives INSTEAD of pointerup,
+       so a swipe is doubly excluded.
+   `click` is deliberately not used: the band calls preventDefault() on
    pointerdown for mouse drags, and whether a click still follows that is not
-   something to depend on. */
+   worth depending on. */
 (function(){
   var lb=document.getElementById('lb');
   if(!lb) return;
@@ -4693,14 +4840,22 @@ Array.prototype.forEach.call(document.querySelectorAll('.m-scroll'),function(el)
       lbCap=document.getElementById('lbCap'),
       lbX=document.getElementById('lbX'),
       lastFocus=null;
+  /* the four kinds of photo box on the page. A node only qualifies if it
+     actually holds an <img> — which is what keeps the grey placeholder cards
+     in a band inert. */
+  var OPEN_SEL='.strip-card,.shot,.shotbox,.facts-photo';
 
-  function openShot(card){
-    var img=card.querySelector('img');
+  function shotImg(node){
+    return node.tagName==='IMG' ? node : node.querySelector('img');
+  }
+  function openShot(node){
+    var img=shotImg(node);
     if(!img) return;
-    var cap=card.querySelector('.strip-cap');
-    /* the figure takes the photograph's own shape — see .lb-fig. The card
-       already carries it, computed from the file's width/height at build. */
-    var ar=card.style.getPropertyValue('--ar');
+    var cap=node.querySelector ? node.querySelector('.strip-cap,.shot-cap') : null;
+    /* the figure takes the photograph's own shape — see .lb-fig. Every box on
+       the page already carries it as --ar; the About portrait is a bare <img>,
+       so fall back to its width/height attributes. */
+    var ar=node.style ? node.style.getPropertyValue('--ar') : '';
     if(!ar){
       var w=+img.getAttribute('width'), h=+img.getAttribute('height');
       ar=(w>0&&h>0)?(w/h).toFixed(3):'1.5';
@@ -4708,8 +4863,8 @@ Array.prototype.forEach.call(document.querySelectorAll('.m-scroll'),function(el)
     lb.style.setProperty('--ar',ar);
     lbImg.src=img.currentSrc||img.src;
     lbImg.alt=img.getAttribute('alt')||'';
-    /* the pin travels with the photograph; a band with no captions (Sport)
-       simply opens without one */
+    /* the caption travels with the photograph — the pin from a travel card, the
+       sentence from an entry photo. A photograph with neither opens bare. */
     if(cap){ lbCap.innerHTML=cap.innerHTML; lbCap.hidden=false; }
     else { lbCap.textContent=''; lbCap.hidden=true; }
     lastFocus=document.activeElement;
@@ -4735,23 +4890,23 @@ Array.prototype.forEach.call(document.querySelectorAll('.m-scroll'),function(el)
     if(e.key==='Escape' || e.key==='Esc') closeShot();
   });
 
-  Array.prototype.forEach.call(document.querySelectorAll('.m-scroll'),function(band){
-    var dx=0, dy=0, moved=false, downCard=null;
-    band.addEventListener('pointerdown',function(e){
-      dx=e.clientX; dy=e.clientY; moved=false;
-      downCard=e.target.closest ? e.target.closest('.strip-card') : null;
-    });
-    band.addEventListener('pointermove',function(e){
-      if(downCard && (Math.abs(e.clientX-dx)>7 || Math.abs(e.clientY-dy)>7)) moved=true;
-    },{passive:true});
-    band.addEventListener('pointercancel',function(){ moved=true; downCard=null; });
-    band.addEventListener('pointerup',function(e){
-      var card=downCard; downCard=null;
-      if(!card || moved) return;
-      if(Math.abs(e.clientX-dx)>7 || Math.abs(e.clientY-dy)>7) return;
-      openShot(card);
-    });
-  });
+  var dx=0, dy=0, moved=false, downNode=null;
+  document.addEventListener('pointerdown',function(e){
+    dx=e.clientX; dy=e.clientY; moved=false; downNode=null;
+    if(!e.target.closest || lb.contains(e.target)) return;
+    var node=e.target.closest(OPEN_SEL);
+    if(node && shotImg(node)) downNode=node;
+  },true);
+  document.addEventListener('pointermove',function(e){
+    if(downNode && (Math.abs(e.clientX-dx)>7 || Math.abs(e.clientY-dy)>7)) moved=true;
+  },{passive:true,capture:true});
+  document.addEventListener('pointercancel',function(){ moved=true; downNode=null; },true);
+  document.addEventListener('pointerup',function(e){
+    var node=downNode; downNode=null;
+    if(!node || moved) return;
+    if(Math.abs(e.clientX-dx)>7 || Math.abs(e.clientY-dy)>7) return;
+    openShot(node);
+  },true);
 })();
 
 /* DRAGGING THE ROCKET.

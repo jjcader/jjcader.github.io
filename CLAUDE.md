@@ -550,7 +550,19 @@ nav labels follow, as always, one for one. The photo strip took the name
 ### Category cards + groups (`#projects`)
 
 Three `<button class="cat">` cards with `data-goto="g-xxx"` scrolling to the
-matching `<div class="group" id="g-xxx">`:
+matching `<div class="group" id="g-xxx">`.
+
+**A card is a THREE-ROW GRID, not a five-band stack.** It used to be number /
+icon / title / description / pill, five bands of which two said almost nothing —
+across the top of a section whose job is to get you *past* it. Now the icon sits
+**beside** the title on one row, and the entry count **shares the pill's row** at
+the far end instead of owning a line. That is ~110px off the section on desktop
+and ~35px on a phone with nothing removed but whitespace. ⚠ The count cannot be
+absolutely positioned into a corner instead — it overlaps the title on the
+narrow cards. On mobile the description and the count both go and the title
+grows: at ~130px of card width there is no room for a pill *and* a
+15-character count on one line, the group heading a screen below already carries
+the number, and on a phone the title **is** the card.
 
 | id | Title | Icon |
 |---|---|---|
@@ -1906,6 +1918,14 @@ is twelve blocks of text and opening one used to produce a very long scroll.
   Because the caption chips sit *on* their photographs (see §Entries), nothing
   has to be rewritten when the count changes.
 - **The type comes down**: entry prose 12.5px, summaries 12px.
+- **Opening an entry brings it to the top of the screen.** Without it, opening
+  an entry near the foot of the viewport put three paragraphs and two
+  photographs below the fold with no sign anything had happened — the one
+  interaction the section is built around looked broken. ⚠ `revealEntry()`
+  **measures the header** rather than assuming a height (it is content-driven
+  on a phone), and subtracts what `closeOtherEntries()` reports it is about to
+  remove *above* the clicked entry. Without that subtraction the accordion's
+  own collapse pulls the target out from under the scroll as it animates.
 
 #### The hero on a phone
 
@@ -1932,6 +1952,24 @@ not a bug. **These two levers (crop by overflow, scale by `height`) are
 independent; don't try to do either with a `transform`, which fights
 `object-position` and produces something nobody can predict.**
 
+#### The About block on a phone
+
+The facts table was set at 14.5px against 13px body prose, making the least
+important block on the page the loudest. It comes down to 12.5px with a 62px
+key column — and narrowing it is also what makes room for **a portrait beside
+it**: "Poland · Ireland · Switzerland · USA" wraps to two lines, which is
+roughly the height the picture needs.
+
+The portrait is `hero-5.jpg`, the JPL sign photograph, which is otherwise unused
+on a phone because `.hero-half-b` is hidden below 700px. It keeps its own square
+shape and is cropped by `object-position:8%` rather than stretched, which holds
+the figure and most of the meatball in frame whatever height the rows end up at.
+
+⚠ `.facts-wrap` is `display:contents` above 640px, so **desktop is untouched** —
+`.facts` is still effectively a direct child of `.about-side` there. That is the
+pattern to reuse when a mobile layout needs a wrapper the desktop one must not
+see.
+
 #### Elsewhere
 
 - **Highlights**: the "Learn more" pill leaves the flow and becomes a badge on
@@ -1944,15 +1982,39 @@ independent; don't try to do either with a `transform`, which fights
   are both mono metadata and share a line, which is what they would do on a
   real CV. Done with flex `order`, not by editing the markup.
 - **Life**: `.m-row` becomes a swipe scroller (see §Fun stuff & life).
+- **The header keeps the "Now at" pill.** It is hidden between 900 and 1300px
+  (no room beside the full nav) but comes back below 900, where the nav has
+  moved into the menu. It is `flex:0 1 auto` with `min-width:0` so it can never
+  push the menu button off the edge, and it is gated at `min-width:400px`
+  because 34 characters genuinely do not fit on a 375px phone.
+- **The mobile rocket has no disc behind it.** A 26px paper circle riding a 3px
+  track sits on top of whatever is under the header — usually a sticky group
+  heading — and punched a hole through the words. It is bare now, like the
+  desktop one, and stays legible against text with a paper-coloured
+  `drop-shadow` halo instead of a solid background.
 - **Contact**: the type was already small; what was left was *space* — section
   padding, head margin, grid gap, field gaps, label margins and the textarea all
   come down together, because no single one of them was the problem.
 
 ### The photo lightbox
 
-Tapping (or clicking) a photograph in any band opens it large over a darkened
-page. One overlay, `#lb`, reused by every `.m-scroll`, `hidden` until something
-opens it — so with JS off it never exists and the bands stay plain scrollers.
+Tapping (or clicking) **any photograph on the page** opens it large over a
+darkened page. One overlay, `#lb`, `hidden` until something opens it — so with
+JS off it never exists and the bands stay plain scrollers.
+
+**What opens:** `.strip-card` (both bands), `.shot` (entry photos),
+`.shotbox` (Adventure) and `.facts-photo` (the About portrait) — the
+`OPEN_SEL` constant, and a node only qualifies if it actually holds an `<img>`,
+which is what keeps the grey placeholder cards inert. **What deliberately does
+not:** the hero (it is the page's backdrop, not a picture in a gallery), the
+mosaic tiles (they are buttons that open an entry, and a second meaning would be
+worse than none) and the entry thumbnails (tapping one opens its entry, which
+shows the same photograph full size anyway).
+
+Every openable photograph carries `cursor:zoom-in` — a magnifier rather than a
+plain hand, because it names the action instead of only claiming "clickable".
+The band underneath still shows `grab`/`grabbing`, which is the other thing you
+can do with it.
 
 **It is deliberately not full-screen.** A photograph filling a phone edge to
 edge reads as having replaced the page, and nothing on screen then says how to
@@ -1961,6 +2023,19 @@ control is a solid 44px disc at the overlay's own corner rather than a glyph on
 the picture: it cannot be clipped by a tall photograph and it cannot land on a
 pale part of one. Backdrop click and Escape also close; **clicking the
 photograph itself does not**, so a mis-tap cannot dismiss it.
+
+The close button lives **inside `.lb-fig`**, half off its top-right corner, so
+it reads as belonging to the photograph rather than to the screen. That is why
+the figure is capped at `90vw` and not `92vw` — the button hangs 16px outside
+and has to clear the viewport edge on a 360px phone. **Change one and check the
+other.**
+
+⚠ **The lightbox caption is deliberately NOT `.strip-cap`.** The band's pill is
+uppercase and `nowrap`, which is right for "Osaka, Japan" and wrong for an entry
+caption like "RF simulation of the antenna's side lobes" — and both kinds of
+photograph open into this same overlay. `.lb-cap` is therefore its own style:
+sentence case, wrapping, with the pin glyph shown only when the photograph
+brought one.
 
 ⚠ **`.lb-fig` is sized by WIDTH plus an `aspect-ratio`, never by putting a
 `max-height` on the `<img>`.** A shrink-to-fit box around an image that is being
@@ -1972,12 +2047,19 @@ which already has it from `build()`) makes the box exactly the picture, so
 bottom-left of the figure *is* bottom-left of the photograph. The location pill
 comes across unchanged, same class, one size up.
 
+⚠ **It is ONE delegated handler on `document`, in the CAPTURE phase**, not a
+listener per band. Capture runs document → target, so it sees `pointerdown`
+before anything on the way down can stop propagation or take a pointer capture.
+Per-band listeners also made the behaviour depend on the order two scripts
+happened to bind in, which is not something to rely on — and a photograph that
+mysteriously would not open on one device was the symptom.
+
 ⚠ **The hard part is not opening it, it is NOT opening it.** Every band is also
 a drag/swipe surface, so "the pointer went down on a photograph and came back up
 on it" is true of a swipe as well as of a tap. Three things separate them and
 all three are needed:
 
-1. **The card is captured on `pointerdown`.** The mouse drag calls
+1. **The node is captured on `pointerdown`.** The mouse drag calls
    `setPointerCapture` on the band, which retargets every later event to the
    band itself — so by `pointerup` `e.target` is no longer the photograph, and
    asking then always comes back empty.
@@ -2279,6 +2361,13 @@ Ideas raised and deliberately parked, so they are not re-derived from scratch:
   unlimited supply of material and currently the same height as the two beside
   it. Levers available: `--h` (one variable sizes every media block), the
   `.strip-track` multiplier on it, and `.chapters`' derived right-reach.
+- **A photograph opens into the whole set it came from.** Raised 2026-09-12:
+  tapping a travel photograph would open that picture *and* a screen of the
+  other photographs from the same trip or place. Parked until there are enough
+  photographs per trip to make a set. It needs a grouping key on the card (a
+  `data-set="balkans"` attribute read in `build()`, which is exactly the
+  extension point the one-line contract was designed for) and turns the
+  lightbox from a single-image overlay into a small gallery.
 - **Next / previous inside the lightbox.** Not built: the band is right there
   behind the overlay, so paging through it is a convenience rather than a gap.
   Worth revisiting if Travelling grows past a dozen photographs.
