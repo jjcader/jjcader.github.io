@@ -116,6 +116,11 @@
   --ease:cubic-bezier(.22,.61,.36,1);
 }
 *,*::before,*::after{box-sizing:border-box}
+/* ⚠ Load-bearing. Several components below set an explicit `display`, which
+   BEATS the UA stylesheet's display:none for the `hidden` attribute — so
+   without this a hidden element (the lightbox, its caption) would be on screen
+   permanently. Anything toggled with .hidden = true depends on this line. */
+[hidden]{display:none !important}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:96px}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
   font-size:clamp(15px,.55vw + 13.5px,17px);line-height:1.65;-webkit-font-smoothing:antialiased}
@@ -955,17 +960,16 @@ section{overflow:hidden;overflow:clip}
 .deco-waves-proj{display:none;left:0;right:0;top:14px;width:100%;height:34px;opacity:.2}
 @media (min-width:1360px){.deco-waves-proj{display:block}}
 /* hand-drawn one-offs, each parked beside the content it belongs to: a
-   telescope + moon by the JPL tile, a quadcopter by the swarm tile, a robot
-   by the robotics group, a Rubik's cube by the hobbies group. */
+   telescope + moon by the JPL tile, a quadcopter by the swarm tile. (A robot
+   sat by the robotics group and a Rubik's cube by the old hobbies group; both
+   are gone — the robot read as corny, which is the failure mode of a one-off
+   that illustrates a word rather than a thing that was actually built.) */
 .deco-telescope{top:20%;left:-50px;width:min(300px,28vw);aspect-ratio:1;opacity:.22}
 /* stars are filled sprites, not stroked outlines — a tiny 4-point sparkle
    read as an outline is barely legible at this scale */
 .deco-telescope svg use{fill:currentColor;stroke:none}
 .deco-drone{top:64%;left:-60px;width:min(300px,28vw);aspect-ratio:1;opacity:.21}
 .deco-drone svg{transform:rotate(-24deg)}
-/* aligned with the Robotics & simulation group, which is the middle of three */
-.deco-robot{top:57%;left:-45px;width:min(280px,26vw);aspect-ratio:1;opacity:.2}
-.deco-robot svg{transform:rotate(-8deg)}
 
 /* slow drift, disabled under reduced motion */
 @keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
@@ -1309,13 +1313,28 @@ section{overflow:hidden;overflow:clip}
 .entry-title{grid-area:title;font-family:var(--serif);font-weight:400;
   font-size:clamp(20px,1.75vw,27px);line-height:1.16;letter-spacing:-.015em}
 .entry-brief{grid-area:brief;max-width:96ch}
-/* A thumbnail of the entry's own first photograph, shown on the collapsed row
-   below 900px (see the mobile block). It is CLONED from that photograph by the
-   JS rather than written into the markup, so it cannot go stale, and it is
-   hidden rather than absent up here — a lazy image inside a display:none box
-   never enters the viewport, so a desktop reader does not download twelve of
-   them. Turning it on for desktop too is this one declaration. */
-.entry-thumb{display:none}
+/* A THUMBNAIL OF THE ENTRY'S OWN FIRST PHOTOGRAPH on every collapsed row.
+   It is CLONED from that photograph by the JS rather than written into the
+   markup, so it cannot illustrate the wrong entry and cannot go stale when a
+   photograph is swapped. Twelve rows of title-and-summary is a wall of text
+   with nothing for the eye to hold onto; twelve pictures are twelve objects.
+
+   ⚠ The head's grid gains a column, so EVERY breakpoint that declares
+   grid-template-areas needs a .has-thumb variant — there are three (here,
+   1150px and 899px) and missing one auto-places the thumb into whatever cell
+   is free, which looks like a completely different bug. --thumb carries the
+   size so the column and the box can never disagree.
+   .has-thumb is added by the JS only when a first photograph was actually
+   found, so an entry with no photographs keeps the three-column head. */
+.entry-thumb{grid-area:thumb;display:block;align-self:center;
+  width:var(--thumb,64px);height:var(--thumb,64px);
+  border-radius:5px;overflow:hidden;background:var(--paper-2);
+  border:1px solid var(--rule);transition:border-color .3s var(--ease)}
+.entry-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+/* blue at rest, warm on interaction, like every other panel on the page */
+.entry-head:hover .entry-thumb{border-color:var(--accent-warm)}
+.entry-head.has-thumb{grid-template-columns:var(--thumb,64px) 1fr minmax(348px,max-content) 30px;
+  grid-template-areas:"thumb title meta toggle" "thumb brief brief brief"}
 /* The collapsed line is the OPENING of the entry's own first paragraph, cut
    off with an ellipsis — so clicking continues the sentence rather than
    restating it. It is therefore hidden once the entry is open: the body says
@@ -1470,6 +1489,13 @@ section{overflow:hidden;overflow:clip}
 @media (max-width:1150px){
   .entry-head{grid-template-columns:1fr 30px;row-gap:6px;
     grid-template-areas:"title toggle" "meta meta" "brief brief"}
+  .entry-head.has-thumb{--thumb:56px;grid-template-columns:56px 1fr 30px;
+    grid-template-areas:"thumb title toggle" "thumb meta meta" "brief brief brief";
+    align-items:start}
+  .entry-head.has-thumb .entry-thumb{align-self:start}
+  /* the toggle is a 30px disc against a title that now starts at the top of
+     the row, so it needs nudging back onto the title's optical centre */
+  .entry-head.has-thumb .entry-toggle{margin-top:-2px}
   .entry-meta{white-space:normal}
 }
 @media (max-width:820px){
@@ -1571,11 +1597,27 @@ section{overflow:hidden;overflow:clip}
   mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
 .m-scroll::-webkit-scrollbar{display:none}
 .m-scroll.is-dragging{cursor:grabbing}
+/* A band whose photographs already fit its column is not a band — see ensure().
+   The clones are the aria-hidden ones, so hiding them is exact; the mask and
+   the controls go with them, because fading the edge of a row that does not
+   scroll just clips the first and last photograph for no reason. */
+.m-scroll.no-loop .strip-card[aria-hidden="true"]{display:none}
+.m-scroll.no-loop{mask-image:none;cursor:default}
+.m-scrollwrap.no-loop .m-nav,.m-scrollwrap.no-loop .m-dots{display:none}
+/* and what is left degrades into the page's standard justified row — the same
+   flex:var(--ar) 1 0 as .m-row and .shot-row — so the photographs fill the
+   column exactly instead of stopping short of it with the band's fixed height */
+.m-scroll.no-loop .strip-track{width:auto;height:auto}
+.m-scroll.no-loop .strip-card{flex:var(--ar,1.333) 1 0;height:auto}
 /* ⚠ Photographs have native drag-and-drop, which hijacks pointerdown and kills
    the pointer capture — which is exactly why dragging only worked in the gaps
    BETWEEN cards. Making the card's contents inert hands every pointer event
    straight to the scroller. */
 .m-scroll .strip-card,.m-scroll .strip-card *{-webkit-user-drag:none;user-select:none}
+/* the cards open into the lightbox, so they get the page's standard
+   blue-at-rest / warm-on-interaction move like every other clickable panel */
+.m-scroll .strip-card{transition:border-color .25s var(--ease)}
+.m-scroll .strip-card:hover{border-color:var(--accent-warm)}
 .m-scroll img{pointer-events:none}
 /* Dragging is not discoverable on its own, so the band also gets real buttons.
    They sit on the band's own edges rather than outside it, because the chapter
@@ -1610,7 +1652,12 @@ section{overflow:hidden;overflow:clip}
    Any horizontal scroller inside a grid or flex parent needs this. */
 .chapter .m-scrollwrap{position:relative;min-width:0}
 .chapter-media.m-scroll{min-width:0}
-.strip-track{display:flex;gap:10px;width:max-content;height:calc(var(--h) * 1.85)}
+/* --band is how tall this band is, as a multiple of --h. Travelling is the
+   section's main event and keeps the full 1.85; Sport is a supporting chapter
+   and takes .band-short, which is still taller than the wrapped row of
+   half-width photographs it replaced. One number per band, nothing else. */
+.strip-track{display:flex;gap:10px;width:max-content;height:calc(var(--h) * var(--band,1.85))}
+.chapter-media.band-short{--band:1.45}
 /* Mixed shapes on purpose — half phone-landscape, half phone-portrait, so the
    band reads as a camera roll rather than a product grid. The track carries the
    HEIGHT and the card carries the aspect ratio, so each card's WIDTH falls out
@@ -1965,7 +2012,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
    plain document: no chrome, no colour surfaces, everything expanded. */
 @media print{
   .rail,.to-top,.skip-link,.deco,.m-scroll,.site-header,.hero-orbit,.hero-more,
-  .entry-close,.entry-toggle,.msg,.mail-reveal{display:none !important}
+  .entry-close,.entry-toggle,.entry-thumb,.lb,.msg,.mail-reveal{display:none !important}
   html,body{background:#fff;color:#000;font-size:10.5pt}
   .hero{height:auto;min-height:0;background:none}
   .hero-veil,.hero-media{display:none}
@@ -2088,37 +2135,36 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
      and is thrown away. The element still ends flush with the panel's right
      edge (-14% + 114% = 100%), so no strip of background can ever show.
 
-     height goes back to 100% for the scale: object-fit:cover fills the box's
-     HEIGHT, so 110% was rendering the whole photograph 10% larger. Dropping it
-     shrinks the subject by that 10% and, because a smaller photograph is also
-     a narrower one, walks him a little further left again for free. The cost is
-     that he also rises ~27px in the frame, which is the trade for the size. */
+     ⚠ HOW FAR DOWN HE SITS AND HOW BIG HE IS ARE ONE DIAL, not two, and that
+     is a property of the photograph rather than of the CSS — worth knowing
+     before trying to separate them again. The panel is portrait and the photo
+     is landscape, so `cover` is always constrained by HEIGHT: the whole of the
+     photograph's height is on screen, top edge on top edge. His head therefore
+     sits at a FIXED FRACTION of the panel, and both his position down the frame
+     and his size scale together with the one number, `height`. Cropping the
+     file cannot separate them either: taking the bottom off moves him down but
+     shortens the photograph, which `cover` then scales back up by exactly the
+     same factor. The only way to break the lock is a different photograph, or
+     something else occupying the top of the panel.
+
+     So `height` is the single framing dial. 100% put his head too high; 114%
+     lands the top of his head level with the credential chips, at the cost of
+     being ~14% larger than the smallest it can be. --- and because a bigger
+     photograph is a wider one, the left crop grows with it to keep him at the
+     same x (20% at 114%, it was 14% at 100%). Move the two together. */
   .hero-half-a{--zoom:1;--pan:0%}
-  .hero-half-a img{object-position:0% center;height:100%;transform:none;
-    width:114%;margin-left:-14%}
+  .hero-half-a img{object-position:0% center;height:114%;transform:none;
+    width:120%;margin-left:-20%}
   .hero-copy{inset:0 0 auto 0;padding-top:clamp(12px,3vh,26px);padding-bottom:0}
   .hero-copy > .wrap{padding-left:calc(var(--gutter) + 4vw);padding-right:var(--gutter)}
   .hero-creds{gap:6px}
 }
 
-/* --- collapsed entries get a thumbnail of their own first photograph ---
-   Seventeen collapsed rows on a phone is a wall of text with nothing for the
-   eye to hold onto. A picture per row turns the list into objects you can
-   recognise at a glance, and it costs about 10px of row height because the
-   title and the dateline together are already nearly as tall as the thumb.
-   Scoped to 899px to match the accordion and the mobile rail: below that the
-   page is the compact layout, above it the full one. */
+/* --- the thumbnail comes down to 52px and the row tightens --- */
 @media (max-width:899px){
-  .entry-head.has-thumb{grid-template-columns:52px 1fr 30px;
-    grid-template-areas:"thumb title toggle" "thumb meta meta" "brief brief brief";
-    column-gap:11px;row-gap:5px;align-items:start}
-  .entry-thumb{grid-area:thumb;display:block;align-self:start;
-    width:52px;height:52px;border-radius:4px;overflow:hidden;
-    border:1px solid var(--rule);background:var(--paper-2)}
-  .entry-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-  /* the toggle is a 30px disc against a title that starts at the top of the
-     row, so it needs nudging back onto the title's optical centre */
-  .entry-head.has-thumb .entry-toggle{margin-top:-2px}
+  .entry-head.has-thumb{--thumb:52px;grid-template-columns:52px 1fr 30px;
+    column-gap:11px;row-gap:5px}
+  .entry-thumb{border-radius:4px}
 }
 
 /* --- the whole scale down --- */
@@ -2323,6 +2369,49 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .tl-row.work + .tl-row.edu,
   .tl-row.edu + .tl-row.work{margin-top:0}
 }
+
+/* ============ PHOTO LIGHTBOX ============
+   Tapping a photograph in a band opens it large. Deliberately NOT full-screen:
+   a photograph that fills a phone edge to edge reads as having replaced the
+   page, and there is then nothing on screen that says how to get back. Leaving
+   a margin of the darkened page around it keeps it an overlay.
+
+   ⚠ .lb-fig is sized by WIDTH plus an aspect-ratio, never by putting a
+   max-height on the <img>. A shrink-to-fit box around an image that is being
+   limited by its height sizes itself from the image's INTRINSIC width, so the
+   figure comes out wider than the picture inside it — and the caption, which is
+   positioned against the figure, then floats in empty space beside the photo.
+   Giving the figure the photograph's own aspect ratio (--ar, set by the JS from
+   the card it came from) makes the box exactly the picture, so bottom-left of
+   the figure IS bottom-left of the photograph. */
+.lb{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+  padding:clamp(14px,4vw,40px);touch-action:none;overscroll-behavior:contain}
+.lb-back{position:absolute;inset:0;background:rgba(8,14,20,.86);
+  -webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+.lb-fig{position:relative;z-index:1;margin:0;
+  width:min(92vw,900px,calc(78vh * var(--ar,1.5)));aspect-ratio:var(--ar,1.5);height:auto;
+  animation:lb-in .26s var(--ease)}
+.lb-fig img{width:100%;height:100%;object-fit:contain;display:block;border-radius:6px;
+  box-shadow:0 30px 80px -34px rgba(0,0,0,.85)}
+/* the location pill comes across unchanged — same class, one size up, because
+   it is now sitting on a photograph several times larger */
+.lb-cap{left:12px;bottom:12px;font-size:12.5px;padding:5px 12px 5px 9px;max-width:calc(100% - 24px)}
+.lb-cap .ic{width:13px;height:13px}
+/* The close control is the one thing that must never be hunted for, so it is a
+   solid disc at the overlay's own corner rather than a bare glyph on the
+   photograph — it cannot be clipped by a tall picture and it cannot land on a
+   pale part of one. */
+.lb-x{position:absolute;top:clamp(10px,2.5vw,24px);right:clamp(10px,2.5vw,24px);z-index:2;
+  width:44px;height:44px;padding:0;display:grid;place-items:center;cursor:pointer;
+  border-radius:50%;border:1px solid var(--rule-blue);background:var(--paper);
+  color:var(--ink);box-shadow:0 10px 30px -12px rgba(0,0,0,.7);
+  transition:background .25s var(--ease),color .25s var(--ease),
+    border-color .25s var(--ease),transform .25s var(--ease)}
+.lb-x svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round}
+.lb-x:hover{background:var(--warm-soft);color:var(--accent-warm-ink);
+  border-color:var(--accent-warm);transform:scale(1.06)}
+@keyframes lb-in{from{opacity:0;transform:scale(.965)}to{opacity:1;transform:none}}
 
 /* ============ BACK TO TOP ============ */
 .to-top{position:fixed;right:24px;bottom:24px;z-index:55;
@@ -2836,19 +2925,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     <circle cx="308" cy="104" r="4" fill="currentColor" stroke="none"/>
     <!-- riding the r=112 ring -->
     <g class="orbiter"><g transform="rotate(90 200 88)"><use href="#d-rocket" x="179" y="67" width="42" height="42"/></g></g>
-  </svg></div>
-  <!-- sits behind the robotics & simulation group -->
-  <div class="deco deco-robot warm" aria-hidden="true"><svg viewBox="0 0 100 100">
-    <circle cx="50" cy="11" r="3"/><path d="M50 14v8"/>
-    <rect x="30" y="22" width="40" height="28" rx="7"/>
-    <circle cx="41" cy="35" r="3.5"/><circle cx="59" cy="35" r="3.5"/>
-    <path d="M43 43h14"/>
-    <path d="M50 50v6"/>
-    <rect x="27" y="56" width="46" height="30" rx="6"/>
-    <rect x="43" y="64" width="14" height="12" rx="2"/>
-    <path d="M27 62 16 62 16 78"/><path d="M73 62 84 62 84 78"/>
-    <circle cx="16" cy="82" r="4"/><circle cx="84" cy="82" r="4"/>
-    <path d="M38 86v8M62 86v8M32 94h12M56 94h12"/>
   </svg></div>
   <!-- one wavy set above "Browse by area" -->
   <div class="deco deco-waves-proj" aria-hidden="true"><svg viewBox="0 0 1200 120" preserveAspectRatio="none">
@@ -3475,7 +3551,7 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <span class="tl-when">2025</span>
           <h3 class="tl-role">Researcher</h3>
           <span class="tl-org">NASA JPL · Pasadena, CA</span>
-          <p>Visiting Student Researcher, nine months in the Robotics Group, building the signal processing, orbital simulation and foreground extraction pipelines.</p>
+          <p>Visiting student researcher in the Robotics Group, working on signal processing and orbital simulation.</p>
         </div>
       </li>
       <li class="tl-row work">
@@ -3616,12 +3692,24 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
           <p class="chapter-blurb">Snowboarding and surfing now. Before that, ten years swimming
              for Poland as a junior — national titles in 200m butterfly and both relays.</p>
         </div>
-        <div class="chapter-media m-row">
-            <div class="shotbox" style="--ar:1.333"><img src="images/snowboard-1.jpg" alt="Sitting in deep snow in a whiteout with the board still strapped on." loading="lazy" decoding="async" width="1600" height="1200"></div>
-            <div class="shotbox" style="--ar:0.672"><img src="images/surf-1.jpg" alt="Two of us on the beach in wetsuits, holding rented surfboards." loading="lazy" decoding="async" width="400" height="595"></div>
-            <div class="shotbox" style="--ar:1.333"><img src="images/swimming-1.jpg" alt="A rack of swimming medals hanging on their ribbons." loading="lazy" decoding="async" width="1600" height="1200"></div>
-            <div class="shotbox"><span class="label">images/snowboard-2.jpg</span></div>
-            <div class="shotbox"><span class="label">images/surf-2.jpg</span></div>
+        <!-- SPORT IS THE SAME BAND AS TRAVELLING, one notch shorter (--band).
+             Same one-line contract: file, the two real pixel numbers, done.
+             These carry no <figcaption>, so they get no location pill — the
+             alt text is the description and there is nowhere they need to
+             claim to be. The two empty placeholder boxes that used to sit here
+             are gone: adding snowboard-2 and surf-2 is now one line each, and
+             a grey box in a photo band is worse than no box. -->
+        <div class="m-scrollwrap">
+        <div class="chapter-media m-scroll band-short">
+          <div class="strip-track">
+            <figure class="strip-card"><img src="images/snowboard-1.jpg" alt="Sitting in deep snow in a whiteout with the board still strapped on." loading="lazy" decoding="async" width="1600" height="1200"></figure>
+            <figure class="strip-card"><img src="images/surf-1.jpg" alt="Two of us on the beach in wetsuits, holding rented surfboards." loading="lazy" decoding="async" width="400" height="595"></figure>
+            <figure class="strip-card"><img src="images/swimming-1.jpg" alt="A rack of swimming medals hanging on their ribbons." loading="lazy" decoding="async" width="1600" height="1200"></figure>
+          </div>
+        </div>
+          <button class="m-nav m-nav-prev" type="button" aria-label="Previous photos"><svg class="ic"><use href="#i-arrow-right"/></svg></button>
+          <button class="m-nav m-nav-next" type="button" aria-label="Next photos"><svg class="ic"><use href="#i-arrow-right"/></svg></button>
+          <div class="m-dots" aria-hidden="true"></div>
         </div>
       </article>
 
@@ -3758,6 +3846,21 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   </div>
 </footer>
 
+<!-- ============ PHOTO LIGHTBOX ============
+     One overlay, reused by every photo band. It is `hidden` until something
+     opens it, so with JS off it simply never exists and the bands stay plain
+     scrollers. The caption is moved across from the card, pin and all. -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photograph" hidden>
+  <div class="lb-back" data-close></div>
+  <figure class="lb-fig">
+    <img id="lbImg" alt="">
+    <figcaption class="strip-cap lb-cap" id="lbCap" hidden></figcaption>
+  </figure>
+  <button class="lb-x" id="lbX" type="button" aria-label="Close photograph">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+</div>
+
 <button class="to-top" id="toTop" aria-label="Back to top"><svg class="ic"><use href="#i-rocket"/></svg><span>Top</span></button>
 
 <script>
@@ -3767,9 +3870,11 @@ var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
    photograph rather than written into the markup. Twelve more hand-written
    <img> tags would be twelve more things to update whenever a photograph
    changes, and they could silently disagree with the entry they label; a clone
-   cannot. It is inserted at every width and hidden by CSS above 900px — a lazy
-   image inside a display:none box never enters the viewport, so a desktop
-   reader does not pay for it.
+   cannot. Shown at every width (see .entry-thumb for the grid).
+   It keeps `loading="lazy"`, and that matters: #projects is below the fold, so
+   the twelve full-size photographs are only fetched as the reader arrives at
+   them — and they are the same files the open entry uses, so opening one is
+   already cached.
    Inserted FIRST in the head so it reads before the title; aria-hidden because
    it is the same photograph the open entry shows and says nothing new. */
 document.querySelectorAll('.entry').forEach(function(entry){
@@ -4053,6 +4158,7 @@ var mrail=document.getElementById('mrail');
 var mrailTrack=document.querySelector('.mrail-track');
 var mrailFill=document.getElementById('mrailFill');
 var mrailRocket=document.getElementById('mrailRocket');
+var mrailItems=Array.prototype.slice.call(document.querySelectorAll('.mrail-nav a'));
 var railItems=Array.prototype.slice.call(document.querySelectorAll('.rail ol li'));
 var railHeroOn=false;
 var toTop=document.getElementById('toTop');
@@ -4096,6 +4202,46 @@ function measureDecos(){
 measureDecos();
 window.addEventListener('load',function(){ measureDecos(); measureRailSep(); requestFrame(); });
 
+/* THE MOBILE RAIL'S GEOMETRY.
+   ⚠ It used to be driven by raw page-scroll percentage, and that was wrong for
+   exactly the reason §Progress rail gives for the vertical one: #projects is
+   far longer than every other section, so a linear scroll fraction runs ahead
+   of the labels — the rocket sat over "Edu & Exp" while the reader was still
+   at the top of Everything. The bar now interpolates between the NAV ITEMS'
+   measured centres, the same way the vertical rail interpolates between its
+   dots, so the rocket is always over the label for the section you are in.
+
+   Two coordinate spaces are involved because the rail's seven sections become
+   the mobile bar's six items — Education and Experience share one. The two
+   mappings below convert between them and are exact inverses; the drag has to
+   run the inverse or the rocket jumps out from under the finger. */
+function mrailPosFromRail(t){      /* 0..6 in rail space -> 0..5 in bar space */
+  return t<=3 ? t : (t<=5 ? 3+(t-3)/2 : 4+(t-5));
+}
+function railPosFromMrail(m){      /* the exact inverse */
+  return m<=3 ? m : (m<=4 ? 3+(m-3)*2 : 5+(m-4));
+}
+/* Item centres, normalised so the FIRST lands at 0 and the LAST at the track's
+   full width. Without that the fill would start ~9% in and stop ~90% short of
+   the right edge, because the labels are inset from the track's ends — and
+   forcing the ends instead would make the rocket jump the inset the moment you
+   left the very top of the page. Normalising costs about 8px of alignment in
+   the middle, which is invisible, and buys a bar that actually fills. */
+function mrailGeom(){
+  if(!mrailTrack || mrailItems.length<2) return null;
+  var tr=mrailTrack.getBoundingClientRect();
+  if(tr.width<=0) return null;
+  var c=[];
+  for(var i=0;i<mrailItems.length;i++){
+    var r=mrailItems[i].getBoundingClientRect();
+    c[i]=r.left+r.width/2-tr.left;
+  }
+  var a=c[0], b=c[c.length-1];
+  if(b-a<=0) return null;
+  for(var j=0;j<c.length;j++) c[j]=(c[j]-a)/(b-a)*tr.width;
+  return {c:c, w:tr.width, left:tr.left};
+}
+
 function onFrame(){
   var y=window.scrollY;
   var max=document.documentElement.scrollHeight - window.innerHeight;
@@ -4107,15 +4253,6 @@ function onFrame(){
      is time-since-launch, not a countdown to one. Zero-padded to three digits
      so the column never changes width as it ticks. */
   if(railPct) railPct.textContent='T+'+String(Math.round(100-pct)).padStart(3,'0');
-
-  /* The mobile rail is driven by raw scroll percentage, and that is correct
-     here even though the vertical rail deliberately is NOT. The vertical one
-     has to land on seven dots whose spacing does not match section lengths, so
-     it interpolates between measured dot positions. The mobile bar has no dots
-     to land on — it is a scrollbar — so percentage is both simpler and the
-     honest model. */
-  if(mrailFill) mrailFill.style.width=pct+'%';
-  if(mrailRocket) mrailRocket.style.left=pct+'%';
 
   /* idx/frac below are computed from a single anchor point 45% down the
      viewport, then drive BOTH the nav highlight and the rocket — the rocket
@@ -4179,6 +4316,21 @@ function onFrame(){
       l.classList.toggle('is-active', !!activeId && (l.getAttribute('href')==='#'+activeId
         || l.getAttribute('data-also')===activeId));
     });
+    /* offsetParent is null while the bar is display:none, so a desktop reader
+       never pays for these six rect reads */
+    if(mrail && mrailRocket && mrail.offsetParent!==null){
+      var M=mrailGeom();
+      if(M){
+        var mt=mrailPosFromRail(idx+frac);
+        var mk=Math.max(0,Math.min(M.c.length-2,Math.floor(mt)));
+        var mf=Math.max(0,Math.min(1,mt-mk));
+        var mx=M.c[mk]+(M.c[mk+1]-M.c[mk])*mf;
+        var mpct=Math.max(0,Math.min(100,mx/M.w*100));
+        mrailRocket.style.left=mpct+'%';
+        if(mrailFill) mrailFill.style.width=mpct+'%';
+      }
+    }
+
     if(railRocket && railFill && railTrack){
       var trackRect=railTrack.getBoundingClientRect();
       var dotA=railDots[idx].getBoundingClientRect();
@@ -4315,10 +4467,12 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
 
    The drift writes scrollLeft rather than animating a transform, because a
    transform keyframe and native scrolling cannot coexist — you cannot drag
-   something that is being animated out from under you. */
-(function(){
-  var el=document.querySelector('.m-scroll');
-  if(!el) return;
+   something that is being animated out from under you.
+
+   Runs once PER .m-scroll on the page (Travelling and Sport today), each with
+   its own closure — every element variable inside is local, so two bands never
+   see each other's state. Adding a third band is adding the markup. */
+Array.prototype.forEach.call(document.querySelectorAll('.m-scroll'),function(el){
   var trackEl=el.querySelector('.strip-track');
   if(!trackEl) return;
   var wrapEl=el.parentNode;
@@ -4361,13 +4515,14 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
 
   var running=false, raf=null, last=0;
   var dragId=null, startX=0, startLeft=0;
-  var pos=0, ready=false, idleUntil=0, glideTo=null;
+  var pos=0, ready=false, idleUntil=0, glideTo=null, loop=true;
 
   function setWidth(){ return trackEl.scrollWidth/3; }
   /* Three identical copies, and we live in the MIDDLE one — scrollLeft is
      clamped at 0 by the browser, so with only two copies there is nothing to
      the left to wrap into and the reader just hits the first photo and stops. */
   function reframe(){
+    if(!loop) return;
     var W=setWidth();
     if(W<=0) return;
     if(pos>=2*W) pos-=W;
@@ -4375,12 +4530,28 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
     el.scrollLeft=pos;
   }
   /* Initialise on first use rather than from start(), so nothing depends on the
-     observer having fired before the reader touches it. */
+     observer having fired before the reader touches it.
+
+     ⚠ A BAND WHOSE PHOTOGRAPHS ALREADY FIT MUST NOT LOOP. Sport has three, and
+     on a wide monitor one set is narrower than the column — so the looping
+     version showed the end of set two and the start of set three at once, i.e.
+     the same photograph twice side by side, which reads as a bug rather than
+     as a loop. When the set fits, `.no-loop` hides the clones (they are the
+     aria-hidden ones, so the selector is exact), the drift stops and the dots
+     and arrows go, and the band is just a row. It is re-decided on load and on
+     resize, so it starts looping by itself the moment enough photographs are
+     added. */
   function ensure(){
     if(ready) return;
+    el.classList.remove('no-loop'); wrapEl.classList.remove('no-loop');
     var W=setWidth();
     if(W<=0) return;
     ready=true;
+    loop = W > el.clientWidth+8;
+    if(!loop){
+      el.classList.add('no-loop'); wrapEl.classList.add('no-loop');
+      pos=0; el.scrollLeft=0; return;
+    }
     if(dotsEl && !dotsEl.childNodes.length){
       for(var i=0;i<perSet;i++){
         var b=document.createElement('button');
@@ -4401,7 +4572,7 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
   /* One dot per photograph, with every photo currently ON SCREEN marked — a
      single dot would be a lie, the band shows four or five at a time. */
   function paint(){
-    if(!dotsEl||!dotsEl.childNodes.length) return;
+    if(!loop||!dotsEl||!dotsEl.childNodes.length) return;
     var W=setWidth(); if(W<=0) return;
     var f=((pos-W)%W+W)%W/W;
     var first=Math.floor(f*perSet);
@@ -4417,6 +4588,7 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
      elsewhere, a tap that never lifts — and the drift then stops for good. */
   function paused(){
     return dragId!==null || Date.now()<idleUntil ||
+           document.documentElement.classList.contains('lb-open') ||
            el.matches(':hover') || el.contains(document.activeElement);
   }
   /* ⚠ Do NOT write scrollLeft every frame. That made the band unscrollable by
@@ -4431,7 +4603,7 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
       pos+=(glideTo-pos)*Math.min(1,dt/120);
       if(Math.abs(glideTo-pos)<0.6){ pos=glideTo; glideTo=null; }
       reframe();
-    } else if(!paused() && !reduced){
+    } else if(loop && !paused() && !reduced){
       pos+=dt*0.022; reframe();
     }
     paint();
@@ -4441,7 +4613,7 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
   function stop(){ running=false; if(raf){ cancelAnimationFrame(raf); raf=null; } }
 
   el.addEventListener('scroll',function(){
-    if(dragId!==null||glideTo!==null) return;
+    if(!loop||dragId!==null||glideTo!==null) return;
     if(Math.abs(el.scrollLeft-pos)>1.5){ pos=el.scrollLeft; idleUntil=Date.now()+1200; reframe(); }
     paint();
   },{passive:true});
@@ -4489,6 +4661,97 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
     },{rootMargin:'200px'}).observe(el);
   }
   window.addEventListener('load',function(){ ready=false; ensure(); });
+  /* re-decide looping when the column changes width — the set may now fit, or
+     may now overflow */
+  window.addEventListener('resize',function(){ ready=false; ensure(); paint(); });
+});
+
+/* OPENING A PHOTOGRAPH FROM A BAND.
+   Shared by every .m-scroll, and by desktop as well as touch — it is one
+   component and there is no reason a mouse should get less of it.
+
+   ⚠ THE HARD PART IS NOT OPENING, IT IS NOT OPENING. Every band is also a
+   drag/swipe surface, so "the pointer went down on a photograph and came back
+   up on it" is true of a swipe as well as of a tap. Three things separate
+   them, and all three are needed:
+     - the card is captured on POINTERDOWN, before anything can retarget. The
+       mouse drag calls setPointerCapture on the band, which retargets every
+       later event to the band itself — so by pointerup, e.target is no longer
+       the photograph and asking then would always come back empty.
+     - any movement over ~7px in either axis disqualifies the gesture. A tap
+       does not travel; a flick does, from its first frame.
+     - pointercancel counts as movement. That is the event a touch scroll fires
+       when the browser takes the gesture over, and it arrives INSTEAD of
+       pointerup — so a swipe is doubly excluded: it is cancelled, and it moved.
+   `click` is deliberately not used at all: the band calls preventDefault() on
+   pointerdown for mouse drags, and whether a click still follows that is not
+   something to depend on. */
+(function(){
+  var lb=document.getElementById('lb');
+  if(!lb) return;
+  var lbImg=document.getElementById('lbImg'),
+      lbCap=document.getElementById('lbCap'),
+      lbX=document.getElementById('lbX'),
+      lastFocus=null;
+
+  function openShot(card){
+    var img=card.querySelector('img');
+    if(!img) return;
+    var cap=card.querySelector('.strip-cap');
+    /* the figure takes the photograph's own shape — see .lb-fig. The card
+       already carries it, computed from the file's width/height at build. */
+    var ar=card.style.getPropertyValue('--ar');
+    if(!ar){
+      var w=+img.getAttribute('width'), h=+img.getAttribute('height');
+      ar=(w>0&&h>0)?(w/h).toFixed(3):'1.5';
+    }
+    lb.style.setProperty('--ar',ar);
+    lbImg.src=img.currentSrc||img.src;
+    lbImg.alt=img.getAttribute('alt')||'';
+    /* the pin travels with the photograph; a band with no captions (Sport)
+       simply opens without one */
+    if(cap){ lbCap.innerHTML=cap.innerHTML; lbCap.hidden=false; }
+    else { lbCap.textContent=''; lbCap.hidden=true; }
+    lastFocus=document.activeElement;
+    lb.hidden=false;
+    document.documentElement.classList.add('lb-open');
+    lbX.focus({preventScroll:true});
+  }
+  function closeShot(){
+    if(lb.hidden) return;
+    lb.hidden=true;
+    document.documentElement.classList.remove('lb-open');
+    lbImg.removeAttribute('src');
+    if(lastFocus && lastFocus.focus) lastFocus.focus({preventScroll:true});
+    lastFocus=null;
+  }
+  /* the backdrop and the button both close; the photograph itself does not, so
+     a mis-tap on the picture cannot dismiss it */
+  lb.addEventListener('click',function(e){
+    if(e.target===lb || (e.target.closest && (e.target.closest('[data-close]') || e.target.closest('.lb-x'))))
+      closeShot();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' || e.key==='Esc') closeShot();
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.m-scroll'),function(band){
+    var dx=0, dy=0, moved=false, downCard=null;
+    band.addEventListener('pointerdown',function(e){
+      dx=e.clientX; dy=e.clientY; moved=false;
+      downCard=e.target.closest ? e.target.closest('.strip-card') : null;
+    });
+    band.addEventListener('pointermove',function(e){
+      if(downCard && (Math.abs(e.clientX-dx)>7 || Math.abs(e.clientY-dy)>7)) moved=true;
+    },{passive:true});
+    band.addEventListener('pointercancel',function(){ moved=true; downCard=null; });
+    band.addEventListener('pointerup',function(e){
+      var card=downCard; downCard=null;
+      if(!card || moved) return;
+      if(Math.abs(e.clientX-dx)>7 || Math.abs(e.clientY-dy)>7) return;
+      openShot(card);
+    });
+  });
 })();
 
 /* DRAGGING THE ROCKET.
@@ -4522,16 +4785,33 @@ function railScrollFromPointer(clientY){
   window.scrollTo(0, Math.max(0,Math.min(maxY, readerY-window.innerHeight*0.45)));
   requestFrame();
 }
-/* the mobile bar's own drag: straight percentage of the bar to percentage of
-   the document, matching how it is drawn */
+/* The mobile bar's drag inverts exactly the mapping onFrame() draws with —
+   pointer x -> which pair of nav items it falls between -> that position in
+   rail space -> the document position the reader anchor should sit at. A
+   straight "bar % -> document %" was what it used to do, and once the rocket
+   stopped being drawn that way it would have put the page somewhere onFrame
+   then disagreed with, i.e. the rocket sliding out from under the finger. */
 if(mrail && mrailRocket){
   var mDragId=null;
   function mScrollFromX(clientX){
-    var r=mrailTrack.getBoundingClientRect();
-    if(r.width<=0) return;
-    var f=Math.max(0,Math.min(1,(clientX-r.left)/r.width));
+    var M=mrailGeom();
+    if(!M) return;
+    var x=Math.max(0,Math.min(M.w, clientX-M.left));
+    var k=0;
+    while(k<M.c.length-2 && x>M.c[k+1]) k++;
+    var span=M.c[k+1]-M.c[k];
+    var f=span>0 ? Math.max(0,Math.min(1,(x-M.c[k])/span)) : 0;
+    var t=railPosFromMrail(k+f);
+    var ri=Math.max(0,Math.min(railSections.length-2,Math.floor(t)));
+    var rf=Math.max(0,Math.min(1,t-ri));
+    var a=railSections[ri], b=railSections[ri+1];
+    if(!a) return;
+    var yNow=window.scrollY;
+    var top=a.getBoundingClientRect().top+yNow;
+    var bottom=b ? b.getBoundingClientRect().top+yNow : top+a.offsetHeight;
+    var readerY=top+(bottom-top)*rf;
     var maxY=document.documentElement.scrollHeight-window.innerHeight;
-    window.scrollTo(0,f*maxY);
+    window.scrollTo(0,Math.max(0,Math.min(maxY, readerY-window.innerHeight*0.45)));
     requestFrame();
   }
   mrailRocket.addEventListener('pointerdown',function(e){

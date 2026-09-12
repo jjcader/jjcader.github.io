@@ -724,6 +724,29 @@ And `.entry-head` is a two-row `grid-template-areas` layout
 right-aligned on row one while the brief spans the full width on row two; the
 ≤820px query restacks the same areas into one column.
 
+**Every collapsed row carries a thumbnail of its own first photograph**,
+`.entry-thumb` — 64px on desktop, 56px below 1150, 52px below 900. Twelve rows
+of title-and-summary is a wall of text with nothing for the eye to hold onto;
+twelve pictures are twelve objects you can recognise without reading.
+
+⚠ **It is a CLONE of the entry's own first `.shots img`, built in JS — not
+twelve more `<img>` tags in the markup.** Twelve hand-written tags is twelve
+things to update when a photograph changes and twelve chances for a row to
+illustrate the wrong entry; a clone cannot go stale. `.has-thumb` is added only
+when a first photograph was actually found, so an entry with none keeps the
+plain head.
+
+⚠ **The head's grid gains a column, so every breakpoint that declares
+`grid-template-areas` needs a `.has-thumb` variant — there are three** (base,
+1150px, 899px), and missing one auto-places the thumb into whatever cell is
+free, which looks like a completely different bug. `--thumb` carries the size so
+the column and the box can never disagree.
+
+The clone keeps `loading="lazy"`, and that matters: `#projects` is below the
+fold, so the twelve full-size photographs are fetched only as the reader arrives
+at them — and they are the same files the open entry uses, so opening one is
+already cached. There are no separate thumbnail files and there should not be.
+
 The triple-nested `div` inside `.entry-body` is load-bearing: the expand
 animation uses `grid-template-rows: 0fr → 1fr` with `overflow:hidden` on the
 inner wrapper, which animates to auto height without JavaScript measurement.
@@ -1131,15 +1154,21 @@ build one, in order of preference:
    a rectangle (panel) on each rod end — exists purely for this layer, since
    nothing else in the UI needed a satellite. Both are drawn simply on
    purpose: at decoration scale, fine detail disappears anyway.
-3. **Hand-drawn one-offs** — trajectory arcs (dashed `stroke-dasharray:1.5 11`
+3. **Hand-drawn one-offs** — ⚠ **the riskiest of the three, and two of the four
+   built have now been cut.** A one-off that illustrates a *word* rather than a
+   thing that was actually built reads as corny: a cartoon robot beside
+   "Robotics & software" was removed on exactly that grounds, and a Rubik's cube
+   went with the old hobbies group. The two that survive —
+   `deco-telescope` and `deco-drone` — are pictures of the actual instruments
+   the entries beside them are about. **Build a one-off only when it depicts
+   something specific in the content; otherwise add an orbit ring.**
+   Trajectory arcs (dashed `stroke-dasharray:1.5 11`
    + `stroke-linecap:round` paths — small round dashes read as a dotted flight
    path; the earlier flat-cap `4 12` read as broken tick marks), or bespoke
    content-specific glyphs, each parked beside the thing it refers to rather
    than floating generically: the telescope-aimed-at-a-moon and the quadcopter
-   sit behind the JPL and swarm tiles in `#selected`, the robot behind the
-   robotics group. (A Rubik's cube one-off sat by the old hobbies group and
-   went with it.) Build a one-off when the content calls for something
-   *specific*, not as a default.
+   sit behind the JPL and swarm tiles in `#selected`. Build a one-off when the
+   content calls for something *specific*, not as a default.
 
 `deco-traj`'s arc has a filled dot at the launch end and a **hollow** ring at
 the other — give a trajectory two different markers, not two identical dots,
@@ -1331,7 +1360,7 @@ exception going forward, not the default.
 |---|---|
 | `#about` | `deco-orbit-about` *(warm)* |
 | `#selected` | `deco-orbit`, `deco-orbit-sm` *(warm)*, `deco-telescope` *(warm)*, `deco-drone` |
-| `#projects` | `deco-traj` *(warm)*, `deco-orbit-2` *(warm)*, `deco-orbit-left`, `deco-rocket-b`, `deco-orbit-mid`, `deco-robot` *(warm)*, `deco-waves-proj` |
+| `#projects` | `deco-traj` *(warm)*, `deco-orbit-2` *(warm)*, `deco-orbit-left`, `deco-rocket-b`, `deco-orbit-mid`, `deco-waves-proj` |
 | `#life` | `deco-orbit-life`, `deco-waves-top` — moved with the section; its wave is now separated from `#contact`'s by the whole contact section |
 | `#education` | `deco-orbit-4`, `deco-rocket`, `deco-orbit-3` *(warm)*, `deco-traj-2` *(warm)* |
 | `#contact` | `deco-waves`, `deco-orbit-contact` *(warm)* |
@@ -1608,7 +1637,7 @@ thin.
 | Category | Media class | What it is |
 |---|---|---|
 | Travelling | `.m-scroll` | the drag/swipe band — any number of photographs |
-| Sport | `.m-row` | N across, full width (a swipe scroller below 860px) |
+| Sport | `.m-scroll` `.band-short` | the same band, one notch shorter |
 | Adventure | `.m-row` | N across, full width (a swipe scroller below 860px) |
 
 A fourth chapter, **"Sitting still"**, was removed on request. Travelling leads
@@ -1667,6 +1696,25 @@ makes every photo SMALLER.** Row length buys no prominence; row *height* does.
 So the rich categories get taller blocks and the thin ones get one short row —
 the hierarchy on screen matches the hierarchy of what exists. If a category
 grows, give it a taller block, not a longer row.
+
+**A band's height is `--band`, a multiple of `--h`.** Travelling is the
+section's main event and keeps the full `1.85`; Sport takes `.band-short`
+(`1.45`), which is still taller than the wrapped row of half-width photographs
+it replaced. One number per band, and `--h` still scales all of them together.
+
+⚠ **A band whose photographs already fit its column must not loop, and this is
+handled in `ensure()`.** Sport has three photographs, and on a wide monitor one
+set is narrower than the media column — so the looping version showed the end of
+copy two and the start of copy three at once, i.e. the same photograph twice
+side by side, which reads as a bug rather than as a loop. When the set fits,
+`.no-loop` goes on the band *and* its wrapper: the clones are hidden (they are
+the `aria-hidden` ones, so the selector is exact), the drift stops, the dots and
+arrows go, the edge mask goes, and what is left **degrades into the page's
+standard justified row** — the same `flex:var(--ar) 1 0` as `.m-row` and
+`.shot-row` — so the photographs fill the column instead of stopping short of
+it. It is re-decided on load and on resize, so a band starts looping by itself
+the moment enough photographs are added. **Don't remove this when a band looks
+fine at your own window size** — it is width-dependent by nature.
 
 **Below 860px every `.m-row` becomes a swipe scroller too.** Wrapped to
 half-width pairs, Sport (five boxes) and Adventure (four) were three rows and
@@ -1742,6 +1790,12 @@ markup, and above all do not reintroduce the hand-duplicated track.
 injected, because without JS the caption still has to be styled. The pin is the
 only part that degrades.
 
+**The whole band runs once per `.m-scroll` on the page**, each in its own
+closure, so Travelling and Sport share every line of it and adding a third band
+is adding the markup. A card with **no `<figcaption>` simply gets no pill** —
+that is how Sport works, since a snowboarding photograph has nowhere it needs to
+claim to be, and its `alt` text is the description.
+
 **`deco-waves-top` was anchored to the strip band's top edge**; with that band
 gone it now sits at `bottom:78px` of `#life` itself, which keeps it the
 required ~40px+ clear of the section divider (see the `.deco-waves-proj` note
@@ -1781,10 +1835,31 @@ with a fill and a draggable rocket.
 **The labels are the point.** This is the only navigation on a phone, and a row
 of unlabelled planets is a puzzle, not a menu.
 
-⚠ **The mobile rail uses raw scroll percentage, and that is correct** — the
-opposite of the vertical rail's rule. The vertical rail interpolates between
-its dots' *measured* positions because it has dots the rocket has to land on;
-the mobile track has none, so a percentage is exactly what it wants.
+⚠ **The mobile rail does NOT use raw scroll percentage, and an earlier version
+of this note said the opposite.** It was wrong for exactly the reason
+§Progress rail gives for the vertical one: `#projects` is far longer than every
+other section, so a linear scroll fraction runs ahead of the labels — the rocket
+sat over "Edu & Exp" while the reader was still at the top of Everything. It now
+interpolates between the **nav items' measured centres**, the same way the
+vertical rail interpolates between its dots, so the rocket is always over the
+label for the section you are in. There is exactly one rule here and it holds in
+both orientations: **position the marker against the markers, never against a
+scroll fraction.**
+
+Two coordinate spaces are involved, because the rail's seven sections become the
+bar's six items (Education and Experience share one). `mrailPosFromRail()` and
+`railPosFromMrail()` convert between them and are exact inverses — **the drag
+runs the inverse**, or the rocket slides out from under the finger, which is the
+same trap `railScrollFromPointer()` documents.
+
+The item centres are **normalised so the first lands at 0 and the last at the
+track's full width**. Without that the fill would start ~9% in and stop ~90%
+short, because the labels are inset from the track's ends; forcing just the ends
+instead would make the rocket jump that inset the moment you left the very top.
+Normalising costs ~8px of alignment mid-track, which is invisible.
+
+The six rect reads are skipped entirely on desktop by testing
+`mrail.offsetParent !== null` — null while the bar is `display:none`.
 
 **The rocket is drawn inline, not as `<use href="#d-rocket">`**, for the same
 reason the desktop one is: its flame has to be a *filled* orange shape, and CSS
@@ -1813,18 +1888,8 @@ is twelve blocks of text and opening one used to produce a very long scroll.
   entries means you have lost your place entirely. It closes the **others**
   rather than toggling anything, so the entry you just clicked is never
   fighting it. Both the head click and `openEntry()` (the mosaic path) call it.
-- **A thumbnail on every collapsed row**, `.entry-thumb`, which turns a wall of
-  text into twelve recognisable objects. ⚠ **It is a CLONE of the entry's own
-  first `.shots img`, built in JS — not twelve more `<img>` tags in the
-  markup.** Twelve hand-written tags is twelve things to update when a
-  photograph changes and twelve chances for a row to illustrate itself with the
-  wrong picture; a clone cannot go stale. It is inserted at every width and
-  hidden by `.entry-thumb{display:none}` at the top level, because **a lazy
-  image inside a `display:none` box never enters the viewport**, so a desktop
-  reader downloads none of them — and turning it on for desktop is therefore
-  that one declaration. The head grid becomes
-  `"thumb title toggle" / "thumb meta meta" / "brief brief brief"`, scoped to
-  `.entry-head.has-thumb` so an entry with no photographs keeps the old grid.
+- **A thumbnail on every collapsed row** — see §Entries; it now runs at every
+  width, at 52px here and 64px on desktop.
 - **An open entry is re-ordered: prose → photographs → one final row with the
   links on the left and Close on the right.** It used to be four stacked bands,
   the last of which was a lot of empty paper with a Close button alone on it.
@@ -1882,6 +1947,53 @@ independent; don't try to do either with a `transform`, which fights
 - **Contact**: the type was already small; what was left was *space* — section
   padding, head margin, grid gap, field gaps, label margins and the textarea all
   come down together, because no single one of them was the problem.
+
+### The photo lightbox
+
+Tapping (or clicking) a photograph in any band opens it large over a darkened
+page. One overlay, `#lb`, reused by every `.m-scroll`, `hidden` until something
+opens it — so with JS off it never exists and the bands stay plain scrollers.
+
+**It is deliberately not full-screen.** A photograph filling a phone edge to
+edge reads as having replaced the page, and nothing on screen then says how to
+get back. A margin of darkened page around it keeps it an overlay. The close
+control is a solid 44px disc at the overlay's own corner rather than a glyph on
+the picture: it cannot be clipped by a tall photograph and it cannot land on a
+pale part of one. Backdrop click and Escape also close; **clicking the
+photograph itself does not**, so a mis-tap cannot dismiss it.
+
+⚠ **`.lb-fig` is sized by WIDTH plus an `aspect-ratio`, never by putting a
+`max-height` on the `<img>`.** A shrink-to-fit box around an image that is being
+limited by its *height* sizes itself from the image's **intrinsic** width, so
+the figure comes out wider than the picture inside it — and the caption, which
+is positioned against the figure, floats in empty space beside the photo. Giving
+the figure the photograph's own ratio (`--ar`, taken from the card it came from,
+which already has it from `build()`) makes the box exactly the picture, so
+bottom-left of the figure *is* bottom-left of the photograph. The location pill
+comes across unchanged, same class, one size up.
+
+⚠ **The hard part is not opening it, it is NOT opening it.** Every band is also
+a drag/swipe surface, so "the pointer went down on a photograph and came back up
+on it" is true of a swipe as well as of a tap. Three things separate them and
+all three are needed:
+
+1. **The card is captured on `pointerdown`.** The mouse drag calls
+   `setPointerCapture` on the band, which retargets every later event to the
+   band itself — so by `pointerup` `e.target` is no longer the photograph, and
+   asking then always comes back empty.
+2. **Movement over ~7px in either axis disqualifies the gesture.** A tap does
+   not travel; a flick does, from its first frame.
+3. **`pointercancel` counts as movement.** That is what a touch scroll fires
+   when the browser takes the gesture over, and it arrives *instead of*
+   `pointerup` — so a swipe is doubly excluded.
+
+`click` is deliberately not used at all: the band calls `preventDefault()` on
+`pointerdown` for mouse drags, and whether a click still follows that is not
+something worth depending on.
+
+The band's drift is paused while the overlay is open, via `paused()` checking
+`.lb-open` on `<html>` — state, not a counter, same rule as the rest of that
+function. There is no next/previous: the band is right there behind it.
 
 ### The contact form (`#contact`)
 
@@ -2167,7 +2279,6 @@ Ideas raised and deliberately parked, so they are not re-derived from scratch:
   unlimited supply of material and currently the same height as the two beside
   it. Levers available: `--h` (one variable sizes every media block), the
   `.strip-track` multiplier on it, and `.chapters`' derived right-reach.
-- **Thumbnails on collapsed entries at desktop width too.** The mechanism is
-  already built and shipped for phones; switching it on is deleting
-  `.entry-thumb{display:none}` and giving `.entry-head` a `thumb` column in its
-  wide grid.
+- **Next / previous inside the lightbox.** Not built: the band is right there
+  behind the overlay, so paging through it is a convenience rather than a gap.
+  Worth revisiting if Travelling grows past a dozen photographs.
