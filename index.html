@@ -1650,7 +1650,10 @@ section{overflow:hidden;overflow:clip}
    because it names the action instead of only claiming "clickable" — and the
    band underneath still shows grab/grabbing, which is the other thing you can
    do with it. A .ph card has no photograph in it and stays inert. */
-.strip-card,.shot,.shotbox,.facts-photo{cursor:zoom-in}
+/* touch-action:manipulation drops the browser's double-tap-to-zoom wait on
+   these boxes, which is what makes a tap open immediately instead of after the
+   ~300ms the browser spends deciding. Panning and pinch-zoom are unaffected. */
+.strip-card,.shot,.shotbox,.facts-photo{cursor:zoom-in;touch-action:manipulation}
 .strip-card.ph,.shotbox.ph{cursor:default}
 .m-scroll.is-dragging .strip-card{cursor:grabbing}
 .m-scroll img{pointer-events:none}
@@ -2327,7 +2330,6 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .tl-role{font-size:14.5px}
   .tl-when{font-size:10.5px}
   .tl-org{font-size:10.5px}
-  .tl-card p{font-size:12px;margin-top:4px}
   .tl-node{width:10px;height:10px;border-width:2px}
 
   .cv-strip{padding:12px 14px;gap:10px}
@@ -2440,7 +2442,14 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .tl-when{order:1}
   .tl-org{order:2}
   .tl-role{order:3;flex:0 0 100%;margin:2px 0 0}
-  .tl-card p{order:4;flex:0 0 100%;margin:3px 0 0}
+  /* ⚠ THE BLURBS GO. Ten cards each carrying two more lines made the timeline
+     the tallest block on a phone — roughly 390px of the section — and it is the
+     one block whose job is to be SCANNED: a spine of year · org · role is what
+     a reader actually wants from a CV strip, and the detail behind each row is
+     in Everything a screen above. It is a real content loss on mobile, taken
+     deliberately. The gentler version, if it is ever wanted back, is
+     -webkit-line-clamp:1 rather than display:none. */
+  .tl-card p{display:none}
 
   /* FOOTER */
   footer{padding-bottom:16px}
@@ -4985,22 +4994,52 @@ Array.prototype.forEach.call(document.querySelectorAll('.m-scroll'),function(el)
     if(e.key==='Escape' || e.key==='Esc') closeShot();
   });
 
-  var dx=0, dy=0, moved=false, downNode=null;
+  /* ⚠ TWO TRIGGERS, NOT ONE, AND THAT IS THE FIX FOR A REAL BUG. Opening only
+     on `pointerup` made taps intermittent on touch — a photograph would open
+     four times out of five and do nothing the fifth. The cause is that a
+     browser is free to fire `pointercancel` on a press it is still deciding
+     about (is this a tap or the start of a pan?) even when nothing ends up
+     scrolling, and a hard veto on cancel throws that tap away.
+
+     So `pointerup` and `click` are both allowed to open, and they cover each
+     other exactly where the other is weak:
+       - `click` is the reliable TOUCH discriminator, because the browser
+         guarantees it does NOT fire after a scroll gesture. It is useless for
+         the bands' MOUSE drag, though, which does produce a click.
+       - `pointerup` + the movement test is the reliable MOUSE discriminator,
+         and it fires even where a click is suppressed.
+     Whichever arrives first opens and clears `downNode`, so the other is a
+     no-op — and a swipe is still excluded by both: it moves, and (on touch) it
+     produces no click. `pointercancel` now only blocks the pointerup path; it
+     no longer throws the gesture away, because the click path can still vouch
+     for it.
+     The threshold is 10px, not 7: a finger tap drifts a few pixels and a swipe
+     travels far more, so there is a lot of room between them. */
+  var dx=0, dy=0, moved=false, cancelled=false, downNode=null;
+  function tryOpen(e, afterCancel){
+    var node=downNode;
+    if(!node) return;
+    if(moved || (cancelled && !afterCancel)){ downNode=null; return; }
+    if(e && (Math.abs(e.clientX-dx)>10 || Math.abs(e.clientY-dy)>10)){ downNode=null; return; }
+    downNode=null;
+    openShot(node);
+  }
   document.addEventListener('pointerdown',function(e){
-    dx=e.clientX; dy=e.clientY; moved=false; downNode=null;
+    dx=e.clientX; dy=e.clientY; moved=false; cancelled=false; downNode=null;
     if(!e.target.closest || lb.contains(e.target)) return;
     var node=e.target.closest(OPEN_SEL);
     if(node && shotImg(node)) downNode=node;
   },true);
   document.addEventListener('pointermove',function(e){
-    if(downNode && (Math.abs(e.clientX-dx)>7 || Math.abs(e.clientY-dy)>7)) moved=true;
+    if(downNode && (Math.abs(e.clientX-dx)>10 || Math.abs(e.clientY-dy)>10)) moved=true;
   },{passive:true,capture:true});
-  document.addEventListener('pointercancel',function(){ moved=true; downNode=null; },true);
-  document.addEventListener('pointerup',function(e){
-    var node=downNode; downNode=null;
-    if(!node || moved) return;
-    if(Math.abs(e.clientX-dx)>7 || Math.abs(e.clientY-dy)>7) return;
-    openShot(node);
+  document.addEventListener('pointercancel',function(){ cancelled=true; },true);
+  document.addEventListener('pointerup',function(e){ tryOpen(e,false); },true);
+  /* the second path: a click the browser was willing to dispatch is, on touch,
+     proof that no scroll happened — so it may open even after a cancel */
+  document.addEventListener('click',function(e){
+    if(lb.contains(e.target)) return;
+    tryOpen(e,true);
   },true);
 })();
 

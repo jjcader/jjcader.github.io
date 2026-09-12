@@ -2021,7 +2021,14 @@ see.
   has to be cleared with a shorthand here or it is dead air under every tile.
 - **Timeline**: four stacked rows per card become three — the year and the org
   are both mono metadata and share a line, which is what they would do on a
-  real CV. Done with flex `order`, not by editing the markup.
+  real CV. Done with flex `order`, not by editing the markup. ⚠ **The blurbs
+  are then hidden entirely below 640px.** Ten cards each carrying two more lines
+  made the timeline the tallest block on a phone (~390px of the section), and it
+  is the one block whose job is to be *scanned*: a spine of year · org · role is
+  what a reader wants from a CV strip, and the detail behind each row sits in
+  Everything a screen above. **It is a real content loss on mobile, taken
+  deliberately** — the gentler version, if it is ever wanted back, is
+  `-webkit-line-clamp:1` rather than `display:none`.
 - **Life**: `.m-row` becomes a swipe scroller (see §Fun stuff & life).
 - ⚠ **`.site-nav a` out-specifies `.nav-edu`.** The menu was listing Education,
   Education & Experience *and* Experience all three at once, because
@@ -2116,22 +2123,36 @@ mysteriously would not open on one device was the symptom.
 
 ⚠ **The hard part is not opening it, it is NOT opening it.** Every band is also
 a drag/swipe surface, so "the pointer went down on a photograph and came back up
-on it" is true of a swipe as well as of a tap. Three things separate them and
-all three are needed:
+on it" is true of a swipe as well as of a tap.
 
-1. **The node is captured on `pointerdown`.** The mouse drag calls
-   `setPointerCapture` on the band, which retargets every later event to the
-   band itself — so by `pointerup` `e.target` is no longer the photograph, and
-   asking then always comes back empty.
-2. **Movement over ~7px in either axis disqualifies the gesture.** A tap does
-   not travel; a flick does, from its first frame.
-3. **`pointercancel` counts as movement.** That is what a touch scroll fires
-   when the browser takes the gesture over, and it arrives *instead of*
-   `pointerup` — so a swipe is doubly excluded.
+**The node is captured on `pointerdown`.** The mouse drag calls
+`setPointerCapture` on the band, which retargets every later event to the band
+itself — so by `pointerup` `e.target` is no longer the photograph, and asking
+then always comes back empty.
 
-`click` is deliberately not used at all: the band calls `preventDefault()` on
-`pointerdown` for mouse drags, and whether a click still follows that is not
-something worth depending on.
+⚠ **There are TWO triggers, `pointerup` AND `click`, and that is the fix for a
+real bug.** Opening only on `pointerup`, with `pointercancel` as a hard veto,
+made taps **intermittent on touch** — a photograph would open four times out of
+five and do nothing the fifth. A browser is free to fire `pointercancel` on a
+press it is still deciding about (tap, or the start of a pan?) even when nothing
+ends up scrolling, and a hard veto throws that tap away. The two triggers cover
+each other exactly where the other is weak:
+
+- **`click` is the reliable TOUCH discriminator**, because the browser
+  guarantees it does not fire after a scroll gesture. It is useless for the
+  bands' *mouse* drag, which does produce a click.
+- **`pointerup` plus the movement test is the reliable MOUSE discriminator**,
+  and it fires even where a click is suppressed.
+
+Whichever arrives first opens and clears `downNode`, so the other is a no-op. A
+swipe is still excluded by both: it moves, and on touch it produces no click.
+`pointercancel` now only blocks the `pointerup` path.
+
+**The movement threshold is 10px**, not 7 — a finger tap drifts a few pixels, a
+swipe travels far more, and there is a lot of room between them.
+`touch-action:manipulation` on the boxes drops the browser's double-tap-to-zoom
+wait, so a tap opens immediately instead of after the ~300ms it spends deciding.
+Panning and pinch-zoom are unaffected.
 
 The band's drift is paused while the overlay is open, via `paused()` checking
 `.lb-open` on `<html>` — state, not a counter, same rule as the rest of that
@@ -2487,11 +2508,20 @@ Ideas raised and deliberately parked, so they are not re-derived from scratch:
   while you read, so making it tappable costs no new chrome.
 - **Swipe left/right on the mobile rail** to step sections — the track is
   already a drag surface, and it is the gesture people try.
-- **Merging the entry dateline onto the title row** on mobile. Needs a shorter
-  mobile form of the string ("2018 · EYP"), i.e. a second copy of the text in
-  the markup, which is why it has not been done.
 - **Wire the contact form's endpoint** (still `PASTE-YOUR-FORM-ENDPOINT-HERE`,
   so it falls back to opening a mail client) and the GoatCounter code.
+- **Merge Education and Experience on DESKTOP too.** Mobile already shows one
+  "Education & Experience" item; desktop's rail and nav still split them, so the
+  two versions of the site describe a different structure. The timeline genuinely
+  is one object with two headings. Flagged 2026-09-12, not yet decided.
+- **The reveal-on-click email**, revisit: it toggles, which cost it the
+  `mailto:` (a link cannot also be a toggle). If launching a mail client from
+  `#contact` turns out to matter, the alternative is keeping the `<a>` and
+  adding a small separate × to hide it.
+- **Merging the entry dateline onto the title row** on mobile (Everything, the
+  `.entry-meta` line): a full-width row on each of twelve entries, ~216px. Needs
+  a shortened mobile form of each string ("2018 · EYP"), i.e. a second copy of
+  the text in the markup, which is the only reason it has not been done.
 - **Next / previous inside the lightbox.** Not built: the band is right there
   behind the overlay, so paging through it is a convenience rather than a gap.
   Worth revisiting if Travelling grows past a dozen photographs.
