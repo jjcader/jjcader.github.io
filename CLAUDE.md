@@ -489,18 +489,21 @@ re-check that the content's right edge still lands left of the rail.
    back, the cheapest ~66px is folding the lead-in sentence into a `<cite>`
    under the quote, not shortening either of the two paragraphs beneath.
 4. **`#selected`** — "Highlights": mosaic of four featured cards (image + caption).
-5. **`#projects`** — "Everything": three category cards, then three grouped lists of entries.
+5. **`#projects`** — "Everything": three category cards, then three grouped
+   lists totalling twelve entries.
 6. **`#education`** — owns the whole timeline: one spine, education left,
    experience right, reverse-chronological, with `#experience` as an anchor
    partway down it. Then the CV strip.
-8. **`#life`** — "Life": four photo chapters. It sits **after** the timeline
-   and before Contact, moved there so the work sections run uninterrupted; the
-   trade is that hobbies are now the last thing before the contact form.
+8. **`#life`** — "Life": three photo chapters (Travelling, Sport, Adventure).
+   It sits **after** the timeline and before Contact, moved there so the work
+   sections run uninterrupted; the trade is that hobbies are now the last thing
+   before the contact form.
 9. *(no separate experience section — see the timeline in §5)*
 10. **`#contact`** — a click-to-reveal email box and the message form side by
    side, plus socials.
-10. **Footer** — location, centred icon links (under the divider gear),
-    copyright plus a "no template" credit.
+10. **Footer** — location, centred icon links (under the divider gear), and the
+    copyright line. The "designed and built from scratch · no template" credit
+    was removed on request.
 11. Floating: right-hand progress rail, back-to-top button.
 
 Sections carry `EDIT ME #n` comments marking where content goes.
@@ -577,7 +580,7 @@ groups (the `#projects` section note said "Five areas"). Re-check the
 section that just got ~10% shorter.
 
 An earlier version used filter chips over one flat list. It read as a shopping
-list: sixteen rows of identical weight with nothing for the eye to hold onto.
+list: a dozen rows of identical weight with nothing for the eye to hold onto.
 Chunking into named groups with large serif headings fixed it. **Do not
 reintroduce a single flat list.**
 
@@ -609,7 +612,7 @@ says the same words at full length immediately below, and only one copy is ever
 on screen. **When editing an entry's prose, re-cut its summary from the new
 first sentence**, or the two will disagree.
 
-The tag chips that used to sit beside it are gone. Across fifteen rows they
+The tag chips that used to sit beside it are gone. Across twelve rows they
 were noise — the summary already says what the work involved, and the tags
 repeated it in a second typeface.
 
@@ -690,23 +693,26 @@ the lead photo, 1.0 for the pair). **Every one has to be set to the real file's
 it — or the box is back to cropping. That is the single job that converts this
 mechanism from scaffolding into the thing that stops photos being mangled.
 
-**Every entry with photos ends its prose with caption lines named for grid
-position**, `<p class="shot-cap"><span>Top:</span> …</p>` and so on — Top /
-Bottom left / Bottom right for three, Left / Right for two, Photo for one.
-They are mono at `--fs-meta` like every other caption on the site, and the
-`<span>` carries the accent colour so the label reads as a label. They sit in
-the TEXT column, not under `.shots`, so they run down the left of the photo
-grid rather than beneath it.
+**A caption sits ON its own photograph**, as a `<span class="shot-cap">` inside
+the `.shot` — a small blurred chip, bottom-left, mono and white.
 
-⚠ `.shot-cap` and `.links-label` are both scoped as `.entry-content .shot-cap`
-rather than as bare classes. `.entry-content p` is a class **plus** an element
-selector, so it out-specifies a single class and silently takes back `color`
-and `margin` — which it had already quietly done to `.links-label`. **Anything
-styling a `<p>` inside an open entry has to clear that same bar.**
+It used to be a list of `<p class="shot-cap">` lines in the text column, keyed
+to grid *position*: "Top:", "Bottom left:", "Bottom right:". That has to be
+rewritten every time a photograph is added, removed or reordered, and it
+started saying the wrong thing outright the moment mobile began showing only
+the first two photographs of each entry. A caption attached to its own picture
+cannot fall out of sync with anything, and on a phone it costs no vertical
+space at all. **Don't go back to a positional list.**
+
+⚠ `.links-label` is scoped as `.entry-content .links-label` rather than as a
+bare class. `.entry-content p` is a class **plus** an element selector, so it
+out-specifies a single class and silently takes back `color` and `margin` —
+which it had already quietly done once. **Anything styling a `<p>` inside an
+open entry has to clear that same bar.**
 
 **The summary and the tags live in the HEAD, not the body, and are visible
 while the entry is collapsed.** They used to sit inside `.entry-content`, which
-meant a reader scanning `#projects` saw fifteen bare titles and had to click
+meant a reader scanning `#projects` saw twelve bare titles and had to click
 each one to learn anything — the exact wrong bargain for someone who is
 scanning, because they don't click. They were **moved, not copied**: there is
 still one copy of every entry's text.
@@ -721,10 +727,13 @@ right-aligned on row one while the brief spans the full width on row two; the
 The triple-nested `div` inside `.entry-body` is load-bearing: the expand
 animation uses `grid-template-rows: 0fr → 1fr` with `overflow:hidden` on the
 inner wrapper, which animates to auto height without JavaScript measurement.
-**Do not flatten those divs.** Entry ids run `e1`–`e17` **with `e10` and
-`e15` retired** (they belonged to the deleted Making group — see below); new
-ones continue past `e17` rather than reusing a retired number, and must be
-unique, because tiles and photo cards target them.
+**Do not flatten those divs.** There are **twelve** entries, and their ids are
+deliberately not contiguous: `e1`–`e8`, `e11`–`e13`, `e18`. The gaps are retired
+numbers (`e10`/`e15` belonged to the deleted Making group, and others went with
+entries that were cut); **new ones continue past the highest, never reusing a
+retired number**, and must be unique, because the mosaic tiles target them by
+id. Counts to keep in sync when adding or removing one: the group's
+`.group-count`, and its card's leading number *and* `data-n`.
 
 **Group heads are `position:sticky` under the site header** (`top:78px`, the
 header's own height — change one and change the other), so you always know
@@ -745,40 +754,20 @@ toggle is now also a bordered disc rather than a bare `+` so it reads as
 pressable. The close button returns focus to the entry head, so a keyboard
 reader isn't dumped at the top of the next entry.
 
-### Photo strip
+### Photo strip (removed — see `#life`)
 
-A CSS marquee: `.strip-track` animates `translateX(0 → -50%)`. **The card set
-must be duplicated exactly once** for the loop to be seamless. Pauses on hover
-and on keyboard focus-within. Each card is a button with `data-target` and opens
-an entry, same as the tiles.
+**There is no longer a Snapshots band.** It was a full-bleed CSS marquee
+between sections; it was removed and its card set became Travelling's media
+inside `#life`, which deleted a whole component along with its two ugliest
+rules (the `margin-right` at two breakpoints that kept its cards out from under
+the fixed rail, and the `display:none` below 700px that cut it on touch because
+a `:hover`-paused marquee cannot be paused with a finger).
 
-This actually shipped broken for a while — the track held **one** set of seven,
-so `-50%` scrolled the cards off and then showed a card's width of empty track
-before snapping. If the strip ever shows a gap, count the cards: it is almost
-always that the two halves are no longer identical. Removing a card means
-removing **both** copies.
-
-`.strip-viewport` carries `padding-block` so cards have room for their
-`translateY(-4px)` hover lift. Without it the lift pushed each card's top edge
-past the clip boundary and the orange hover outline lost its top side — which
-looks like a broken border, not a clipping problem. This works *because*
-`overflow:hidden` clips at the padding edge (see the `margin-right` note below,
-which exploits the same fact in the opposite direction).
-
-The strip is deliberately full-bleed (no `.wrap`), which means it sits under
-the fixed progress rail's screen column whenever the rail is visible.
-`.strip-viewport` gets `margin-right` (270px full mode / 135px compact mode,
-matching the rail's footprint above with a safety margin) to keep cards from
-sliding under it. **This has to be `margin-right`, not `padding-right`** —
-`overflow:hidden` clips at the padding edge, so content in the padding area is
-still visible; only shrinking the box itself (which `margin-right` does, on a
-`width:auto` block) actually narrows what's visible.
-
-Hidden below 700px (`.strip{display:none}`) — the marquee only pauses on
-`:hover`/`:focus-within`, neither of which fires on touch, so cards drift
-while you're trying to tap one. That's a real broken interaction, not just an
-unpolished one, so it's cut for now rather than left live pending a full
-mobile pass.
+`.strip`, `.strip-viewport` and `.strip-label` are gone. `.strip-track`,
+`.strip-card` and `.strip-cap` live on as the travelling band — and it is a
+**real scroller now, not a marquee**: `overflow-x` plus JS writing `scrollLeft`,
+so it can be dragged, flicked and swiped while still drifting on its own. See
+§"Fun stuff & life" for how it works and how to add a photograph to it.
 
 ### Progress rail
 
@@ -955,7 +944,7 @@ means `.rail::before` (the separator, `top:50%`) centres on the planets too.
 
 Fill height and rocket `top` are **not** driven by raw page-scroll percentage —
 that was tried first and drifted out of sync with the dots, because sections
-have very different heights (`#projects` alone holds all seventeen entries) so
+have very different heights (`#projects` alone holds all twelve entries) so
 a linear scroll fraction doesn't land on the right dot. Instead, each frame:
 find which section contains a fixed anchor point 45% down the viewport,
 compute how far through that section the reader is, then interpolate between
@@ -1562,9 +1551,17 @@ the next frame's measurement and drift steadily off.
   **own** rAF, not `onFrame()`: that loop is scroll-driven and idle whenever
   the page isn't moving, which is precisely when this needs to run. The loop
   starts on pointer entry and stops once the ring has caught up, so nothing
-  spins in the background. Gated on `(pointer: fine)` — on a touch screen
-  there is no cursor to follow and the ring would just strand itself wherever
-  you last tapped. It sits at `z-index:1` with `.hero-copy` at `2`, so it
+  spins in the background. ⚠ It is gated on the **event's `pointerType`**, not
+  on a `(pointer: fine)` media query. The query asks what the device's
+  *primary* input is, which is the wrong question twice over: a touch-screen
+  laptop with a mouse plugged in answers "coarse" and never gets the ring, and
+  so does any browser in responsive/device-emulation mode — which is how this
+  was last looked at, and why it was reported as having disappeared entirely.
+  The event says what actually moved, so a mouse gets the ring and a finger
+  does not, on every device. **Don't put the media query back.** The ring also
+  carries a `drop-shadow` under a near-white stroke, because it crosses a
+  bright sky on one of the two hero photographs and a 50%-white hairline is
+  invisible there. It sits at `z-index:1` with `.hero-copy` at `2`, so it
   passes *behind* the name.
 - **Envelope flap** — the mail icon's flap folds open on hover. CSS still
   cannot reach inside a `<use>` shadow tree to transform one path of a symbol,
@@ -1603,18 +1600,20 @@ the next frame's measurement and drift steadily off.
 
 ### Fun stuff & life (`#life`)
 
-**Four chapters, and each one's LAYOUT is chosen by how many photographs that
-category actually has.** The counts are wildly uneven — Travelling unlimited,
-Adventure about five, Sport three or four, the quiet one two or three — and a
-four-up grid of equal cards promises four equal things while delivering one
-strong and two thin.
+**Three chapters, in this order, and each one's LAYOUT is chosen by how many
+photographs that category actually has.** The counts are wildly uneven, and a
+grid of equal cards promises equal things while delivering one strong and two
+thin.
 
 | Category | Media class | What it is |
 |---|---|---|
-| Adventure | `.m-row` | three across, full width |
-| Travelling | `.m-scroll` | the contained marquee — any number |
-| Sport | `.m-row` | three across, full width |
-| Sitting still | `.m-row` | three across, full width |
+| Travelling | `.m-scroll` | the drag/swipe band — any number of photographs |
+| Sport | `.m-row` | N across, full width (a swipe scroller below 860px) |
+| Adventure | `.m-row` | N across, full width (a swipe scroller below 860px) |
+
+A fourth chapter, **"Sitting still"**, was removed on request. Travelling leads
+because it is the one with an unlimited supply, and Adventure closes because its
+single story — the Balkans ride — is the best last thing to read.
 
 **Every row is now `--ar`-driven and every chapter is full width.** `.m-row.port`
 and the `.chapter-pair` band are both gone. The pair existed to save ~200px by
@@ -1669,9 +1668,18 @@ So the rich categories get taller blocks and the thin ones get one short row —
 the hierarchy on screen matches the hierarchy of what exists. If a category
 grows, give it a taller block, not a longer row.
 
-**Sport and Sitting still share one `.chapter-pair` band** rather than taking a
-full-width row each. That is worth ~200px, and it says "these two are the minor
-ones" without a word of explanation.
+**Below 860px every `.m-row` becomes a swipe scroller too.** Wrapped to
+half-width pairs, Sport (five boxes) and Adventure (four) were three rows and
+two rows of photographs respectively — the most vertical space anything in Life
+took on a phone, and the cost grew with every photograph added, which is exactly
+backwards. As a single scrolling row the cost is fixed no matter how many there
+are. It is pure CSS — `overflow-x:auto`, `scroll-snap-type:x proximity`, the
+same edge mask `.m-scroll` uses, and `flex:0 0 auto` + a fixed `height` so each
+box's width still comes from its own `--ar`. No JS: four or five photographs is
+a swipe, not a band that needs drift, dots and a loop.
+⚠ `min-width:0` on the row is what makes it scroll rather than overflow the
+page — same grid-item trap as `.m-scrollwrap`, and it has now caused this bug
+twice.
 
 **Every media block sizes off one variable, `--h`, so no chapter can balloon as
 photos are added.** The section runs ~850–970px of chapters against the ~620px
@@ -1691,17 +1699,48 @@ single `vw` expression is wrong somewhere.** The negative margin is now
 literally the slack — `100vw − --rule-inset − .wrap's left offset − --wrap +
 --gutter` — with 40px kept as clearance, applied only at ≥1520px (below that
 the 900–1519px band already adds 100px of `padding-right` for the rail and
-there is nothing spare), and capped at 120px because `.m-hero` has a fixed
-height and an unbounded media column turns its 3:2 photo into a letterbox.
+there is nothing spare), and capped at 120px — an unbounded media column makes
+the travelling band's cards wider than the photographs behind them deserve.
 
 **The Snapshots strip is gone as a band; its marquee lives on as Travelling's
 media.** That removed a whole component and its two ugliest rules: the
 full-bleed strip needed `margin-right` at two breakpoints to keep cards out
 from under the fixed rail, and being inside `.wrap` deletes that problem
-entirely. `.strip-track` / `.strip-card` / `.strip-media` / `.strip-cap` are
-kept and reused; `.strip`, `.strip-label` and `.strip-viewport` are deleted.
-⚠ **Both halves of the track must stay identical** — the loop is a
-`translateX(-50%)`, so an odd card count makes it jump.
+entirely. `.strip-track` / `.strip-card` / `.strip-cap` are kept and reused;
+`.strip`, `.strip-label`, `.strip-viewport` and `.strip-media` are deleted.
+
+**ADDING A TRAVEL PHOTOGRAPH IS ONE LINE IN ONE PLACE, and that is the whole
+design of this component.** It used to be four things: the same `<figure>`
+written out three times (the track needs three identical copies to loop in both
+directions), each carrying a hand-computed `--ar`, plus a `.strip-media`
+wrapper and an inline pin `<svg>`. Every one of those was a way to get it
+wrong, and the shape of the band is the last place anyone should be doing
+arithmetic. So the authored markup is now:
+
+```html
+<figure class="strip-card"><img src="images/travel-9.jpg" alt="" loading="lazy"
+  decoding="async" width="1200" height="1600"><figcaption class="strip-cap">Lisbon,
+  Portugal</figcaption></figure>
+```
+
+and the travel IIFE does the rest at runtime, in a `build()` that runs before
+anything else touches the track:
+
+- **`--ar` is computed from the `<img>`'s own `width`/`height` attributes** and
+  written onto the card, so the aspect ratio is never a number anybody works
+  out. The card carries `aspect-ratio:var(--ar,1.333)` against the track's
+  shared height, so its *width* falls out of its own photograph's shape.
+- **The pin glyph is prepended** to `.strip-cap`.
+- **The set is cloned to three identical copies**, the extras `aria-hidden`
+  (it is the same eight photographs again; a screen reader should hear them
+  once, not three times). `perSet` is the authored count, read before cloning.
+
+⚠ **Keep it this way.** If a future change needs something else per card, give
+it a `data-` attribute and read it in `build()` — do not push work back into the
+markup, and above all do not reintroduce the hand-duplicated track.
+⚠ The `.strip-cap` class stays in the authored markup even though the pin is
+injected, because without JS the caption still has to be styled. The pin is the
+only part that degrades.
 
 **`deco-waves-top` was anchored to the strip band's top edge**; with that band
 gone it now sits at `bottom:78px` of `#life` itself, which keeps it the
@@ -1711,6 +1750,138 @@ in §6 for why that distance matters).
 The old `.life-card` / `.life-grid` CSS and the text-only `.no-photo` variant
 were deleted rather than left dead — this is a file someone reads top to
 bottom.
+
+### The mobile layout (below 900px)
+
+**Vertical space is the only currency on a phone, and every decision in this
+block is paying for it.** The desktop page is designed around a 1400px column
+with a fixed rail in the right margin; at 440px none of that exists, the header
+has to carry the navigation instead, and a layout tuned for the wide column
+reads as shouting. ⚠ **Everything mobile lives inside a `max-width` query and
+nothing may leak upward** — there is a validation pass for this (walk the CSS
+tracking `@media` nesting and assert every mobile selector is inside one), and
+it is worth re-running after any mobile change.
+
+Four breakpoints are in play and they are not interchangeable:
+
+| Query | What it is |
+|---|---|
+| `≤980px` | the nav collapses into the menu; Education and Experience merge into one item |
+| `≤899px` | the vertical rail is gone, so `.mrail` appears — and the accordion and the entry thumbnails match it, because below here the page *is* the compact layout |
+| `≤860px` | the timeline stacks into one column; `.m-row` becomes a scroller |
+| `≤700px` / `≤640px` | the hero drops its second photograph; the whole type and spacing scale comes down |
+
+#### `.mrail` — the rail turned on its side
+
+The vertical rail is hidden below 900px, which left a phone with no progress
+indicator, no rocket and no sense of place. `.mrail` is the same idea parked
+under the header: a row of the same planets with their labels, then a 3px track
+with a fill and a draggable rocket.
+
+**The labels are the point.** This is the only navigation on a phone, and a row
+of unlabelled planets is a puzzle, not a menu.
+
+⚠ **The mobile rail uses raw scroll percentage, and that is correct** — the
+opposite of the vertical rail's rule. The vertical rail interpolates between
+its dots' *measured* positions because it has dots the rocket has to land on;
+the mobile track has none, so a percentage is exactly what it wants.
+
+**The rocket is drawn inline, not as `<use href="#d-rocket">`**, for the same
+reason the desktop one is: its flame has to be a *filled* orange shape, and CSS
+cannot reach inside a `<use>` shadow tree to style one path of a symbol. It is
+the same geometry, rotated 90° so it flies the way the page moves — which puts
+the exhaust behind it, over the part of the track already covered. `svg` gets
+`overflow:visible` so the flame can trail past the 26px disc onto the fill.
+The flame length comes from the same velocity-driven `--flame` the rail rocket
+uses, at **1.1× instead of 2.1×**: the icon is a quarter the size and lying on
+its side, so the desktop multiplier would throw a flame halfway across the
+header.
+
+⚠ **The header's dead space was `.header-inner{height:78px}`, a fixed height** —
+padding on `.wrap` could never win against it. It is `height:auto` now. If the
+header ever looks too tall again, look for a fixed height before adding
+negative margins.
+
+#### `#projects` on a phone
+
+This is the section the layout fights hardest, because twelve collapsed entries
+is twelve blocks of text and opening one used to produce a very long scroll.
+
+- **One open entry at a time.** `closeOtherEntries()` closes the others when an
+  entry opens, gated on `matchMedia('(max-width:899px)')`. Deliberately *not*
+  global: on a desktop there is room to compare two, and on a phone five open
+  entries means you have lost your place entirely. It closes the **others**
+  rather than toggling anything, so the entry you just clicked is never
+  fighting it. Both the head click and `openEntry()` (the mosaic path) call it.
+- **A thumbnail on every collapsed row**, `.entry-thumb`, which turns a wall of
+  text into twelve recognisable objects. ⚠ **It is a CLONE of the entry's own
+  first `.shots img`, built in JS — not twelve more `<img>` tags in the
+  markup.** Twelve hand-written tags is twelve things to update when a
+  photograph changes and twelve chances for a row to illustrate itself with the
+  wrong picture; a clone cannot go stale. It is inserted at every width and
+  hidden by `.entry-thumb{display:none}` at the top level, because **a lazy
+  image inside a `display:none` box never enters the viewport**, so a desktop
+  reader downloads none of them — and turning it on for desktop is therefore
+  that one declaration. The head grid becomes
+  `"thumb title toggle" / "thumb meta meta" / "brief brief brief"`, scoped to
+  `.entry-head.has-thumb` so an entry with no photographs keeps the old grid.
+- **An open entry is re-ordered: prose → photographs → one final row with the
+  links on the left and Close on the right.** It used to be four stacked bands,
+  the last of which was a lot of empty paper with a Close button alone on it.
+  ⚠ The reordering uses `order`, which needs every piece to be a flex item of
+  the *same* box — and the prose and the links sit one level down inside a
+  wrapper `div`. `display:contents` on that wrapper dissolves it, exactly the
+  way `.shot-row` is dissolved. ⚠ **`display:contents` does not change what
+  selectors match**: `.entry-content > p` still matches nothing, because the
+  paragraphs' parent is still the wrapper. That is why the 100% flex-basis goes
+  on `.entry-content p` and is then taken back off `.links-label`, which is also
+  a `<p>` and has to stay inline inside its own row.
+- **Two photographs, side by side, on one row** — `display:contents` on
+  `.shot-row` again, then `:nth-child` rules hide everything past the first two.
+  Because the caption chips sit *on* their photographs (see §Entries), nothing
+  has to be rewritten when the count changes.
+- **The type comes down**: entry prose 12.5px, summaries 12px.
+
+#### The hero on a phone
+
+`.hero-half-b` and the seam are dropped — a 2/3–1/3 split is meaningless at
+440px — and `.hero-copy` moves to the TOP of the hero so the photograph has the
+bottom to itself.
+
+⚠ **`object-position` cannot move the subject any further left, and this cost
+several passes.** `0%` already aligns the photograph's own left edge with the
+panel's, and the subject lives at that edge; there is nothing beyond it to give.
+The only way further left is to **crop the photograph's left off**, which is
+done in CSS rather than with a second file: the `<img>` is made `width:114%` and
+pulled back with `margin-left:-14%`, so that much picture hangs outside
+`.hero-half`'s `overflow:hidden` and is thrown away. The element still ends
+flush with the panel's right edge (`-14% + 114% = 100%`), so no strip of
+background can ever show.
+
+**`height` on that image is the SCALE dial.** `object-fit:cover` fills the box's
+*height*, so `height:110%` was rendering the whole photograph 10% larger than it
+needed to be; `100%` shrinks the subject by that 10% and, because a smaller
+photograph is a narrower one, walks him a little further left again for free.
+The cost is that he rises ~27px in the frame — that is the trade for the size,
+not a bug. **These two levers (crop by overflow, scale by `height`) are
+independent; don't try to do either with a `transform`, which fights
+`object-position` and produces something nobody can predict.**
+
+#### Elsewhere
+
+- **Highlights**: the "Learn more" pill leaves the flow and becomes a badge on
+  the photograph's corner — the tile is already a `<button>`, so the pill was
+  only ever an affordance. **It keeps its words**; a lone arrow in a circle is a
+  guess, and "learn more" is two words wide. ⚠ `.tile-desc`'s `20px` bottom
+  margin was the clearance that pill needed while it was still in flow, so it
+  has to be cleared with a shorthand here or it is dead air under every tile.
+- **Timeline**: four stacked rows per card become three — the year and the org
+  are both mono metadata and share a line, which is what they would do on a
+  real CV. Done with flex `order`, not by editing the markup.
+- **Life**: `.m-row` becomes a swipe scroller (see §Fun stuff & life).
+- **Contact**: the type was already small; what was left was *space* — section
+  padding, head margin, grid gap, field gaps, label margins and the textarea all
+  come down together, because no single one of them was the problem.
 
 ### The contact form (`#contact`)
 
@@ -1809,24 +1980,30 @@ duplicated, and it is a deliberate trade, not an oversight.
 
 ## 8. Images
 
-Live in `images/`, referenced relatively. Expected names include `hero.jpg`,
-`jpl-1..3`, `hermes-1..3`, `helios-1..3`, `mit-1..3`, `swarm-1..3`,
-`valves-1..3`, `micropump-1..3`, `snackbot-1..3`, `cnc-1..3`, `polana-1..3`,
-`eyp-1..3`, `teaching-1..3`, `swimming-1..3`, `balkans-1..3`, `puzzles-1..3`,
-and `strip-1..8`.
+Live in `images/`, referenced relatively. Roughly 50 files, ~7.5MB, none over
+400KB: `hero-3` and `hero-5` (the two halves of the hero), `jpl-*`, `hermes-*`,
+`helios-*`, `mit-*`, `swarm-*`, `valves-1..4`, `micropump-*`, `snackbot-*`,
+`hackathon-*`, `polana-*`, `eyp-*`, `travel-1..8`, `balkans-1..4`,
+`snowboard-*`, `surf-*`, `swimming-1`.
 
-**The Everything + mosaic photographs are in** (28 files, `jpl-*` through
-`valves-*`), resized to a 1600px long side at quality 82, EXIF stripped, and
-wired up with real `width`/`height` and a real `--ar` per box. The whole set
-went 47MB → 2.9MB. Still outstanding: `hero.jpg`, `og-card.jpg`, `teaching-1`,
-and everything `#life` needs.
+**Everything the Everything list, the mosaic and Life need is in**, resized to a
+1600px long side at quality 82, EXIF stripped, and wired up with real
+`width`/`height` and a real `--ar` per box. ⚠ **The travelling band now READS
+those `width`/`height` attributes to compute its `--ar`**, so a wrong number
+there is a mis-shaped card, not just a layout shift — there is a check worth
+re-running (open each referenced file with Pillow and compare against the
+attributes).
 
-⚠ **Every one of those `<img>` tags carries `alt=""`.** That is a deliberate
-placeholder, not a decision — an empty alt makes a screen reader skip the image
-silently, which is the least-bad holding state, but these are content
-photographs and every one needs a real description. `EDIT ME` in an alt would
-be read aloud, which is why it isn't there. The `.shot-cap` caption lines are
-empty for the same reason.
+Still outstanding: `og-card.jpg` (1200×630, absolute URL — see below),
+`teaching-1.jpg`, `chess-1.jpg`, `snowboard-2.jpg`, `surf-2.jpg`.
+`cubes-1.jpg` and `books-1.jpg` sit unused on disk.
+
+**The `alt` text and the `.shot-cap` chips are written.** The only images left
+with `alt=""` are the eight travelling cards, and that one is **deliberate**:
+each is a `<figure>` whose `<figcaption>` is the location pin, and that caption
+is already the image's text alternative — describing it twice is worse than
+describing it once. If an `<img>` anywhere else on the page has an empty `alt`,
+it is missing, not finished.
 
 ⚠ **ImageMagick is not installed on the Linux machine** and `sudo apt install`
 was not run. The resize pipeline used Pillow instead, which is already there —
@@ -1970,3 +2147,27 @@ them there too.** That is the one place on the site where "recolour by editing
 - Do not let decorative elements compete with content.
 - Do not add scroll listeners outside the existing `rAF` loop.
 - Do not put personal contact details beyond email and LinkedIn into the repo.
+- Do not hand-duplicate the travelling track, or hand-write an `--ar` on a
+  travel card — both are built in JS from one authored list.
+- Do not write per-entry thumbnail `<img>` tags; they are cloned from the
+  entry's own first photograph.
+- Do not gate a pointer effect on a `(pointer: fine)` media query; test the
+  event's `pointerType`.
+- Do not let a mobile rule sit outside a `max-width` query.
+
+---
+
+## 14. In the hopper
+
+Ideas raised and deliberately parked, so they are not re-derived from scratch:
+
+- **A justified-mosaic gallery** for `#selected`, pending more photographs.
+- **Making the travelling band bigger**, on both desktop and mobile. Raised
+  2026-09-12 as the next thing to brainstorm: it is the one chapter with an
+  unlimited supply of material and currently the same height as the two beside
+  it. Levers available: `--h` (one variable sizes every media block), the
+  `.strip-track` multiplier on it, and `.chapters`' derived right-reach.
+- **Thumbnails on collapsed entries at desktop width too.** The mechanism is
+  already built and shipped for phones; switching it on is deleting
+  `.entry-thumb{display:none}` and giving `.entry-head` a `thumb` column in its
+  wide grid.

@@ -634,11 +634,16 @@ a{color:var(--accent)}
    rather than over it. Its own slow spin lives on the inner <svg> because the
    wrapper's transform is written every frame by JS — the same split used
    throughout the decorative layer. */
-.hero-orbit{position:absolute;left:0;top:0;width:120px;height:120px;margin:-60px 0 0 -60px;
-  pointer-events:none;z-index:1;opacity:0;color:rgba(255,255,255,.5);
+.hero-orbit{position:absolute;left:0;top:0;width:132px;height:132px;margin:-66px 0 0 -66px;
+  pointer-events:none;z-index:1;opacity:0;color:rgba(255,255,255,.78);
   transition:opacity .45s var(--ease);will-change:transform}
 .hero-orbit.show{opacity:1}
-.hero-orbit svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:1.1;
+/* The ring crosses both photographs, and half of one of them is a bright sky —
+   a 50%-white hairline simply vanished there and the whole effect was reported
+   as gone. A dark drop-shadow under a near-white stroke reads on either, which
+   is cheaper than trying to pick one colour that works on both. */
+.hero-orbit svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:1.3;
+  filter:drop-shadow(0 0 3px rgba(0,0,0,.55));
   animation:spin-slow 90s linear infinite}
 .hero-veil{position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(6,26,34,.42) 0%,rgba(6,26,34,.06) 40%,rgba(6,26,34,.72) 100%)}
@@ -1304,6 +1309,13 @@ section{overflow:hidden;overflow:clip}
 .entry-title{grid-area:title;font-family:var(--serif);font-weight:400;
   font-size:clamp(20px,1.75vw,27px);line-height:1.16;letter-spacing:-.015em}
 .entry-brief{grid-area:brief;max-width:96ch}
+/* A thumbnail of the entry's own first photograph, shown on the collapsed row
+   below 900px (see the mobile block). It is CLONED from that photograph by the
+   JS rather than written into the markup, so it cannot go stale, and it is
+   hidden rather than absent up here — a lazy image inside a display:none box
+   never enters the viewport, so a desktop reader does not download twelve of
+   them. Turning it on for desktop too is this one declaration. */
+.entry-thumb{display:none}
 /* The collapsed line is the OPENING of the entry's own first paragraph, cut
    off with an ellipsis — so clicking continues the sentence rather than
    restating it. It is therefore hidden once the entry is open: the body says
@@ -1551,8 +1563,9 @@ section{overflow:hidden;overflow:clip}
    The drift is JS writing scrollLeft rather than a transform keyframe,
    because a transform animation and native scrolling fight each other: you
    cannot drag something that is being animated out from under you.
-   Both halves of the track stay identical — the drift wraps at half the
-   scroll width, which is what makes the loop seamless in either direction. */
+   The track holds THREE identical copies and we live in the middle one, so it
+   loops in both directions; the copies are cloned at runtime from one authored
+   set, so there is nothing to keep in sync by hand. */
 .m-scroll{overflow-x:auto;overflow-y:hidden;cursor:grab;
   scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;
   mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
@@ -1599,16 +1612,15 @@ section{overflow:hidden;overflow:clip}
 .chapter-media.m-scroll{min-width:0}
 .strip-track{display:flex;gap:10px;width:max-content;height:calc(var(--h) * 1.85)}
 /* Mixed shapes on purpose — half phone-landscape, half phone-portrait, so the
-   band reads as a camera roll rather than a product grid. The card's WIDTH
-   comes from its aspect ratio against a shared height, which is why the track
-   carries the height and the card does not. */
-.strip-card{position:relative;flex:0 0 auto;height:100%;overflow:hidden;margin:0;
+   band reads as a camera roll rather than a product grid. The track carries the
+   HEIGHT and the card carries the aspect ratio, so each card's WIDTH falls out
+   of its own photograph's shape and nothing is ever cropped or stretched.
+   --ar is written onto the card by JS from the <img>'s width/height attributes
+   — the author never computes it (see "adding a travel photograph" below). */
+.strip-card{position:relative;flex:0 0 auto;height:100%;aspect-ratio:var(--ar,1.333);
+  overflow:hidden;margin:0;
   background:var(--paper-2);border:1px solid var(--rule);border-radius:3px}
-.strip-media{height:100%;display:grid;place-items:center;text-align:center;padding:10px;
-  overflow:hidden}
-.strip-media{aspect-ratio:var(--ar,1.333)}
-.strip-media img{width:100%;height:100%;object-fit:cover}
-.strip-media .label{font-size:9.5px;line-height:1.5}
+.strip-card img{width:100%;height:100%;object-fit:cover;display:block}
 /* The location tag FLOATS on the photograph, bottom-left. A band across the
    foot of the card eats picture; a chip sits on it. Orange pin on a dark veil
    is a graphic, not text, which is why it may use --accent-warm. */
@@ -1629,8 +1641,27 @@ section{overflow:hidden;overflow:clip}
   /* one column: each chapter's text goes back above its photos, the pair
      unstacks, and the hero drops its fixed height so nothing letterboxes */
   .chapter{grid-template-columns:1fr;gap:14px}
-  .m-row{flex-wrap:wrap}
-  .m-row .shotbox{min-width:calc(50% - 5px)}
+  /* SPORT AND ADVENTURE BECOME SWIPE SCROLLERS, like Travelling. They were
+     wrapping to two and three rows of half-width photographs, which made them
+     the most vertical space anything in Life was taking on a phone — and the
+     cost grows with every photograph added, which is exactly backwards. One
+     row that scrolls costs the same whether there are three photographs or ten.
+     ⚠ min-width:0 is what makes it scroll. A grid item defaults to
+     min-width:auto — "never shrink below your content" — and the content here
+     is a row wider than the column, so without it the row overflows the page
+     instead of scrolling inside it. Same trap as .m-scrollwrap above.
+     No JS: these are four or five photographs, not an endless band, so a
+     native swipe with snap points is the whole interaction. The mask is the
+     affordance — a photograph fading off the edge says there is more. */
+  .chapter-media.m-row{flex-wrap:nowrap;min-width:0;overflow-x:auto;overflow-y:hidden;
+    scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;gap:7px;
+    mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
+  .chapter-media.m-row::-webkit-scrollbar{display:none}
+  /* height fixed, width from the photograph's own --ar — nothing is cropped,
+     and a portrait simply takes less of the row than a landscape does */
+  .m-row .shotbox{flex:0 0 auto;height:calc(var(--h) * 1.2);width:auto;
+    scroll-snap-align:start}
 }
 
 /* ============ TIMELINE — boxed cards ============ */
@@ -2002,10 +2033,23 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     background:linear-gradient(90deg,var(--accent-2),var(--accent))}
   .mrail-rocket{position:absolute;top:50%;left:0;width:26px;height:26px;padding:0;
     transform:translate(-50%,-50%);border:0;background:var(--paper);border-radius:50%;
-    color:var(--accent);cursor:grab;touch-action:none;z-index:4;
+    color:var(--accent);cursor:grab;touch-action:none;z-index:4;overflow:visible;
     box-shadow:0 2px 10px -4px rgba(16,97,125,.5);transition:left .12s linear}
+  /* rotated 90deg so the rocket flies the way the page moves, which puts the
+     flame BEHIND it, over the part of the track already covered */
   .mrail-rocket svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:1.5;
-    transform:rotate(90deg)}
+    transform:rotate(90deg);overflow:visible}
+  /* Shared transform-origin in view-box units, not a percentage: the two paths
+     have different bounding boxes, so under transform-box:fill-box the same
+     "50% 0" would mean two different points and the core would creep out of
+     the flame as it stretched. overflow:visible above lets the exhaust trail
+     past the 26px disc onto the filled part of the track, which is the whole
+     charm of it. */
+  .mrail-rocket .flame,.mrail-rocket .flame-core{transform-box:view-box;
+    transform-origin:12px 17.3px;stroke:none;
+    transform:scale(calc(1 + (var(--flame,1) - 1)*.35),var(--flame,1))}
+  .mrail-rocket .flame{fill:var(--accent-warm)}
+  .mrail-rocket .flame-core{fill:color-mix(in srgb,var(--accent-warm) 55%,var(--paper))}
   .mrail.is-dragging .mrail-rocket{transition:none;cursor:grabbing}
 }
 
@@ -2034,22 +2078,47 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
      0%, the photo's own edge, so there was nothing left to give there. It also
      buys ~60px of the vertical space everything else here is fighting for. */
   .hero{height:min(62vh,500px)}
-  /* Horizontal and vertical are moved by DIFFERENT mechanisms here, and mixing
-     them in one transform is what made this take four passes. A landscape
-     photo in a portrait box is cropped horizontally only:
-       - across, object-position does the work — 0% is the photo's own left
-         edge, which is as far left as the subject can possibly go;
-       - down, there is no vertical overflow to position against, so the image
-         is made TALLER than its box (116%). Everything inside scales up and
-         the box shows the upper part of it, which walks the subject down the
-         frame and enlarges him at the same time.
-     A transform doing both at once fights object-position and the result is
-     unpredictable — don't reintroduce one. */
+  /* ⚠ object-position CANNOT move him any further left, and that is why this
+     took several passes. 0% already aligns the photograph's own left edge with
+     the panel's, and the subject lives at that edge — there is nothing beyond
+     it to give. The only way further left is to CROP the photograph's left off,
+     which is what these two lines do without a second file: the <img> is made
+     wider than the panel and pulled left by the difference, so the leftmost 14%
+     of the panel's worth of picture hangs outside .hero-half's overflow:hidden
+     and is thrown away. The element still ends flush with the panel's right
+     edge (-14% + 114% = 100%), so no strip of background can ever show.
+
+     height goes back to 100% for the scale: object-fit:cover fills the box's
+     HEIGHT, so 110% was rendering the whole photograph 10% larger. Dropping it
+     shrinks the subject by that 10% and, because a smaller photograph is also
+     a narrower one, walks him a little further left again for free. The cost is
+     that he also rises ~27px in the frame, which is the trade for the size. */
   .hero-half-a{--zoom:1;--pan:0%}
-  .hero-half-a img{object-position:0% center;height:110%;transform:none}
+  .hero-half-a img{object-position:0% center;height:100%;transform:none;
+    width:114%;margin-left:-14%}
   .hero-copy{inset:0 0 auto 0;padding-top:clamp(12px,3vh,26px);padding-bottom:0}
   .hero-copy > .wrap{padding-left:calc(var(--gutter) + 4vw);padding-right:var(--gutter)}
   .hero-creds{gap:6px}
+}
+
+/* --- collapsed entries get a thumbnail of their own first photograph ---
+   Seventeen collapsed rows on a phone is a wall of text with nothing for the
+   eye to hold onto. A picture per row turns the list into objects you can
+   recognise at a glance, and it costs about 10px of row height because the
+   title and the dateline together are already nearly as tall as the thumb.
+   Scoped to 899px to match the accordion and the mobile rail: below that the
+   page is the compact layout, above it the full one. */
+@media (max-width:899px){
+  .entry-head.has-thumb{grid-template-columns:52px 1fr 30px;
+    grid-template-areas:"thumb title toggle" "thumb meta meta" "brief brief brief";
+    column-gap:11px;row-gap:5px;align-items:start}
+  .entry-thumb{grid-area:thumb;display:block;align-self:start;
+    width:52px;height:52px;border-radius:4px;overflow:hidden;
+    border:1px solid var(--rule);background:var(--paper-2)}
+  .entry-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  /* the toggle is a 30px disc against a title that starts at the top of the
+     row, so it needs nudging back onto the title's optical centre */
+  .entry-head.has-thumb .entry-toggle{margin-top:-2px}
 }
 
 /* --- the whole scale down --- */
@@ -2065,8 +2134,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .hero-more{padding:9px 16px}
   .section-name{font-size:clamp(19px,6vw,26px)}
   .section-sub,.section-note{font-size:clamp(13.5px,4vw,15.5px)}
-  .about-text p:first-child{font-size:clamp(14.5px,4.2vw,17px)}
-  .about-quote{font-size:13.5px}
+  .about-text p:first-child{font-size:clamp(14px,4vw,16px)}
+  .about-text p{font-size:13px}
+  .about-quote{font-size:12.5px}
   .facts li{padding:7px 0}
   .facts .k{min-width:82px}
 
@@ -2083,9 +2153,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
   .entry-head{padding:11px 2px}
   .entry-title{font-size:clamp(16px,4.6vw,19px)}
-  .entry-summary{font-size:12.5px}
+  .entry-summary{font-size:12px}
   .entry-content{padding:4px 2px 20px}
-  .entry-content p{font-size:13.5px}
+  .entry-content p{font-size:12.5px}
 
   /* THE TIMELINE — one card was taking the full width of the screen and most
      of its height. Everything comes down together; the card is the only thing
@@ -2133,40 +2203,74 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
   .chapter-title{font-size:16px}
   .chapter-blurb{font-size:12.5px}
 
-  /* HIGHLIGHTS — the Learn more pill was costing a whole row per card. It
-     becomes a badge on the photograph's corner, which costs nothing: the tile
-     is already a <button>, so the pill was only ever an affordance, not the
-     control. */
+  /* HIGHLIGHTS — the Learn more pill was costing a whole row per card, so it
+     moves onto the photograph's corner, where it costs nothing: the tile is
+     already a <button>, and the pill was only ever an affordance. It keeps its
+     WORDS there. A lone arrow in a circle is a guess — "learn more" is the one
+     instruction on the card and it is two words wide, so it rides along.
+     ⚠ .tile-desc's 20px bottom margin was the clearance the pill needed while
+     it was still in flow at the foot of the card. With the pill gone from the
+     flow that margin is just dead air under the last line of every tile, and
+     it has to be cleared HERE — the shorthand is deliberate, so nothing of the
+     desktop margin survives. */
   .tile{position:relative}
   .tile-media{height:clamp(110px,30vw,150px)}
-  .tile-body{padding:9px 11px 11px}
-  .tile-desc{margin-top:5px}
+  .tile-body{padding:9px 11px 10px}
+  .tile-desc{margin:5px 0 0}
   .tile-go{position:absolute;top:7px;right:7px;z-index:2;margin:0;
-    width:28px;height:28px;padding:0;gap:0;font-size:0;justify-content:center;
-    border-radius:50%;background:rgba(255,253,250,.93);
-    border-color:color-mix(in srgb,var(--accent) 34%,transparent)}
-  .tile-go .ic{width:13px;height:13px}
+    padding:4px 7px 4px 9px;gap:5px;font-size:8.5px;letter-spacing:.09em;
+    border-width:1px;background:rgba(255,253,250,.94);
+    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+    border-color:color-mix(in srgb,var(--accent) 38%,transparent)}
+  .tile-go .ic{width:11px;height:11px}
 
   /* OPEN ENTRIES — the 3px hover bar sits at left:0 of .entry, and the content
      had 2px of left padding, so the bar ran straight through the first
      character of every line. */
   .entry-head{padding:11px 2px 11px 11px}
-  .entry-content{padding:4px 2px 18px 11px}
+
+  /* THE OPEN ENTRY IS RE-ORDERED AND RE-PACKED, because on a phone it was
+     costing four stacked bands — prose, then a Links row, then the photographs,
+     then a lot of empty paper and a Close button alone on a line of its own.
+     It becomes prose → photographs → one final row carrying the links on the
+     left and Close on the right, which is two fewer bands of vertical space
+     and reads better besides: the links and the way out are the two things you
+     want when you have finished reading, so they belong together at the foot.
+
+     ⚠ The reordering is done with `order`, which needs every piece to be a
+     flex item of the SAME box — and the prose and the links sit one level down,
+     inside a wrapper div. `display:contents` on that wrapper dissolves it so
+     its children become flex items of .entry-content directly, exactly the way
+     .shot-row is dissolved below. Nothing moves in the DOM.
+     ⚠ `display:contents` does NOT change what selectors match, so
+     `.entry-content > p` still matches nothing here — the paragraphs' parent is
+     still the wrapper. That is why the 100% basis is set on `.entry-content p`
+     and then taken back off .links-label, which is also a <p> and must stay on
+     one line inside its own row. */
+  .entry-content{display:flex;flex-wrap:wrap;align-items:flex-start;
+    padding:4px 2px 14px 11px}
+  .entry-content > div:first-child{display:contents}
+  .entry-content p{flex:0 0 100%}
+  .shots{order:1;flex:0 0 100%;flex-direction:row;gap:6px}
   /* two photographs, side by side, on one row. display:contents dissolves the
      .shot-row wrappers so every shot becomes a flex item of .shots and the
      justified sizing still works across them. */
-  .shots{flex-direction:row;gap:6px}
   .shot-row{display:contents}
   .shots > .shot-row:nth-child(n+3){display:none}
   .shots > .shot-row:nth-child(2) > .shot:nth-child(n+2){display:none}
   .shot .shot-cap{font-size:9px;padding:3px 5px;left:5px;right:5px;bottom:5px;border-radius:5px}
-  /* the links block becomes one line instead of three */
-  .links-block{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;
-    margin-top:9px;padding-top:7px}
-  .entry-content .links-label{margin:0}
+  /* the links block becomes one line instead of three, and shares that line
+     with Close — flex:1 1 auto lets it take whatever the button leaves */
+  .links-block{order:2;flex:1 1 auto;display:flex;align-items:baseline;flex-wrap:wrap;
+    gap:4px 10px;margin:9px 0 0;padding-top:7px}
+  .entry-content .links-label{flex:0 0 auto;margin:0}
   .entry-links{gap:4px 12px}
   .entry-links a{font-size:11px;padding-bottom:2px}
-  .entry-close{margin-top:8px;padding:5px 11px;font-size:9.5px;gap:6px}
+  /* 16px = the links block's own 9px margin plus its 7px of padding, so the
+     button's top edge lands on the links' first baseline rather than on the
+     rule above them */
+  .entry-close{order:3;flex:0 0 auto;align-self:flex-start;margin:16px 0 0 auto;
+    padding:5px 11px;font-size:9.5px;gap:6px}
 
   /* TIMELINE — four stacked rows per card (year / role / org / blurb) became
      three: the year and the org are both mono metadata and sit on one line
@@ -2368,7 +2472,17 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
     <div class="mrail-track">
       <div class="mrail-fill" id="mrailFill"></div>
       <button class="mrail-rocket" id="mrailRocket" type="button" aria-label="Drag to scroll the page">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#d-rocket"/></svg>
+        <!-- Drawn inline rather than as <use href="#d-rocket">, for the same
+             reason the desktop rail's rocket is: the flame has to be a FILLED
+             orange shape, and CSS cannot reach inside a <use> shadow tree to
+             style one path of a symbol. Same geometry as the rail rocket. -->
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2.4c2.7 2.4 4.2 5.6 4.2 9 0 2-.6 4-1.7 5.6H9.5C8.4 15.4 7.8 13.4 7.8 11.4c0-3.4 1.5-6.6 4.2-9z"/>
+          <circle cx="12" cy="9.5" r="1.8"/>
+          <path d="M8.3 14.4 9.5 17 6.9 20.8Z M15.7 14.4 14.5 17 17.1 20.8Z"/>
+          <path class="flame" d="M12 17.3c1.7 1.8 2.8 3.5 2.8 4.9a2.8 2.8 0 0 1-5.6 0c0-1.4 1.1-3.1 2.8-4.9z"/>
+          <path class="flame-core" d="M12 19c.9 1 1.5 1.9 1.5 2.7a1.5 1.5 0 0 1-3 0c0-.8.6-1.7 1.5-2.7z"/>
+        </svg>
       </button>
     </div>
   </div>
@@ -3431,8 +3545,9 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
      own --ar; the row re-divides itself and gets SHORTER, because the height
      comes from the aspect ratios rather than being fixed. So more photos is
      how you make a row smaller, not fewer.
-     ⚠ The scroller's cards must stay DUPLICATED — the drift wraps at half the
-     scroll width, so both halves have to be identical or it jumps.
+     The scroller's cards are authored ONCE and cloned to three copies by the
+     JS; adding a travel photograph is one line in one place (see the note on
+     the track itself).
      ================================================================= -->
 <section id="life">
   <div class="deco deco-orbit-life" aria-hidden="true"><svg viewBox="0 0 400 400">
@@ -3460,114 +3575,32 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 
     <div class="chapters reveal">
 
-      <!-- TRAVELLING — any number of photos, each with its own --ar and a place
-           on the pin. BOTH HALVES OF THE TRACK MUST STAY IDENTICAL: the loop is
-           a translateX(-50%), so an odd count makes it jump. -->
+      <!-- TRAVELLING — any number of photographs, in one list. -->
       <article class="chapter">
         <div>
           <p class="chapter-cat">Travelling</p>
           <h3 class="chapter-title">Most of the world I have yet to see</h3>
           <p class="chapter-blurb">These are some of the highlights so far.</p>
         </div>
+        <!-- ⚠ ADDING A TRAVEL PHOTOGRAPH IS ONE LINE, HERE, AND NOTHING ELSE.
+             Copy any line below, change the file, the two numbers (the image's
+             real pixel width and height) and the place name. That is the whole
+             job. The card's shape is computed from those two numbers, the pin
+             glyph is added for you, and the three identical copies the loop
+             needs are cloned at runtime — so there is exactly ONE list to edit
+             and nothing to keep in sync. Page order is line order.
+             Resize the file first: max 1600px on the long side, under 400KB. -->
         <div class="m-scrollwrap">
         <div class="chapter-media m-scroll">
           <div class="strip-track">
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-1.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Osaka, Japan</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:1.333">
-              <div class="strip-media"><img src="images/travel-2.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1200"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Grand Canyon, USA</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-3.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Yosemite, USA</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.562">
-              <div class="strip-media"><img src="images/travel-4.jpg" alt="" loading="lazy" decoding="async" width="900" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Joshua Tree, USA</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-5.jpg" alt="" loading="lazy" decoding="async" width="768" height="1024"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Sicily, Italy</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-6.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Dubrovnik, Croatia</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.636">
-              <div class="strip-media"><img src="images/travel-7.jpg" alt="" loading="lazy" decoding="async" width="1017" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Budapest, Hungary</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-8.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Belgrade, Serbia</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-1.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Osaka, Japan</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:1.333">
-              <div class="strip-media"><img src="images/travel-2.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1200"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Grand Canyon, USA</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-3.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Yosemite, USA</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.562">
-              <div class="strip-media"><img src="images/travel-4.jpg" alt="" loading="lazy" decoding="async" width="900" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Joshua Tree, USA</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-5.jpg" alt="" loading="lazy" decoding="async" width="768" height="1024"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Sicily, Italy</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-6.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Dubrovnik, Croatia</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.636">
-              <div class="strip-media"><img src="images/travel-7.jpg" alt="" loading="lazy" decoding="async" width="1017" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Budapest, Hungary</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-8.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Belgrade, Serbia</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-1.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Osaka, Japan</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:1.333">
-              <div class="strip-media"><img src="images/travel-2.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1200"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Grand Canyon, USA</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-3.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Yosemite, USA</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.562">
-              <div class="strip-media"><img src="images/travel-4.jpg" alt="" loading="lazy" decoding="async" width="900" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Joshua Tree, USA</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-5.jpg" alt="" loading="lazy" decoding="async" width="768" height="1024"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Sicily, Italy</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-6.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Dubrovnik, Croatia</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.636">
-              <div class="strip-media"><img src="images/travel-7.jpg" alt="" loading="lazy" decoding="async" width="1017" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Budapest, Hungary</figcaption>
-            </figure>
-            <figure class="strip-card" style="--ar:0.75">
-              <div class="strip-media"><img src="images/travel-8.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"></div>
-              <figcaption class="strip-cap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Belgrade, Serbia</figcaption>
-            </figure>
+            <figure class="strip-card"><img src="images/travel-1.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"><figcaption class="strip-cap">Osaka, Japan</figcaption></figure>
+            <figure class="strip-card"><img src="images/travel-2.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1200"><figcaption class="strip-cap">Grand Canyon, USA</figcaption></figure>
+            <figure class="strip-card"><img src="images/travel-3.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"><figcaption class="strip-cap">Yosemite, USA</figcaption></figure>
+            <figure class="strip-card"><img src="images/travel-4.jpg" alt="" loading="lazy" decoding="async" width="900" height="1600"><figcaption class="strip-cap">Joshua Tree, USA</figcaption></figure>
+            <figure class="strip-card"><img src="images/travel-5.jpg" alt="" loading="lazy" decoding="async" width="768" height="1024"><figcaption class="strip-cap">Sicily, Italy</figcaption></figure>
+            <figure class="strip-card"><img src="images/travel-6.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"><figcaption class="strip-cap">Dubrovnik, Croatia</figcaption></figure>
+            <figure class="strip-card"><img src="images/travel-7.jpg" alt="" loading="lazy" decoding="async" width="1017" height="1600"><figcaption class="strip-cap">Budapest, Hungary</figcaption></figure>
+            <figure class="strip-card"><img src="images/travel-8.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1600"><figcaption class="strip-cap">Belgrade, Serbia</figcaption></figure>
           </div>
         </div>
           <button class="m-nav m-nav-prev" type="button" aria-label="Previous photos"><svg class="ic"><use href="#i-arrow-right"/></svg></button>
@@ -3730,6 +3763,47 @@ footer{position:relative;margin-top:calc(var(--gear-size)/-2);
 <script>
 var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/* 1a — A THUMBNAIL ON EVERY COLLAPSED ROW, cloned from the entry's own first
+   photograph rather than written into the markup. Twelve more hand-written
+   <img> tags would be twelve more things to update whenever a photograph
+   changes, and they could silently disagree with the entry they label; a clone
+   cannot. It is inserted at every width and hidden by CSS above 900px — a lazy
+   image inside a display:none box never enters the viewport, so a desktop
+   reader does not pay for it.
+   Inserted FIRST in the head so it reads before the title; aria-hidden because
+   it is the same photograph the open entry shows and says nothing new. */
+document.querySelectorAll('.entry').forEach(function(entry){
+  var head=entry.querySelector('.entry-head'), src=entry.querySelector('.shots img');
+  if(!head || !src || head.querySelector('.entry-thumb')) return;
+  var img=document.createElement('img');
+  img.src=src.getAttribute('src');
+  img.alt=''; img.loading='lazy'; img.decoding='async';
+  var box=document.createElement('span');
+  box.className='entry-thumb';
+  box.setAttribute('aria-hidden','true');
+  box.appendChild(img);
+  head.insertBefore(box,head.firstChild);
+  head.classList.add('has-thumb');
+});
+
+/* 1b — ONE OPEN ENTRY AT A TIME, on narrow screens only. With five entries
+   open on a phone you have lost your place entirely and the group headings are
+   a screen apart; on a desktop there is room to compare two, so the behaviour
+   is deliberately not global. The breakpoint matches the mobile rail and the
+   thumbnails above — below it, the page is the compact layout.
+   It closes the OTHERS rather than toggling anything, so the entry you just
+   clicked is never fighting this. */
+var soloEntries=window.matchMedia('(max-width:899px)');
+function closeOtherEntries(keep){
+  if(!soloEntries.matches) return;
+  document.querySelectorAll('.entry[data-open="true"]').forEach(function(other){
+    if(other===keep) return;
+    other.dataset.open='false';
+    var h=other.querySelector('.entry-head');
+    if(h) h.setAttribute('aria-expanded','false');
+  });
+}
+
 /* 1 — expand / collapse entries, plus the ignition ring (see .igniting).
    The class is removed and re-added with a forced reflow between, so that
    opening and closing in quick succession restarts the animation instead of
@@ -3740,6 +3814,7 @@ document.querySelectorAll('.entry-head').forEach(function(btn){
     var entry=btn.closest('.entry'), open=entry.dataset.open==='true';
     entry.dataset.open=String(!open);
     btn.setAttribute('aria-expanded',String(!open));
+    if(!open) closeOtherEntries(entry);
     if(reduced) return;
     entry.classList.remove('igniting','closing');
     void entry.offsetWidth;
@@ -3777,6 +3852,7 @@ function openEntry(id){
   var entry=body.closest('.entry');
   entry.dataset.open='true';
   entry.querySelector('.entry-head').setAttribute('aria-expanded','true');
+  closeOtherEntries(entry);
   entry.scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'});
   entry.classList.add('flash');
   setTimeout(function(){ entry.classList.remove('flash'); },1300);
@@ -3827,12 +3903,16 @@ document.querySelectorAll('.tl-row').forEach(function(item){
    whenever the page isn't moving, which is exactly when this needs to run.
    The loop starts on pointer entry and stops once the ring has caught up and
    faded, so nothing spins in the background.
-   Skipped entirely on coarse pointers — there is no cursor to follow on a
-   touch screen, and the ring would just be stranded wherever you last tapped. */
+   ⚠ It is gated on the EVENT's pointerType, not on a `(pointer: fine)` media
+   query. The query asks what the device's PRIMARY input is, which is the wrong
+   question twice over: a touch-screen laptop with a mouse plugged in answers
+   "coarse" and never gets the ring, and so does any browser in a responsive /
+   device-emulation mode — which is exactly how this was last looked at, and
+   why it read as having disappeared. The event itself says what actually moved,
+   so a mouse gets the ring and a finger does not, on every device. */
 (function(){
   var hero=document.querySelector('.hero'), ring=document.getElementById('heroOrbit');
   if(!hero || !ring || reduced) return;
-  if(!window.matchMedia('(pointer: fine)').matches) return;
   var tx=0, ty=0, x=0, y=0, inside=false, running=false, placed=false;
   function loop(){
     /* ease toward the pointer rather than tracking it exactly — the lag is
@@ -3843,6 +3923,7 @@ document.querySelectorAll('.tl-row').forEach(function(item){
     else running=false;
   }
   hero.addEventListener('pointermove',function(e){
+    if(e.pointerType && e.pointerType!=='mouse') return;
     var r=hero.getBoundingClientRect();
     tx=e.clientX-r.left; ty=e.clientY-r.top;
     if(!placed){ x=tx; y=ty; placed=true; }   /* no swoop in from the corner */
@@ -4180,6 +4261,9 @@ function onFrame(){
     if(Math.abs(tiltLvl)<0.005) tiltLvl=0;
     railRocket.style.setProperty('--flame',(1+flameLvl*2.1).toFixed(3));
     railRocket.style.setProperty('--tilt',(tiltLvl*13).toFixed(2)+'deg');
+    /* the mobile rocket is a quarter the size and lies on its side, so the
+       same 2.1 multiplier would throw a flame halfway across the header */
+    if(mrailRocket) mrailRocket.style.setProperty('--flame',(1+flameLvl*1.1).toFixed(3));
   }
 
   /* ANIMATION 11 — decorative parallax. Decor drifts against the scroll at a
@@ -4215,7 +4299,7 @@ function onFrame(){
 }
 function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFrame); } }
 
-/* THE TRAVELLING BAND — drift plus drag.
+/* THE TRAVELLING BAND — drift plus drag, and the card set is built here.
    Not part of onFrame(): that loop is scroll-driven and idle whenever the page
    is still, which is exactly when this needs to run. It has its own rAF.
 
@@ -4239,7 +4323,41 @@ function requestFrame(){ if(!ticking){ ticking=true; requestAnimationFrame(onFra
   if(!trackEl) return;
   var wrapEl=el.parentNode;
   var dotsEl=wrapEl.querySelector('.m-dots');
-  var perSet=Math.round(el.querySelectorAll('.strip-card').length/3)||1;
+
+  /* THE CARDS ARE AUTHORED ONCE AND THE REST IS BUILT HERE. Everything the
+     markup used to have to repeat by hand is done in this block, because the
+     old version needed the same eight <figure>s written out THREE times with a
+     hand-computed --ar on each — adding one photograph meant editing four
+     things and getting all of them right. Now:
+       - --ar comes from the <img>'s own width/height attributes, so the shape
+         of the card is never a number anybody has to work out;
+       - the pin glyph is prepended to the caption;
+       - the set is cloned to three identical copies, which is what lets the
+         band loop in both directions (see reframe()).
+     Adding a photograph is therefore one <figure> line in one place.
+     The clones are aria-hidden: they are the same eight photographs again, and
+     a screen reader should be told about them once, not three times. */
+  var perSet=0;
+  (function build(){
+    var authored=Array.prototype.slice.call(trackEl.children);
+    perSet=authored.length||1;
+    authored.forEach(function(card){
+      var img=card.querySelector('img');
+      if(img && !card.style.getPropertyValue('--ar')){
+        var w=+img.getAttribute('width'), h=+img.getAttribute('height');
+        if(w>0 && h>0) card.style.setProperty('--ar',(w/h).toFixed(3));
+      }
+      var cap=card.querySelector('.strip-cap');
+      if(cap && !cap.querySelector('svg'))
+        cap.insertAdjacentHTML('afterbegin',
+          '<svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>');
+    });
+    for(var c=0;c<2;c++) authored.forEach(function(card){
+      var copy=card.cloneNode(true);
+      copy.setAttribute('aria-hidden','true');
+      trackEl.appendChild(copy);
+    });
+  })();
 
   var running=false, raf=null, last=0;
   var dragId=null, startX=0, startLeft=0;
