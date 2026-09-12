@@ -1802,6 +1802,16 @@ markup, and above all do not reintroduce the hand-duplicated track.
 injected, because without JS the caption still has to be styled. The pin is the
 only part that degrades.
 
+⚠ **The arrows must not stack up.** A click used to add its step to the *live*
+position, so three fast clicks set a target six cards away — and the glide is
+exponential (it covers a fraction of the remaining gap each frame), so a distant
+target means a very fast first second. It read as the band bolting. A click now
+queues from the target already in flight rather than from wherever we happen to
+be, so clicks advance one step each instead of compounding, and the outstanding
+distance is capped at two steps. **The cap is the speed limit**, because with an
+exponential glide speed *is* distance — if a future change makes the band feel
+too fast, look at the outstanding distance before touching the easing constant.
+
 **The whole band runs once per `.m-scroll` on the page**, each in its own
 closure, so Travelling and Sport share every line of it and adding a third band
 is adding the markup. A card with **no `<figcaption>` simply gets no pill** —
@@ -1847,6 +1857,15 @@ with a fill and a draggable rocket.
 **The labels are the point.** This is the only navigation on a phone, and a row
 of unlabelled planets is a puzzle, not a menu.
 
+⚠ **The reader anchor is higher on a phone: `anchorFrac()` returns 0.35 below
+900px and 0.45 above.** At 45% of a 956px viewport the anchor sits 430px down,
+so a section heading could be clearly on screen — a third of the way up — while
+the rail still named the previous section. Every consumer reads that one
+function, so a nav click's landing spot and the rocket's idea of where you are
+can never disagree. **This is allowed because it changes the INPUT to the one
+calculation, not the calculation** — the same licence §"single source of truth"
+gives `navJumpY`. Don't turn it into a second calculation.
+
 ⚠ **The mobile rail does NOT use raw scroll percentage, and an earlier version
 of this note said the opposite.** It was wrong for exactly the reason
 §Progress rail gives for the vertical one: `#projects` is far longer than every
@@ -1864,11 +1883,18 @@ bar's six items (Education and Experience share one). `mrailPosFromRail()` and
 runs the inverse**, or the rocket slides out from under the finger, which is the
 same trap `railScrollFromPointer()` documents.
 
-The item centres are **normalised so the first lands at 0 and the last at the
-track's full width**. Without that the fill would start ~9% in and stop ~90%
-short, because the labels are inset from the track's ends; forcing just the ends
-instead would make the rocket jump that inset the moment you left the very top.
-Normalising costs ~8px of alignment mid-track, which is invisible.
+⚠ **The track runs from the first label's centre to the last's, not edge to
+edge** — the same way the desktop rail's gauge runs from its first dot to its
+last. Full-bleed, the rocket's positions had to be *stretched* onto the track,
+and that stretch pushed every marker to the RIGHT of the label it belongs to:
+23px by Life, 39px by Contact. The symptom was the rocket sitting **past** "Life"
+while "Edu & Exp" was still the lit label. The inset is derived, not guessed —
+`calc(6px + (100% - 22px)/12)`, i.e. the nav's 6px padding plus half an item,
+where an item is `(width − 12px padding − 10px of gaps) / 6`. **Re-derive it if
+the item count, the gap or that padding changes.** The header keeps its own
+full-width rule (`.site-header::after`), so nothing is missing at the corners.
+`mrailGeom()` still normalises on top of that, which is now a near-identity and
+stays as a self-correcting safety net.
 
 The six rect reads are skipped entirely on desktop by testing
 `mrail.offsetParent !== null` — null while the bar is `display:none`.
@@ -1888,6 +1914,18 @@ header.
 padding on `.wrap` could never win against it. It is `height:auto` now. If the
 header ever looks too tall again, look for a fixed height before adding
 negative margins.
+
+#### `--header-h` — the measured header
+
+⚠ **The sticky header's height is measured into `--header-h` and three separate
+things read it**: the sticky group headings park at it (`.group-head{top:…}`),
+`html`'s `scroll-padding-top` clears it for native anchor navigation, and
+`revealEntry()` scrolls an opened entry to just below it. It is content-driven —
+78px on desktop, ~76px on a phone where the same box also carries the mobile
+rail — so the literal `78` that used to be written in three places was right by
+*coincidence* on a phone and would have opened a silent sliver the next time the
+header changed height. The CSS value is a no-JS fallback; `measureHeader()`
+overwrites it on load and on resize, beside the other measured geometry.
 
 #### `#projects` on a phone
 
@@ -1921,11 +1959,14 @@ is twelve blocks of text and opening one used to produce a very long scroll.
 - **Opening an entry brings it to the top of the screen.** Without it, opening
   an entry near the foot of the viewport put three paragraphs and two
   photographs below the fold with no sign anything had happened — the one
-  interaction the section is built around looked broken. ⚠ `revealEntry()`
-  **measures the header** rather than assuming a height (it is content-driven
-  on a phone), and subtracts what `closeOtherEntries()` reports it is about to
-  remove *above* the clicked entry. Without that subtraction the accordion's
-  own collapse pulls the target out from under the scroll as it animates.
+  interaction the section is built around looked broken. ⚠ **TWO sticky things
+  are in the way, not one**: the header, and the *group heading* underneath it,
+  which is nearly as tall. Clearing only the header parked the entry's title
+  behind "Leadership & teaching", which reads as the scroll having overshot.
+  `revealEntry()` measures both from the entry's own group, and subtracts what
+  `closeOtherEntries()` reports it is about to remove *above* the clicked entry
+  — without that, the accordion's own collapse pulls the target out from under
+  the scroll as it animates.
 
 #### The hero on a phone
 
@@ -1982,6 +2023,13 @@ see.
   are both mono metadata and share a line, which is what they would do on a
   real CV. Done with flex `order`, not by editing the markup.
 - **Life**: `.m-row` becomes a swipe scroller (see §Fun stuff & life).
+- ⚠ **`.site-nav a` out-specifies `.nav-edu`.** The menu was listing Education,
+  Education & Experience *and* Experience all three at once, because
+  `.site-nav a{display:flex}` (a class **plus** an element) beat the bare
+  `.nav-edu{display:none}` meant to hide two of them. Both the default and the
+  override are now written as `.site-nav a.nav-…`. Exactly the same trap as
+  `.entry-content p` in §Entries — **anything hiding or restyling a nav link has
+  to clear that bar.**
 - **The header keeps the "Now at" pill.** It is hidden between 900 and 1300px
   (no room beside the full nav) but comes back below 900, where the nav has
   moved into the menu. It is `flex:0 1 auto` with `min-width:0` so it can never
@@ -2037,6 +2085,18 @@ photograph open into this same overlay. `.lb-cap` is therefore its own style:
 sentence case, wrapping, with the pin glyph shown only when the photograph
 brought one.
 
+⚠ **The overlay never blows a photograph up past its own pixels.** `--maxw` is
+the file's real width, written by `openShot()` and capped into `.lb-fig`'s
+`min()`. It matters because **about twenty of the images have small originals**
+— screenshots, plots and phone captures between 300 and 1100px on the long side
+(`swarm-*`, `micropump-*`, `snackbot-*`, `valves-3/4`, `mit-1`, `jpl-3`,
+`hermes-*`, `helios-1/2`, `surf-1`). Opened at 880px they look broken, and the
+blur reads as *the site* being low quality rather than as that one file being
+small. Shown at their own width they are sharp and merely small, which is the
+honest presentation. The 420px floor stops a 319px diagram opening as a postage
+stamp. ⚠ **This does not help a phone**, where `90vw` is the binding constraint
+anyway — for those the only real fix is a bigger original (see §Images).
+
 ⚠ **`.lb-fig` is sized by WIDTH plus an `aspect-ratio`, never by putting a
 `max-height` on the `<img>`.** A shrink-to-fit box around an image that is being
 limited by its *height* sizes itself from the image's **intrinsic** width, so
@@ -2076,6 +2136,34 @@ something worth depending on.
 The band's drift is paused while the overlay is open, via `paused()` checking
 `.lb-open` on `<html>` — state, not a counter, same rule as the rest of that
 function. There is no next/previous: the band is right there behind it.
+
+### The reveal-on-click email (`#contact`)
+
+The address is never in the markup; it is assembled in JS from its parts so it
+is not sitting in the page source for harvesters.
+
+⚠ **It stays a `<button>` in both states rather than becoming an
+`<a href="mailto:">`, and that is a deliberate trade.** A link cannot also be a
+toggle — clicking it would launch a mail client instead of hiding the address —
+and hiding it again is the asked-for behaviour. The working `mailto:` links are
+the Email pill in `#about`'s socials and the footer's envelope; this one is for
+reading and copying. Without JS nothing is revealed, so those two plus the form
+are the no-JS fallbacks.
+
+**The label does not swap, it SCRAMBLES** — the same trick as the timeline years
+in §Motion, which is what makes it read as belonging to this page rather than as
+a generic reveal. Each character locks at a position-dependent threshold so the
+address resolves left to right out of the noise, and running it backwards is the
+same function with the other string as its target. The glyph pool deliberately
+includes `@ . -` so the noise looks like it could be an address.
+
+⚠ **The revealed state is the SAME SIZE as the button.** It used to swap to 27px
+serif, which grew the pill and shoved the paragraph and the socials below it
+down the page — a layout jump at the exact moment the reader is looking at the
+thing that moved. Same box, same type; the colour going warm is what marks the
+state, like every other interaction on the page. **Mono is load-bearing here**:
+the scramble cycles through glyphs of different widths, and in a proportional
+face the pill would jitter.
 
 ### The contact form (`#contact`)
 
@@ -2198,6 +2286,23 @@ each is a `<figure>` whose `<figcaption>` is the location pin, and that caption
 is already the image's text alternative — describing it twice is worse than
 describing it once. If an `<img>` anywhere else on the page has an empty `alt`,
 it is missing, not finished.
+
+⚠ **ABOUT TWENTY OF THE IMAGES HAVE SMALL ORIGINALS, and no amount of
+re-compressing fixes that.** They are screenshots, simulation plots and phone
+captures between ~300px and ~1100px on the long side: `swarm-1/2/3`,
+`micropump-1/2/3`, `snackbot-1/2`, `valves-3/4`, `mit-1`, `jpl-3`, `hermes-1/2`,
+`helios-1/2`, `eyp-1`, `polana-3`, `surf-1`, `travel-5`, `hero-5`. A second,
+separate group is large in pixels but **heavily compressed** — `jpl-2` and
+`hackathon-1` sit at 0.35 bits/pixel, `snowboard-1` at 0.43, `travel-7` at 0.60,
+against ~1.4 for the rest. Those would improve visibly from a higher-quality
+re-encode **of the original**; re-encoding the file in the repo cannot put back
+detail that is already gone.
+
+So: it looks fine at thumbnail size and soft in the lightbox, and the two causes
+need different fixes — bigger exports for the first group, a gentler quality
+setting for the second. A useful check is bits-per-pixel
+(`bytes*8 / (w*h)`): under ~0.6 is over-compressed, and any long side under
+~1100px is a small source.
 
 ⚠ **ImageMagick is not installed on the Linux machine** and `sudo apt install`
 was not run. The resize pipeline used Pillow instead, which is already there —
@@ -2368,6 +2473,25 @@ Ideas raised and deliberately parked, so they are not re-derived from scratch:
   `data-set="balkans"` attribute read in `build()`, which is exactly the
   extension point the one-line contract was designed for) and turns the
   lightbox from a single-image overlay into a small gallery.
+- **Re-export the low-resolution images** from the OneDrive originals, and
+  re-encode the four over-compressed ones at a gentler quality. See §Images for
+  which is which — the two need different fixes.
+- **`og-card.jpg` (1200×630, absolute URL).** Still missing, so every time the
+  link is shared it renders as a bare text box. The highest-value missing file
+  on the site.
+- **Trim the About paragraphs** to ~55 words each, on desktop and mobile both.
+  They recite institutions the hero chips, the timeline and Everything all name
+  again, which is what makes them feel long.
+- **The sticky group heading as a collapse toggle** (mobile). Still the biggest
+  remaining vertical-space win: it is already pinned at the top of the screen
+  while you read, so making it tappable costs no new chrome.
+- **Swipe left/right on the mobile rail** to step sections — the track is
+  already a drag surface, and it is the gesture people try.
+- **Merging the entry dateline onto the title row** on mobile. Needs a shorter
+  mobile form of the string ("2018 · EYP"), i.e. a second copy of the text in
+  the markup, which is why it has not been done.
+- **Wire the contact form's endpoint** (still `PASTE-YOUR-FORM-ENDPOINT-HERE`,
+  so it falls back to opening a mail client) and the GoatCounter code.
 - **Next / previous inside the lightbox.** Not built: the band is right there
   behind the overlay, so paging through it is a convenience rather than a gap.
   Worth revisiting if Travelling grows past a dozen photographs.
